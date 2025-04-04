@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.ui.components
+package hse.diploma.cybersecplatform.ui.components.textFields
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column

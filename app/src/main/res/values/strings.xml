@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">CyberSecPlatform</string>
+    <string name="app_name">CyberSec</string>
+    <string name="authorization_title">Авторизация</string>
+    <string name="registration_title">Регистрация</string>
     <string name="auth_label_password">Пароль</string>
+    <string name="auth_label_confirm_password">Подтвердите пароль</string>
     <string name="auth_label_phone_number_email">Номер телефона/e-mail</string>
     <string name="auth_label_error">Неверный</string>
     <string name="auth_password_error_length">Пароль должен содержать не менее 8 символов</string>
@@ -8,4 +11,18 @@
     <string name="auth_password_error_no_lowercase_letters">Пароль должен содержать хотя бы одну строчную букву</string>
     <string name="auth_password_error_no_uppercase_letters">Пароль должен содержать хотя бы одну заглавную букву</string>
     <string name="auth_password_error_no_symbols">Пароль должен содержать хотя бы один специальный символ (!@#$%^&amp;.*)</string>
+    <string name="skip_button">Пропустить</string>
+    <string name="forgot_password_button">Забыли пароль?</string>
+    <string name="no_account_button">У меня нет аккаунта</string>
+    <string name="auth_button">Войти</string>
+    <string name="have_account_button">У меня уже есть аккаунт</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="confirmation_and_password_are_not_equal">Пароли не совпадают</string>
+    <string name="onboarding_title_first">Где потренироваться\n в кибербезе?</string>
+    <string name="onboarding_label_first">У нас в приложении!</string>
+    <string name="onboarding_title_second">Задачи различной\n сложности!</string>
+    <string name="onboarding_label_second">Много тренировок!</string>
+    <string name="onboarding_title_third">Приноси нам свои\n мозги!</string>
+    <string name="onboarding_label_third">И мы будем счастливы :)</string>
+    <string name="onboarding_next_page_button">Далее</string>
 </resources>

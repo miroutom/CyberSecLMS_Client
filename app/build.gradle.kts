@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.ktlint)
     implementation(libs.lint.checks)
     implementation(libs.lint.api)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

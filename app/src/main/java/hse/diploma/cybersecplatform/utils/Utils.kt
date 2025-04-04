@@ -4,14 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
 
-fun isPhoneValid(phone: String): Boolean {
-    val phoneRegex = "^((\\+7|8)[\\s-]?)?(\\(?\\d{3}\\)?[\\s-]?)?[\\d\\s-]{7}$"
-    return phone.matches(phoneRegex.toRegex())
+enum class AuthMethodType {
+    PHONE, EMAIL
 }
 
-fun isEmailValid(email: String): Boolean {
+fun isLoginValidAndAuthMethodType(login: String): Pair<Boolean, AuthMethodType> {
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-    return email.matches(emailRegex.toRegex())
+    val phoneRegex = "^((\\+7|8)[\\s-]?)?(\\(?\\d{3}\\)?[\\s-]?)?[\\d\\s-]{7}$"
+
+    val isPhoneValid = login.matches(phoneRegex.toRegex())
+    val isEmailValid = login.matches(emailRegex.toRegex())
+
+    val authMethodType = if (isPhoneValid) AuthMethodType.PHONE else AuthMethodType.EMAIL
+
+    return Pair(isPhoneValid || isEmailValid, authMethodType)
 }
 
 fun isPasswordValid(password: String): Boolean {

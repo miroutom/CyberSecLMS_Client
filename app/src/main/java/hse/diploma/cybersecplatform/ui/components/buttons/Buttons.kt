@@ -1,6 +1,7 @@
-package hse.diploma.cybersecplatform.ui.components
+package hse.diploma.cybersecplatform.ui.components.buttons
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,6 +89,25 @@ fun CustomOutlinedButton(
     }
 }
 
+@Composable
+fun TextButton(
+    text: String,
+    onClick: () -> Unit,
+    textAlign: TextAlign = TextAlign.Center,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        fontFamily = Montserrat,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        textAlign = textAlign,
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .fillMaxWidth()
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ButtonsPreview() {
@@ -94,32 +115,32 @@ fun ButtonsPreview() {
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Заполненная кнопка (Enabled)
         FilledButton(
             text = "Filled Button",
-            onClick = { /* Обработка нажатия */ },
+            onClick = { },
             enabled = true
         )
 
-        // Заполненная кнопка (Disabled)
         FilledButton(
             text = "Filled Button (Disabled)",
-            onClick = { /* Обработка нажатия */ },
+            onClick = { },
             enabled = false
         )
 
-        // Кнопка с границей (Enabled)
         CustomOutlinedButton(
             text = "Outlined Button",
-            onClick = { /* Обработка нажатия */ },
+            onClick = { },
             enabled = true
         )
 
-        // Кнопка с границей (Disabled)
         CustomOutlinedButton(
             text = "Outlined Button (Disabled)",
-            onClick = { /* Обработка нажатия */ },
+            onClick = { },
             enabled = false
+        )
+        TextButton(
+            text = "Text Button",
+            onClick = { }
         )
     }
 }
