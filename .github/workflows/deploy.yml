@@ -2,13 +2,14 @@ name: Deploy LMS
 
 on:
   push:
-    branches:
-      - develop
-      - main
+    branches: [main, develop]
+
+  pull_request_target:
+    branches: [main, develop]
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -28,11 +29,15 @@ jobs:
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
+            sudo mkdir -p $SERVER_DIR || exit 1
             sudo chown $USERNAME:$USERNAME $SERVER_DIR || exit 1
+            sudo chmod 755 $SERVER_DIR || exit 1
           "
 
       - name: Build backend
-        run: go build -o lms_back
+        run: |
+          go build -o lms_back
+          ls -lh lms_back
 
       - name: Upload to server
         env:
@@ -40,7 +45,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
-          scp -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -P 1337 lms_back $USERNAME@$SERVER_IP:$SERVER_DIR
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" ./ $USERNAME@$SERVER_IP:$SERVER_DIR
 
       - name: Restart backend service
         env:

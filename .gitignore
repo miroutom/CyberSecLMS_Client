@@ -1,0 +1,44 @@
+# Ignore Gradle cache
+.gradle/
+.cache/
+
+# Ignore build output files (APK, AAB, etc.)
+build/
+
+# Ignore local settings
+local.properties
+
+# Ignore Android Studio-specific files
+*.iml
+*.swp
+*.swo
+*.class
+*.lock
+
+# Ignore Kotlin-specific files
+*.kotlin_module
+
+# Ignore NDK-specific files
+obj/
+libs/
+*.so
+
+# Ignore test data
+**/test-results/
+**/test-output/
+
+# Ignore temporary files
+**/tmp/
+**/temp/
+
+# Ignore user-specific settings
+**/.DS_Store
+**/.idea/
+**/*.log
+**/*.orig
+
+# Ignore generated resource files
+**/app/build/generated/
+**/app/build/intermediates/
+**/app/build/outputs/
+**/app/build/reports/
