@@ -7,9 +7,11 @@ import kotlinx.coroutines.flow.asStateFlow
 open class OnBoardingScreenViewModel : ViewModel() {
 
     private val _currentPage = MutableStateFlow(0)
-    open val currentPage = _currentPage.asStateFlow().value
+    open val currentPage = _currentPage.asStateFlow()
 
     fun onNextPage() {
-        _currentPage.value++
+        if (_currentPage.value < 2) {
+            _currentPage.value++
+        }
     }
 }

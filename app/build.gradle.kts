@@ -14,6 +14,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,11 +51,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.android)
-    implementation(libs.ktlint)
-    implementation(libs.lint.checks)
-    implementation(libs.lint.api)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.multidex)
+    implementation(platform(libs.kotlin.bom))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -63,4 +63,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+tasks.register("pullRequestCheck") {
+    dependsOn(":app:ktlint")
+    group = "verification"
+    description = "Run lint and ktlint checks for pull request."
+}
+
+tasks.register("ktlint") {
+    group = "verification"
+    description = "Run ktlint checks."
+}
+
+tasks.register("ktlintFormat") {
+    group = "formatting"
+    description = "Format code using ktlint."
 }

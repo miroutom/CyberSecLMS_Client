@@ -33,8 +33,6 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
-import hse.diploma.cybersecplatform.utils.getPasswordErrorMessage
-import hse.diploma.cybersecplatform.utils.isPasswordValid
 
 @Composable
 fun PasswordConfirmationField(
@@ -45,12 +43,11 @@ fun PasswordConfirmationField(
 ) {
     val label = stringResource(R.string.auth_label_confirm_password)
 
-    val isPasswordVisible = remember { mutableStateOf(true) }
-
+    val isPasswordConfirmationVisible = remember { mutableStateOf(false) }
     val isConfirmationEqualsPassword = passwordValue.text == value.text
 
     Column(modifier = modifier.padding(8.dp)) {
-        if (!isConfirmationEqualsPassword) {
+        if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.confirmation_and_password_are_not_equal),
                 color = Color.Red,
@@ -74,22 +71,22 @@ fun PasswordConfirmationField(
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if (isPasswordVisible.value) {
+            visualTransformation = if (isPasswordConfirmationVisible.value) {
                 VisualTransformation.None
             } else {
                 PasswordVisualTransformation(mask = '*')
             },
             trailingIcon = {
                 IconButton(
-                    onClick = { isPasswordVisible.value = !isPasswordVisible.value }
+                    onClick = { isPasswordConfirmationVisible.value = !isPasswordConfirmationVisible.value }
                 ) {
                     Icon(
-                        painter = if (isPasswordVisible.value) {
+                        painter = if (isPasswordConfirmationVisible.value) {
                             painterResource(R.drawable.ic_eye_off)
                         } else {
                             painterResource(R.drawable.ic_eye)
                         },
-                        contentDescription = "Password visibility icon"
+                        contentDescription = "Password confirmation visibility icon"
                     )
                 }
             },
@@ -103,7 +100,7 @@ fun PasswordConfirmationField(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = if (!isConfirmationEqualsPassword) Color.Red else Color.Black,
+                    color = if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) Color.Red else Color.Black,
                     shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
                 )
         )

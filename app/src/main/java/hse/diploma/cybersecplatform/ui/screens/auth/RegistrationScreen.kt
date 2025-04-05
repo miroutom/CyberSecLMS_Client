@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -29,6 +31,8 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun RegistrationScreen(
@@ -36,6 +40,11 @@ fun RegistrationScreen(
     viewModel: RegistrationScreenViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
+    val login by viewModel.login.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val passwordConfirmation by viewModel.passwordConfirmation.collectAsState()
+    val isRegistrationEnabled by viewModel.isRegistrationEnabled.collectAsState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -63,18 +72,18 @@ fun RegistrationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AuthMethodTextField(
-                    value = viewModel.login,
+                    value = login,
                     onValueChange = viewModel::onLoginChange,
                     modifier = Modifier.fillMaxWidth()
                 )
                 PasswordField(
-                    value = viewModel.password,
+                    value = password,
                     onValueChange = viewModel::onPasswordChange,
                     modifier = Modifier.fillMaxWidth()
                 )
                 PasswordConfirmationField(
-                    value = viewModel.passwordConfirmation,
-                    passwordValue = viewModel.password,
+                    value = passwordConfirmation,
+                    passwordValue = password,
                     onValueChange = viewModel::onConfirmPasswordChange,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -83,7 +92,7 @@ fun RegistrationScreen(
             FilledButton(
                 text = stringResource(R.string.register_button),
                 onClick = viewModel::performRegistration,
-                enabled = viewModel.isRegistrationEnabled
+                enabled = isRegistrationEnabled
             )
             Spacer(modifier = Modifier.height(32.dp))
             TextButton(
@@ -98,16 +107,18 @@ fun RegistrationScreen(
 @Composable
 fun RegistrationScreenPreview() {
     val mockViewModel = object : RegistrationScreenViewModel() {
-        override val login: TextFieldValue
-            get() = TextFieldValue("9300315295")
-        override val password: TextFieldValue
-            get() = TextFieldValue("8991A.64783k1")
-        override val passwordConfirmation: TextFieldValue
-            get() = TextFieldValue("8991A.64k783k1")
-        override val isRegistrationEnabled: Boolean
-            get() = isLoginValidAndAuthMethodType(login.text).first &&
-                    isPasswordValid(password.text) &&
-                    password.text == passwordConfirmation.text
+        override val login: StateFlow<TextFieldValue>
+            get() = MutableStateFlow(TextFieldValue("9300315295"))
+        override val password: StateFlow<TextFieldValue>
+            get() = MutableStateFlow(TextFieldValue("8991A.64783k1"))
+        override val passwordConfirmation: StateFlow<TextFieldValue>
+            get() = MutableStateFlow(TextFieldValue("8991A.64k783k1"))
+        override val isRegistrationEnabled: StateFlow<Boolean>
+            get() = MutableStateFlow(
+                isLoginValidAndAuthMethodType(login.value.text).first &&
+                        isPasswordValid(password.value.text) &&
+                        password.value.text == passwordConfirmation.value.text
+            )
     }
     RegistrationScreen(
         onNavigateToAuthorization = {},

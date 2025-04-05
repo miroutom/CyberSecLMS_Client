@@ -19,11 +19,11 @@
     <string name="have_account_button">I have an account</string>
     <string name="register_button">Register</string>
     <string name="confirmation_and_password_are_not_equal">Passwords aren\'t equal</string>
-    <string name="onboarding_title_first">Where to practice\\n cybersec?</string>
+    <string name="onboarding_title_first">Where to practice in\ncybersec?</string>
     <string name="onboarding_label_first">In our app!</string>
-    <string name="onboarding_title_second">Tasks of different\\n complexity!</string>
+    <string name="onboarding_title_second">Tasks of different\ncomplexity!</string>
     <string name="onboarding_label_second">A lot of exercises!</string>
-    <string name="onboarding_title_third">Bring to us your\\n minds!</string>
+    <string name="onboarding_title_third">Bring to us your\nminds!</string>
     <string name="onboarding_label_third">And we\'ll be happy :)</string>
     <string name="onboarding_next_page_button">Next</string>
 </resources>

@@ -1,10 +1,26 @@
 package hse.diploma.cybersecplatform.ui.screens.onboarding
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,15 +40,17 @@ import hse.diploma.cybersecplatform.ui.components.buttons.CustomStepper
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.SkipButton
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun OnBoardingScreen(
     onNavigateToAuthorization: () -> Unit,
-    onNavigateToNextPage: () -> Unit,
+    onNavigateToRegistration: () -> Unit,
     viewModel: OnBoardingScreenViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
-    val currentStep = viewModel.currentPage
+    val currentStep by viewModel.currentPage.collectAsState()
 
     Box(
         modifier = modifier
@@ -53,40 +71,58 @@ fun OnBoardingScreen(
                     totalSteps = 3,
                     modifier = Modifier.weight(1f)
                 )
-                SkipButton(onClick = onNavigateToAuthorization)
+                if (!isLastStep(currentStep)) {
+                    SkipButton(onClick = onNavigateToAuthorization)
+                } else {
+                    Spacer(modifier = Modifier.height(48.dp))
+                }
             }
-            Text(
-                text = currentStepToText(currentStep).first,
-                fontFamily = Montserrat,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 28.sp,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = currentStepToText(currentStep).second,
-                fontFamily = Montserrat,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                color = colorResource(R.color.supporting_text),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Image(
-                painter = currentStepToImage(currentStep),
-                contentDescription = "Onboarding image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
+            AnimatedContent(
+                targetState = currentStep,
+                transitionSpec = {
+                    (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+                },
+                modifier = Modifier.weight(1f),
+                label = "animated content"
+            ) { step ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = currentStepToText(step).first,
+                        fontFamily = Montserrat,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 28.sp,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = currentStepToText(step).second,
+                        fontFamily = Montserrat,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = colorResource(R.color.supporting_text),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Image(
+                        painter = currentStepToImage(step),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    )
+                }
+            }
             FilledButton(
                 text = currentStepToButtonText(currentStep),
                 onClick = {
                     if (isLastStep(currentStep)) {
-                        onNavigateToAuthorization()
+                        onNavigateToRegistration()
                     } else {
-                        onNavigateToNextPage()
+                        viewModel.onNextPage()
                     }
                 }
             )
@@ -132,13 +168,13 @@ private fun currentStepToButtonText(step: Int): String {
 @Composable
 fun OnBoardingScreenPreview() {
     val mockViewModel = object : OnBoardingScreenViewModel() {
-        override val currentPage: Int
-            get() = 2
+        override val currentPage: StateFlow<Int>
+            get() = MutableStateFlow(0)
     }
 
     OnBoardingScreen(
         onNavigateToAuthorization = {},
-        onNavigateToNextPage = {},
+        onNavigateToRegistration = {},
         viewModel = mockViewModel
     )
 }

@@ -28,7 +28,6 @@ import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.utils.AuthMethodType
-import hse.diploma.cybersecplatform.utils.MaskVisualTransformation
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 
 @Composable
@@ -42,7 +41,7 @@ fun AuthMethodTextField(
     val (isAuthMethodTypeValid, authMethodType) = isLoginValidAndAuthMethodType(value.text)
 
     Column(modifier = modifier.padding(8.dp)) {
-        if (!isAuthMethodTypeValid) {
+        if (!isAuthMethodTypeValid && value.text.isNotEmpty()) {
             Text(
                 text = "${stringResource(R.string.auth_label_error)} ${label.lowercase()}",
                 color = Color.Red,
@@ -51,17 +50,10 @@ fun AuthMethodTextField(
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
-
         TextField(
             value = value,
             textStyle = Typography.labelLarge,
-            onValueChange = { newValue ->
-                val digits = newValue.text.filter { it.isDigit() }
-                if (digits.length <= 10) {
-                    val formatted = "+7 $digits"
-                    onValueChange(TextFieldValue(formatted, newValue.selection))
-                }
-            },
+            onValueChange = onValueChange,
             label = {
                 Text(
                     text = label,
@@ -71,11 +63,10 @@ fun AuthMethodTextField(
                     color = Color.Black
                 )
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            visualTransformation = if (authMethodType == AuthMethodType.PHONE) {
-                MaskVisualTransformation("+7 (###)-###-##-##")
+            keyboardOptions = if (authMethodType == AuthMethodType.EMAIL) {
+                KeyboardOptions(keyboardType = KeyboardType.Email)
             } else {
-                VisualTransformation.None
+                KeyboardOptions(keyboardType = KeyboardType.Phone)
             },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
@@ -87,7 +78,7 @@ fun AuthMethodTextField(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = if (!isAuthMethodTypeValid) Color.Red else Color.Black,
+                    color = if (!isAuthMethodTypeValid && value.text.isNotEmpty()) Color.Red else Color.Black,
                     shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
                 )
         )
@@ -99,7 +90,7 @@ fun AuthMethodTextField(
 fun AuthMethodTextFieldPreview() {
     CyberSecPlatformTheme {
         AuthMethodTextField(
-            value = TextFieldValue("9300315295"),
+            value = TextFieldValue(""),
             onValueChange = {},
         )
     }

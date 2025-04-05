@@ -18,11 +18,11 @@
     <string name="have_account_button">У меня уже есть аккаунт</string>
     <string name="register_button">Зарегистрироваться</string>
     <string name="confirmation_and_password_are_not_equal">Пароли не совпадают</string>
-    <string name="onboarding_title_first">Где потренироваться\n в кибербезе?</string>
+    <string name="onboarding_title_first">Где потренироваться\nв кибербезе?</string>
     <string name="onboarding_label_first">У нас в приложении!</string>
-    <string name="onboarding_title_second">Задачи различной\n сложности!</string>
+    <string name="onboarding_title_second">Задачи различной\nсложности!</string>
     <string name="onboarding_label_second">Много тренировок!</string>
-    <string name="onboarding_title_third">Приноси нам свои\n мозги!</string>
+    <string name="onboarding_title_third">Приноси нам свои\nмозги!</string>
     <string name="onboarding_label_third">И мы будем счастливы :)</string>
     <string name="onboarding_next_page_button">Далее</string>
 </resources>
