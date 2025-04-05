@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
 fun FilledButton(
@@ -34,7 +36,7 @@ fun FilledButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(52.dp),
+        modifier = modifier.fillMaxWidth().wrapContentHeight(),
         enabled = enabled,
         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
         colors = ButtonDefaults.buttonColors(
@@ -47,8 +49,8 @@ fun FilledButton(
         Text(
             text = text,
             fontFamily = Montserrat,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
+            style = Typography.bodyMedium,
+            textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 8.dp)
         )
     }
@@ -64,7 +66,7 @@ fun CustomOutlinedButton(
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().height(52.dp),
+        modifier = modifier.fillMaxWidth().wrapContentHeight(),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = Color.Black,
             disabledContentColor = colorResource(R.color.text_disabled)
@@ -82,8 +84,8 @@ fun CustomOutlinedButton(
         Text(
             text = text,
             fontFamily = Montserrat,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
+            style = Typography.bodyMedium,
+            textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 8.dp)
         )
     }

@@ -48,7 +48,7 @@ fun PasswordField(
     val isPasswordVisible = remember { mutableStateOf(false) }
 
     Column(modifier = modifier.padding(8.dp)) {
-        if (!isPasswordValid) {
+        if (!isPasswordValid && value.text.isNotEmpty()) {
             Text(
                 text = getPasswordErrorMessage(value.text),
                 color = Color.Red,
@@ -101,7 +101,7 @@ fun PasswordField(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = if (!isPasswordValid) Color.Red else Color.Black,
+                    color = if (!isPasswordValid && value.text.isNotEmpty()) Color.Red else Color.Black,
                     shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
                 )
         )

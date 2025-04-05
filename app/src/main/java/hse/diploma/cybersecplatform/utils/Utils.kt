@@ -12,12 +12,11 @@ fun isLoginValidAndAuthMethodType(login: String): Pair<Boolean, AuthMethodType> 
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
     val phoneRegex = "^((\\+7|8)[\\s-]?)?(\\(?\\d{3}\\)?[\\s-]?)?[\\d\\s-]{7}$"
 
-    val isPhoneValid = login.matches(phoneRegex.toRegex())
-    val isEmailValid = login.matches(emailRegex.toRegex())
-
-    val authMethodType = if (isPhoneValid) AuthMethodType.PHONE else AuthMethodType.EMAIL
-
-    return Pair(isPhoneValid || isEmailValid, authMethodType)
+    return if (login.startsWith("+7") || login.startsWith("8")) {
+        Pair(login.matches(phoneRegex.toRegex()), AuthMethodType.PHONE)
+    } else {
+        Pair(login.matches(emailRegex.toRegex()), AuthMethodType.EMAIL)
+    }
 }
 
 fun isPasswordValid(password: String): Boolean {

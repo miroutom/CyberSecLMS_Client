@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 open class AuthorizationScreenViewModel : ViewModel() {
 
     private val _login = MutableStateFlow(TextFieldValue(""))
-    open val login = _login.asStateFlow().value
+    open val login = _login.asStateFlow()
 
     private val _password = MutableStateFlow(TextFieldValue(""))
-    open val password = _password.asStateFlow().value
+    open val password = _password.asStateFlow()
 
     private val _isAuthorizationEnabled = MutableStateFlow(false)
-    open val isAuthorizationEnabled: Boolean = _isAuthorizationEnabled.asStateFlow().value
+    open val isAuthorizationEnabled = _isAuthorizationEnabled.asStateFlow()
 
     init {
         viewModelScope.launch {

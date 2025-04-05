@@ -12,16 +12,16 @@ import kotlinx.coroutines.launch
 
 open class RegistrationScreenViewModel : ViewModel() {
     private val _login = MutableStateFlow(TextFieldValue(""))
-    open val login = _login.asStateFlow().value
+    open val login = _login.asStateFlow()
 
     private val _password = MutableStateFlow(TextFieldValue(""))
-    open val password = _password.asStateFlow().value
+    open val password = _password.asStateFlow()
 
     private val _passwordConfirmation = MutableStateFlow(TextFieldValue(""))
-    open val passwordConfirmation = _passwordConfirmation.asStateFlow().value
+    open val passwordConfirmation = _passwordConfirmation.asStateFlow()
 
     private val _isRegistrationEnabled = MutableStateFlow(false)
-    open val isRegistrationEnabled: Boolean = _isRegistrationEnabled.asStateFlow().value
+    open val isRegistrationEnabled = _isRegistrationEnabled.asStateFlow()
 
     init {
         viewModelScope.launch {

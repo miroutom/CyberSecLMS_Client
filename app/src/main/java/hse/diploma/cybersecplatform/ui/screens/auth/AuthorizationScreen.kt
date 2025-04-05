@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -28,6 +30,8 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AuthorizationScreen(
@@ -35,6 +39,10 @@ fun AuthorizationScreen(
     viewModel: AuthorizationScreenViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
+    val login by viewModel.login.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val isAuthorizationEnabled by viewModel.isAuthorizationEnabled.collectAsState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -62,12 +70,12 @@ fun AuthorizationScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AuthMethodTextField(
-                    value = viewModel.login,
+                    value = login,
                     onValueChange = viewModel::onLoginChange,
                     modifier = Modifier.fillMaxWidth()
                 )
                 PasswordField(
-                    value = viewModel.password,
+                    value = password,
                     onValueChange = viewModel::onPasswordChange,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -81,7 +89,7 @@ fun AuthorizationScreen(
             FilledButton(
                 text = stringResource(R.string.auth_button),
                 onClick = viewModel::performAuthorization,
-                enabled = viewModel.isAuthorizationEnabled
+                enabled = isAuthorizationEnabled
             )
             Spacer(modifier = Modifier.height(32.dp))
             TextButton(
@@ -96,12 +104,15 @@ fun AuthorizationScreen(
 @Composable
 fun AuthorizationScreenPreview() {
     val mockViewModel = object : AuthorizationScreenViewModel() {
-        override val login: TextFieldValue
-            get() = TextFieldValue("9300315295")
-        override val password: TextFieldValue
-            get() = TextFieldValue("8991A.64783k1")
-        override val isAuthorizationEnabled: Boolean
-            get() = isLoginValidAndAuthMethodType(login.text).first && isPasswordValid(password.text)
+        override val login: StateFlow<TextFieldValue>
+            get() = MutableStateFlow(TextFieldValue("9300315295"))
+        override val password: StateFlow<TextFieldValue>
+            get() = MutableStateFlow(TextFieldValue("8991A.64783k1"))
+        override val isAuthorizationEnabled: StateFlow<Boolean>
+            get() = MutableStateFlow(
+                isLoginValidAndAuthMethodType(login.value.text).first &&
+                        isPasswordValid(password.value.text)
+            )
     }
 
     AuthorizationScreen(
