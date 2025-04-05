@@ -6,7 +6,7 @@
 build/
 
 # Ignore local settings
-local.properties
+lms_android_application/local.properties
 
 # Ignore Android Studio-specific files
 *.iml
