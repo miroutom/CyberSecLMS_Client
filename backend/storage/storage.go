@@ -1,6 +1,8 @@
 package storage
 
-import "lmsmodule/models"
+import (
+	"lmsmodule/backend/models"
+)
 
 var Courses = []models.Course{
 	{ID: 1, Title: "Go Basics", Description: "Learn the basics of Go programming."},

@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"lmsmodule/backend/storage"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"lmsmodule/storage"
 )
 
 func GetCourses(c *gin.Context) {

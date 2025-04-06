@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"lmsmodule/storage"
+	"lmsmodule/backend/storage"
 	"net/http"
 )
 
