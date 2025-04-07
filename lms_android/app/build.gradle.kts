@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
+    id("kotlin-kapt")
 }
 
 android {
@@ -63,6 +64,11 @@ dependencies {
 
     // --- Images ---
     implementation(libs.coil.kt.coil.compose)
+
+    // --- DI ---
+    implementation(libs.dagger)
+    implementation(libs.androidx.appcompat)
+    kapt(libs.dagger.compiler)
 
     // --- Testing ---
     testImplementation(libs.junit)

@@ -31,8 +31,11 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
+import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+
+private const val TAG = "AuthorizationScreen"
 
 @Composable
 fun AuthorizationScreen(
@@ -98,7 +101,10 @@ fun AuthorizationScreen(
                     Spacer(modifier = Modifier.height(64.dp))
                     FilledButton(
                         text = stringResource(R.string.auth_button),
-                        onClick = { viewModel.performAuthorization(onAuthorized) },
+                        onClick = {
+                            logD(TAG, "onLoginClicked performAuthorization")
+                            viewModel.performAuthorization(onAuthorized)
+                        },
                         enabled = isAuthorizationEnabled,
                     )
                     Spacer(modifier = Modifier.height(32.dp))
