@@ -1,4 +1,4 @@
-name: Deploy LMS
+name: CD Deploy LMS
 
 on:
   push:
@@ -34,18 +34,20 @@ jobs:
             sudo chmod 755 $SERVER_DIR || exit 1
           "
 
-      - name: Build backend
+      - name: Build Go backend
         run: |
-          go build -o lms_back
+          cd backend
+          go mod download
+          go build -o lms_back .
           ls -lh lms_back
 
-      - name: Upload to server
+      - name: Upload Go binary to server
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
           USERNAME: ${{ secrets.USERNAME }}
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
-          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" ./ $USERNAME@$SERVER_IP:$SERVER_DIR
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" backend/lms_back $USERNAME@$SERVER_IP:$SERVER_DIR
 
       - name: Restart backend service
         env:
@@ -54,6 +56,6 @@ jobs:
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
           ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
-            sudo systemctl restart lms_back || 
+            sudo systemctl restart lms_back ||
             (sudo pkill lms_back; nohup $SERVER_DIR/lms_back > /dev/null 2>&1 &)
           "

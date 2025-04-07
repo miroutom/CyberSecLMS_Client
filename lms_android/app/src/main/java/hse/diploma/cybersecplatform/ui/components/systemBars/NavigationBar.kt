@@ -39,19 +39,21 @@ fun CustomNavigationBar(navController: NavHostController) {
             NavigationBarItem(
                 icon = {
                     Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(backgroundColor),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(backgroundColor),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            painter = when (screen) {
-                                Screen.HomeScreen -> painterResource(R.drawable.ic_home)
-                                Screen.Favorites -> painterResource(R.drawable.ic_favorite)
-                                Screen.Statistics -> painterResource(R.drawable.ic_activity)
-                                else -> painterResource(R.drawable.ic_account)
-                            },
+                            painter =
+                                when (screen) {
+                                    Screen.HomeScreen -> painterResource(R.drawable.ic_home)
+                                    Screen.Favorites -> painterResource(R.drawable.ic_favorite)
+                                    Screen.Statistics -> painterResource(R.drawable.ic_activity)
+                                    else -> painterResource(R.drawable.ic_account)
+                                },
                             tint = iconColor,
                             contentDescription = screen.titleId?.let { stringResource(it) },
                         )
@@ -66,7 +68,7 @@ fun CustomNavigationBar(navController: NavHostController) {
                             restoreState = true
                         }
                     }
-                }
+                },
             )
         }
     }

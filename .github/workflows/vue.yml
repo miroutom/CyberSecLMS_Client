@@ -1,4 +1,4 @@
-name: Vue Lint
+name: Vue CI
 
 on:
   push:

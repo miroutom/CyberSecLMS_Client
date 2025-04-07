@@ -8,6 +8,7 @@ val mediumBlue = Color(0xFF2C4FBC)
 val darkBlue = Color(0xFF1F3987)
 val mint = Color(0xFF3AE8C5)
 
-val linearHorizontalGradient = Brush.horizontalGradient(
-    colors = listOf(lightBlue, mediumBlue, darkBlue),
-)
+val linearHorizontalGradient =
+    Brush.horizontalGradient(
+        colors = listOf(lightBlue, mediumBlue, darkBlue),
+    )

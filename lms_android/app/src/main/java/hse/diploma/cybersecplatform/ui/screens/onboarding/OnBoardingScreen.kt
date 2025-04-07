@@ -48,28 +48,30 @@ fun OnBoardingScreen(
     onNavigateToAuthorization: () -> Unit,
     onNavigateToRegistration: () -> Unit,
     viewModel: OnBoardingScreenViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val currentStep by viewModel.currentPage.collectAsState()
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Color.White),
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 CustomStepper(
                     currentStep = currentStep,
                     totalSteps = 3,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 if (!isLastStep(currentStep)) {
                     SkipButton(onClick = onNavigateToAuthorization)
@@ -83,11 +85,11 @@ fun OnBoardingScreen(
                     (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
                 },
                 modifier = Modifier.weight(1f),
-                label = "animated content"
+                label = "animated content",
             ) { step ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     Text(
                         text = currentStepToText(step).first,
@@ -96,7 +98,7 @@ fun OnBoardingScreen(
                         fontSize = 28.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
                         text = currentStepToText(step).second,
@@ -105,14 +107,15 @@ fun OnBoardingScreen(
                         fontSize = 14.sp,
                         color = colorResource(R.color.supporting_text),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Image(
                         painter = currentStepToImage(step),
                         contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
                     )
                 }
             }
@@ -124,12 +127,12 @@ fun OnBoardingScreen(
                     } else {
                         viewModel.onNextPage()
                     }
-                }
+                },
             )
             if (isLastStep(currentStep)) {
                 CustomOutlinedButton(
                     text = stringResource(R.string.auth_button),
-                    onClick = onNavigateToAuthorization
+                    onClick = onNavigateToAuthorization,
                 )
             }
         }
@@ -167,14 +170,15 @@ private fun currentStepToButtonText(step: Int): String {
 @Preview
 @Composable
 fun OnBoardingScreenPreview() {
-    val mockViewModel = object : OnBoardingScreenViewModel() {
-        override val currentPage: StateFlow<Int>
-            get() = MutableStateFlow(0)
-    }
+    val mockViewModel =
+        object : OnBoardingScreenViewModel() {
+            override val currentPage: StateFlow<Int>
+                get() = MutableStateFlow(0)
+        }
 
     OnBoardingScreen(
         onNavigateToAuthorization = {},
         onNavigateToRegistration = {},
-        viewModel = mockViewModel
+        viewModel = mockViewModel,
     )
 }

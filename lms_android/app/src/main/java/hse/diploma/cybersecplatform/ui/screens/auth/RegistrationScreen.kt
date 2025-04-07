@@ -1,6 +1,5 @@
 package hse.diploma.cybersecplatform.ui.screens.auth
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +39,7 @@ fun RegistrationScreen(
     onNavigateToAuthorization: () -> Unit,
     onRegistered: () -> Unit,
     viewModel: RegistrationScreenViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val login by viewModel.login.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -51,23 +50,26 @@ fun RegistrationScreen(
         modifier = modifier.fillMaxSize(),
         content = { paddingValues ->
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(paddingValues)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(paddingValues),
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = paddingValues.calculateBottomPadding())
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = paddingValues.calculateBottomPadding()),
                 ) {
                     Spacer(modifier = Modifier.height(130.dp))
                     Text(
                         text = stringResource(R.string.app_name),
-                        style = Typography.titleLarge.copy(
-                            brush = linearHorizontalGradient
-                        )
+                        style =
+                            Typography.titleLarge.copy(
+                                brush = linearHorizontalGradient,
+                            ),
                     )
                     Text(
                         text = stringResource(R.string.registration_title),
@@ -76,17 +78,17 @@ fun RegistrationScreen(
                     )
                     Spacer(modifier = Modifier.height(84.dp))
                     Column(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         AuthMethodTextField(
                             value = login,
                             onValueChange = viewModel::onLoginChange,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordField(
                             value = password,
                             onValueChange = viewModel::onPasswordChange,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordConfirmationField(
                             value = passwordConfirmation,
@@ -99,39 +101,41 @@ fun RegistrationScreen(
                     FilledButton(
                         text = stringResource(R.string.register_button),
                         onClick = { viewModel.performRegistration(onRegistered) },
-                        enabled = isRegistrationEnabled
+                        enabled = isRegistrationEnabled,
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     TextButton(
                         text = stringResource(R.string.have_account_button),
-                        onClick = onNavigateToAuthorization
+                        onClick = onNavigateToAuthorization,
                     )
                 }
             }
-        }
+        },
     )
 }
 
 @Preview
 @Composable
 fun RegistrationScreenPreview() {
-    val mockViewModel = object : RegistrationScreenViewModel() {
-        override val login: StateFlow<TextFieldValue>
-            get() = MutableStateFlow(TextFieldValue("9300315295"))
-        override val password: StateFlow<TextFieldValue>
-            get() = MutableStateFlow(TextFieldValue("8991A.64783k1"))
-        override val passwordConfirmation: StateFlow<TextFieldValue>
-            get() = MutableStateFlow(TextFieldValue("8991A.64k783k1"))
-        override val isRegistrationEnabled: StateFlow<Boolean>
-            get() = MutableStateFlow(
-                isLoginValidAndAuthMethodType(login.value.text).first &&
-                        isPasswordValid(password.value.text) &&
-                        password.value.text == passwordConfirmation.value.text
-            )
-    }
+    val mockViewModel =
+        object : RegistrationScreenViewModel() {
+            override val login: StateFlow<TextFieldValue>
+                get() = MutableStateFlow(TextFieldValue("9300315295"))
+            override val password: StateFlow<TextFieldValue>
+                get() = MutableStateFlow(TextFieldValue("8991A.64783k1"))
+            override val passwordConfirmation: StateFlow<TextFieldValue>
+                get() = MutableStateFlow(TextFieldValue("8991A.64k783k1"))
+            override val isRegistrationEnabled: StateFlow<Boolean>
+                get() =
+                    MutableStateFlow(
+                        isLoginValidAndAuthMethodType(login.value.text).first &&
+                            isPasswordValid(password.value.text) &&
+                            password.value.text == passwordConfirmation.value.text,
+                    )
+        }
     RegistrationScreen(
         onNavigateToAuthorization = {},
         onRegistered = {},
-        viewModel = mockViewModel
+        viewModel = mockViewModel,
     )
 }

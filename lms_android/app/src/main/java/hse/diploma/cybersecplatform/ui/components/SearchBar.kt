@@ -27,55 +27,58 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 @Composable
 fun SearchBar(
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color(0xFFFAFAFA),
-                shape = RoundedCornerShape(50.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = Color.Black,
-                shape = RoundedCornerShape(50.dp)
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color(0xFFFAFAFA),
+                    shape = RoundedCornerShape(50.dp),
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(50.dp),
+                ),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_search),
                 tint = Color(0xFF5C5C5C),
                 contentDescription = "Search Icon",
-                modifier = Modifier.padding(start = 12.dp)
+                modifier = Modifier.padding(start = 12.dp),
             )
             TextField(
                 value = searchQuery,
                 onValueChange = onSearchQueryChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 12.dp),
                 placeholder = {
                     Text(
                         text = stringResource(R.string.search_bar_label),
-                        style = Typography.labelLarge
+                        style = Typography.labelLarge,
                     )
                 },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFFAFAFA),
-                    unfocusedContainerColor = Color(0xFFFAFAFA)
-                ),
-                singleLine = true
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFFAFAFA),
+                        unfocusedContainerColor = Color(0xFFFAFAFA),
+                    ),
+                singleLine = true,
             )
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
                 tint = Color(0xFF5C5C5C),
                 contentDescription = "Filter Icon",
-                modifier = Modifier.padding(end = 12.dp)
+                modifier = Modifier.padding(end = 12.dp),
             )
         }
     }
@@ -87,7 +90,7 @@ fun SearchBarPreview() {
     CyberSecPlatformTheme {
         SearchBar(
             searchQuery = "",
-            onSearchQueryChange = {}
+            onSearchQueryChange = {},
         )
     }
 }

@@ -28,11 +28,11 @@ open class RegistrationScreenViewModel : ViewModel() {
             combine(
                 _login,
                 _password,
-                _passwordConfirmation
+                _passwordConfirmation,
             ) { login, password, passwordConfirmation ->
                 isLoginValidAndAuthMethodType(login.text).first &&
-                        isPasswordValid(password.text) &&
-                        password.text == passwordConfirmation.text
+                    isPasswordValid(password.text) &&
+                    password.text == passwordConfirmation.text
             }.collect { isValid ->
                 _isRegistrationEnabled.value = isValid
             }
@@ -56,8 +56,8 @@ open class RegistrationScreenViewModel : ViewModel() {
             // TODO: connect to backend through REST API
             val isRegistered =
                 login.value.text == "example@example.com" &&
-                        password.value.text == "test123." &&
-                        password.value.text == passwordConfirmation.value.text
+                    password.value.text == "test123." &&
+                    password.value.text == passwordConfirmation.value.text
 
             if (isRegistered) {
                 onSuccess()

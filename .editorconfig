@@ -2,7 +2,11 @@ root = true
 
 [*.{kt,kts}]
 indent_size = 4
+indent_style = space
 insert_final_newline = true
+max_line_length = 120
+trim_trailing_whitespace = true
+
 ktlint_standard_annotation = disabled
 ktlint_standard_annotation-spacing = disabled
 ktlint_standard_argument-list-wrapping = disabled
@@ -17,5 +21,5 @@ ktlint_standard_trailing-comma-on-call-site = enabled
 ktlint_standard_trailing-comma-on-declaration-site = enabled
 ktlint_standard_wrapping = enabled
 ktlint_standard_no-unused-imports = enabled
-ij_kotlin_allow_trailing_comma = true
-ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_function-naming = disabled

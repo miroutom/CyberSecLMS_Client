@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = if (isAuthorized) "main" else "auth"
+                    startDestination = if (isAuthorized) "main" else "auth",
                 ) {
                     composable("auth") {
                         AuthNavigationGraph(
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("main") {
                                     popUpTo("auth") { inclusive = true }
                                 }
-                            }
+                            },
                         )
                     }
 
@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
                         MainNavigationGraph(navController = navController)
                     }
                 }
-
             }
         }
     }

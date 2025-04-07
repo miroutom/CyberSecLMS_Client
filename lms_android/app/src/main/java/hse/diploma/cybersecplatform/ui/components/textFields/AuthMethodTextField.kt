@@ -33,7 +33,7 @@ import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 fun AuthMethodTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val label = stringResource(R.string.auth_label_phone_number_email)
 
@@ -45,7 +45,7 @@ fun AuthMethodTextField(
                 text = "${stringResource(R.string.auth_label_error)} ${label.lowercase()}",
                 color = Color.Red,
                 style = Typography.labelSmall,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
@@ -59,27 +59,30 @@ fun AuthMethodTextField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black
+                    color = Color.Black,
                 )
             },
-            keyboardOptions = if (authMethodType == AuthMethodType.EMAIL) {
-                KeyboardOptions(keyboardType = KeyboardType.Email)
-            } else {
-                KeyboardOptions(keyboardType = KeyboardType.Phone)
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            modifier = modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = if (!isAuthMethodTypeValid && value.text.isNotEmpty()) Color.Red else Color.Black,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
-                )
+            keyboardOptions =
+                if (authMethodType == AuthMethodType.EMAIL) {
+                    KeyboardOptions(keyboardType = KeyboardType.Email)
+                } else {
+                    KeyboardOptions(keyboardType = KeyboardType.Phone)
+                },
+            colors =
+                TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = if (!isAuthMethodTypeValid && value.text.isNotEmpty()) Color.Red else Color.Black,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
+                    ),
         )
     }
 }

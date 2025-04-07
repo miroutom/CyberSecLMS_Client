@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 open class AuthorizationScreenViewModel : ViewModel() {
-
     private val _login = MutableStateFlow(TextFieldValue(""))
     open val login = _login.asStateFlow()
 

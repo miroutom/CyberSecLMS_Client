@@ -7,7 +7,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -24,19 +23,21 @@ fun ProfileIcon(userProfileImageUrl: String?) {
             model = userProfileImageUrl,
             contentDescription = "User avatar",
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
+            modifier =
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
         )
     } else {
         Icon(
             painter = painterResource(R.drawable.ic_account),
             contentDescription = "Profile",
             tint = colorResource(R.color.supporting_text),
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(color = colorResource(R.color.text_disabled))
+            modifier =
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(color = colorResource(R.color.text_disabled)),
         )
     }
 }

@@ -29,23 +29,24 @@ fun SkipButton(
         onClick = onClick,
         modifier = modifier.height(48.dp),
         enabled = true,
-        colors = ButtonDefaults.textButtonColors(
-            contentColor = Color.Black
-        )
+        colors =
+            ButtonDefaults.textButtonColors(
+                contentColor = Color.Black,
+            ),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = stringResource(R.string.skip_button),
-                style = Typography.bodySmall
+                style = Typography.bodySmall,
             )
             Icon(
                 painter = painterResource(R.drawable.ic_chevron_right),
                 contentDescription = stringResource(R.string.skip_button),
                 tint = colorResource(R.color.button_enabled),
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
             )
         }
     }
@@ -56,6 +57,6 @@ fun SkipButton(
 fun SkipButtonPreview() {
     SkipButton(
         onClick = { },
-        modifier = Modifier
+        modifier = Modifier,
     )
 }

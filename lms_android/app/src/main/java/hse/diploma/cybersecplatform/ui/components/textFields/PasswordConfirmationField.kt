@@ -39,7 +39,7 @@ fun PasswordConfirmationField(
     value: TextFieldValue,
     passwordValue: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val label = stringResource(R.string.auth_label_confirm_password)
 
@@ -52,7 +52,7 @@ fun PasswordConfirmationField(
                 text = stringResource(R.string.confirmation_and_password_are_not_equal),
                 color = Color.Red,
                 style = Typography.labelSmall,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
             )
             Spacer(modifier = Modifier.height(4.dp))
         }
@@ -67,42 +67,47 @@ fun PasswordConfirmationField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black
+                    color = Color.Black,
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if (isPasswordConfirmationVisible.value) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation(mask = '*')
-            },
+            visualTransformation =
+                if (isPasswordConfirmationVisible.value) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation(mask = '*')
+                },
             trailingIcon = {
                 IconButton(
-                    onClick = { isPasswordConfirmationVisible.value = !isPasswordConfirmationVisible.value }
+                    onClick = { isPasswordConfirmationVisible.value = !isPasswordConfirmationVisible.value },
                 ) {
                     Icon(
-                        painter = if (isPasswordConfirmationVisible.value) {
-                            painterResource(R.drawable.ic_eye_off)
-                        } else {
-                            painterResource(R.drawable.ic_eye)
-                        },
-                        contentDescription = "Password confirmation visibility icon"
+                        painter =
+                            if (isPasswordConfirmationVisible.value) {
+                                painterResource(R.drawable.ic_eye_off)
+                            } else {
+                                painterResource(R.drawable.ic_eye)
+                            },
+                        contentDescription = "Password confirmation visibility icon",
                     )
                 }
             },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            modifier = modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) Color.Red else Color.Black,
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
-                )
+            colors =
+                TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color =
+                            if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) Color.Red else Color.Black,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
+                    ),
         )
     }
 }
@@ -114,7 +119,7 @@ fun PasswordConfirmationFieldPreview() {
         PasswordConfirmationField(
             value = TextFieldValue("9400g004A.2"),
             passwordValue = TextFieldValue("9300315295"),
-            onValueChange = {}
+            onValueChange = {},
         )
     }
 }

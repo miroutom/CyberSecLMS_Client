@@ -15,7 +15,10 @@ import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreen
 import hse.diploma.cybersecplatform.ui.screens.statistics.StatisticsScreen
 
 @Composable
-fun MainNavigationGraph(navController: NavHostController, modifier: Modifier = Modifier) {
+fun MainNavigationGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+) {
     NavHost(
         navController = navController,
         startDestination = Screen.Onboarding.route,
@@ -23,7 +26,7 @@ fun MainNavigationGraph(navController: NavHostController, modifier: Modifier = M
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
     ) {
         composable(Screen.HomeScreen.route) { HomeScreen(navController) }
         composable(Screen.Favorites.route) { FavoritesScreen(navController) }

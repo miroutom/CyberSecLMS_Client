@@ -17,7 +17,7 @@ import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreen
 fun AuthNavigationGraph(
     navController: NavHostController,
     onAuthCompleted: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
@@ -26,7 +26,7 @@ fun AuthNavigationGraph(
         enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() }
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
     ) {
         composable(Screen.Onboarding.route) {
             OnBoardingScreen(
@@ -35,7 +35,7 @@ fun AuthNavigationGraph(
                 },
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
-                }
+                },
             )
         }
         composable(Screen.Authorization.route) {
@@ -43,7 +43,7 @@ fun AuthNavigationGraph(
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
                 },
-                onAuthorized = { onAuthCompleted() }
+                onAuthorized = { onAuthCompleted() },
             )
         }
         composable(Screen.Registration.route) {
@@ -51,7 +51,7 @@ fun AuthNavigationGraph(
                 onNavigateToAuthorization = {
                     navController.navigate(Screen.Authorization.route)
                 },
-                onRegistered = { onAuthCompleted() }
+                onRegistered = { onAuthCompleted() },
             )
         }
     }

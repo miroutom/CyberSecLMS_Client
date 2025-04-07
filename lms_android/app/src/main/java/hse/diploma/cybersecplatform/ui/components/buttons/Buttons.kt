@@ -31,26 +31,27 @@ fun FilledButton(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().wrapContentHeight(),
         enabled = enabled,
         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(R.color.button_enabled),
-            contentColor = Color.White,
-            disabledContainerColor = colorResource(R.color.button_disabled),
-            disabledContentColor = Color.White
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.button_enabled),
+                contentColor = Color.White,
+                disabledContainerColor = colorResource(R.color.button_disabled),
+                disabledContentColor = Color.White,
+            ),
     ) {
         Text(
             text = text,
             fontFamily = Montserrat,
             style = Typography.bodyMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 8.dp),
         )
     }
 }
@@ -60,32 +61,35 @@ fun CustomOutlinedButton(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.fillMaxWidth().wrapContentHeight(),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = Color.Black,
-            disabledContentColor = colorResource(R.color.text_disabled)
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (enabled) {
-                colorResource(R.color.button_enabled)
-            } else {
-                colorResource(R.color.button_disabled)
-            }
-        ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large))
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                contentColor = Color.Black,
+                disabledContentColor = colorResource(R.color.text_disabled),
+            ),
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color =
+                    if (enabled) {
+                        colorResource(R.color.button_enabled)
+                    } else {
+                        colorResource(R.color.button_disabled)
+                    },
+            ),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
     ) {
         Text(
             text = text,
             fontFamily = Montserrat,
             style = Typography.bodyMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 8.dp),
         )
     }
 }
@@ -95,7 +99,7 @@ fun TextButton(
     text: String,
     onClick: () -> Unit,
     textAlign: TextAlign = TextAlign.Center,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,
@@ -103,9 +107,10 @@ fun TextButton(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         textAlign = textAlign,
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .fillMaxWidth()
+        modifier =
+            modifier
+                .clickable(onClick = onClick)
+                .fillMaxWidth(),
     )
 }
 
@@ -114,34 +119,34 @@ fun TextButton(
 fun ButtonsPreview() {
     Column(
         modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         FilledButton(
             text = "Filled Button",
             onClick = { },
-            enabled = true
+            enabled = true,
         )
 
         FilledButton(
             text = "Filled Button (Disabled)",
             onClick = { },
-            enabled = false
+            enabled = false,
         )
 
         CustomOutlinedButton(
             text = "Outlined Button",
             onClick = { },
-            enabled = true
+            enabled = true,
         )
 
         CustomOutlinedButton(
             text = "Outlined Button (Disabled)",
             onClick = { },
-            enabled = false
+            enabled = false,
         )
         TextButton(
             text = "Text Button",
-            onClick = { }
+            onClick = { },
         )
     }
 }

@@ -23,30 +23,32 @@ import hse.diploma.cybersecplatform.R
 fun CustomStepper(
     currentStep: Int,
     totalSteps: Int = 3,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(totalSteps) { index ->
             if (index == currentStep) {
                 Box(
-                    modifier = Modifier
-                        .size(width = 50.dp, height = 8.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(colorResource(R.color.button_enabled))
+                    modifier =
+                        Modifier
+                            .size(width = 50.dp, height = 8.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(colorResource(R.color.button_enabled)),
                 )
             } else {
                 Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .border(
-                            width = 1.dp,
-                            color = colorResource(R.color.button_enabled),
-                            shape = CircleShape
-                        )
+                    modifier =
+                        Modifier
+                            .size(8.dp)
+                            .border(
+                                width = 1.dp,
+                                color = colorResource(R.color.button_enabled),
+                                shape = CircleShape,
+                            ),
                 )
             }
         }
@@ -60,7 +62,7 @@ fun StepperPreview() {
         CustomStepper(
             currentStep = 0,
             totalSteps = 3,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

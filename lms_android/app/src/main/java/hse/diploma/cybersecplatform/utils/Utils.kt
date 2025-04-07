@@ -5,7 +5,8 @@ import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
 
 enum class AuthMethodType {
-    PHONE, EMAIL
+    PHONE,
+    EMAIL,
 }
 
 fun isLoginValidAndAuthMethodType(login: String): Pair<Boolean, AuthMethodType> {
