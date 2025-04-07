@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun RegistrationScreen(
     onNavigateToAuthorization: () -> Unit,
+    onRegistered: () -> Unit,
     viewModel: RegistrationScreenViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -45,62 +47,69 @@ fun RegistrationScreen(
     val passwordConfirmation by viewModel.passwordConfirmation.collectAsState()
     val isRegistrationEnabled by viewModel.isRegistrationEnabled.collectAsState()
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(130.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                style = Typography.titleLarge.copy(
-                    brush = linearHorizontalGradient
-                )
-            )
-            Text(
-                text = stringResource(R.string.registration_title),
-                color = colorResource(R.color.supporting_text),
-                style = Typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.height(84.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(paddingValues)
             ) {
-                AuthMethodTextField(
-                    value = login,
-                    onValueChange = viewModel::onLoginChange,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                PasswordField(
-                    value = password,
-                    onValueChange = viewModel::onPasswordChange,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                PasswordConfirmationField(
-                    value = passwordConfirmation,
-                    passwordValue = password,
-                    onValueChange = viewModel::onConfirmPasswordChange,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = paddingValues.calculateBottomPadding())
+                ) {
+                    Spacer(modifier = Modifier.height(130.dp))
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = Typography.titleLarge.copy(
+                            brush = linearHorizontalGradient
+                        )
+                    )
+                    Text(
+                        text = stringResource(R.string.registration_title),
+                        color = colorResource(R.color.supporting_text),
+                        style = Typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(84.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        AuthMethodTextField(
+                            value = login,
+                            onValueChange = viewModel::onLoginChange,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PasswordField(
+                            value = password,
+                            onValueChange = viewModel::onPasswordChange,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PasswordConfirmationField(
+                            value = passwordConfirmation,
+                            passwordValue = password,
+                            onValueChange = viewModel::onConfirmPasswordChange,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(64.dp))
+                    FilledButton(
+                        text = stringResource(R.string.register_button),
+                        onClick = { viewModel.performRegistration(onRegistered) },
+                        enabled = isRegistrationEnabled
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    TextButton(
+                        text = stringResource(R.string.have_account_button),
+                        onClick = onNavigateToAuthorization
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(64.dp))
-            FilledButton(
-                text = stringResource(R.string.register_button),
-                onClick = viewModel::performRegistration,
-                enabled = isRegistrationEnabled
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            TextButton(
-                text = stringResource(R.string.have_account_button),
-                onClick = onNavigateToAuthorization
-            )
         }
-    }
+    )
 }
 
 @Preview
@@ -122,6 +131,7 @@ fun RegistrationScreenPreview() {
     }
     RegistrationScreen(
         onNavigateToAuthorization = {},
+        onRegistered = {},
         viewModel = mockViewModel
     )
 }

@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "CyberSecPlatform"
-include(":app")
+include(":lms_android:app")
  

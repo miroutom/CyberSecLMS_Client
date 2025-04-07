@@ -16,6 +16,7 @@ import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreen
 @Composable
 fun AuthNavigationGraph(
     navController: NavHostController,
+    onAuthCompleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -41,14 +42,16 @@ fun AuthNavigationGraph(
             AuthorizationScreen(
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
-                }
+                },
+                onAuthorized = { onAuthCompleted() }
             )
         }
         composable(Screen.Registration.route) {
             RegistrationScreen(
                 onNavigateToAuthorization = {
                     navController.navigate(Screen.Authorization.route)
-                }
+                },
+                onRegistered = { onAuthCompleted() }
             )
         }
     }

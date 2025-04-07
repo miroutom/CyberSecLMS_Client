@@ -39,7 +39,17 @@ open class AuthorizationScreenViewModel : ViewModel() {
         _password.value = newPassword
     }
 
-    fun performAuthorization() {
-        // TODO: implement auth logic
+    fun performAuthorization(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            // TODO: connect to backend through REST API
+            val isAuthorized =
+                login.value.text == "example@example.com" && password.value.text == "test123."
+
+            if (isAuthorized) {
+                onSuccess()
+            } else {
+                // TODO: implement error state
+            }
+        }
     }
 }

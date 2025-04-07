@@ -4,10 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,6 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AuthorizationScreen(
     onNavigateToRegistration: () -> Unit,
+    onAuthorized: () -> Unit,
     viewModel: AuthorizationScreenViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -43,62 +47,70 @@ fun AuthorizationScreen(
     val password by viewModel.password.collectAsState()
     val isAuthorizationEnabled by viewModel.isAuthorizationEnabled.collectAsState()
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(130.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                style = Typography.titleLarge.copy(
-                    brush = linearHorizontalGradient
-                )
-            )
-            Text(
-                text = stringResource(R.string.authorization_title),
-                color = colorResource(R.color.supporting_text),
-                style = Typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.height(84.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(paddingValues)
             ) {
-                AuthMethodTextField(
-                    value = login,
-                    onValueChange = viewModel::onLoginChange,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                PasswordField(
-                    value = password,
-                    onValueChange = viewModel::onPasswordChange,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                TextButton(
-                    text = stringResource(R.string.forgot_password_button),
-                    onClick = {},
-                    textAlign = TextAlign.End
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = paddingValues.calculateBottomPadding())
+                ) {
+                    Spacer(modifier = Modifier.height(130.dp))
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = Typography.titleLarge.copy(
+                            brush = linearHorizontalGradient
+                        )
+                    )
+                    Text(
+                        text = stringResource(R.string.authorization_title),
+                        color = colorResource(R.color.supporting_text),
+                        style = Typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(84.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        AuthMethodTextField(
+                            value = login,
+                            onValueChange = viewModel::onLoginChange,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PasswordField(
+                            value = password,
+                            onValueChange = viewModel::onPasswordChange,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        TextButton(
+                            text = stringResource(R.string.forgot_password_button),
+                            onClick = {},
+                            textAlign = TextAlign.End
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(64.dp))
+                    FilledButton(
+                        text = stringResource(R.string.auth_button),
+                        onClick = { viewModel.performAuthorization(onAuthorized) },
+                        enabled = isAuthorizationEnabled
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    TextButton(
+                        text = stringResource(R.string.no_account_button),
+                        onClick = onNavigateToRegistration
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(64.dp))
-            FilledButton(
-                text = stringResource(R.string.auth_button),
-                onClick = viewModel::performAuthorization,
-                enabled = isAuthorizationEnabled
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            TextButton(
-                text = stringResource(R.string.no_account_button),
-                onClick = onNavigateToRegistration
-            )
         }
-    }
+    )
 }
+
 
 @Preview
 @Composable
@@ -117,6 +129,7 @@ fun AuthorizationScreenPreview() {
 
     AuthorizationScreen(
         onNavigateToRegistration = {},
+        onAuthorized = {},
         viewModel = mockViewModel
     )
 }

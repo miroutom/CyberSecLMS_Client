@@ -1,7 +1,14 @@
 package hse.diploma.cybersecplatform.ui.navigation
 
-sealed class Screen(val route: String) {
+import androidx.annotation.StringRes
+import hse.diploma.cybersecplatform.R
+
+sealed class Screen(val route: String, @StringRes val titleId: Int? = null) {
     data object Onboarding : Screen("onboarding")
     data object Authorization : Screen("authorization")
     data object Registration : Screen("registration")
+    data object HomeScreen : Screen("home_screen", R.string.homescreen_title)
+    data object Favorites : Screen("favorites", R.string.favorites_title)
+    data object Statistics : Screen("statistics", R.string.statistics_title)
+    data object Profile : Screen("profile", R.string.profile_title)
 }

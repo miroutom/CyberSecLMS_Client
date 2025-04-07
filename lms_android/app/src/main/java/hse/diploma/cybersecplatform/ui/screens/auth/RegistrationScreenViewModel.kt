@@ -51,7 +51,19 @@ open class RegistrationScreenViewModel : ViewModel() {
         _passwordConfirmation.value = newPasswordConfirmation
     }
 
-    fun performRegistration() {
-        // TODO: implement register logic
+    fun performRegistration(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            // TODO: connect to backend through REST API
+            val isRegistered =
+                login.value.text == "example@example.com" &&
+                        password.value.text == "test123." &&
+                        password.value.text == passwordConfirmation.value.text
+
+            if (isRegistered) {
+                onSuccess()
+            } else {
+                // TODO: implement error state
+            }
+        }
     }
 }
