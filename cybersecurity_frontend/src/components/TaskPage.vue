@@ -41,14 +41,14 @@ export default {
         {
           title: "Задание 1: XSS",
           path: "/vulnerable-app/xss.html",
-          code: "", // Начальный код будет загружен из HTML-файла
+          code: "", // Initial code is logged from html file
           language: "html",
           description: "",
         },
         {
           title: "Задание 2: CSRF",
-          path: "/vulnerable-app/xss.html",
-          code: "", // Начальный код будет загружен из HTML-файла
+          path: "/vulnerable-app/csrf.html",
+          code: "",
           language: "javascript",
           description: "",
         },
@@ -73,34 +73,32 @@ export default {
     },
     updateCode(data) {
       this.currentTask.code = data.code;
-      this.currentTask.description = data.description; // Сохраняем описание
+      this.currentTask.description = data.description; // saving description
     },
   },
 };
 </script>
 
 <style scoped>
-/* Общие стили */
 body {
-  font-family: sans-serif; /* Шрифт без засечек, как на Portswigger */
-  background-color: #d13c3c; /* Светло-серый фон */
-  color: #333; /* Темно-серый текст */
-  margin: 0; /* Убираем стандартные отступы */
+  font-family: sans-serif;
+  background-color: #d13c3c;
+  color: #333;
+  margin: 0;
 }
 
 .task-page-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Используем vh для корректной высоты на весь экран */
-  margin: 20px; /* Добавляем внешние отступы */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Легкая тень */
-  border-radius: 8px; /* Скругленные углы */
-  overflow: hidden; /* Предотвращаем выход контента за границы контейнера */
+  height: 100vh;
+  margin: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Навигация */
 .navigation {
-  background-color: #fff; /* Белый фон для навигации */
+  background-color: #fff;
   padding: 15px 20px;
   border-bottom: 1px solid #ddd;
   display: flex;
@@ -109,13 +107,13 @@ body {
 }
 
 .navigation button {
-  background-color: #007bff; /* Синий цвет кнопок */
+  background-color: #3764ed;
   color: white;
   border: none;
   padding: 8px 15px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Плавное изменение цвета при наведении */
+  transition: background-color 0.3s ease;
 }
 
 .navigation button:hover {
@@ -131,14 +129,12 @@ body {
   font-weight: bold;
 }
 
-/* Описание задания */
 .task-description {
   padding: 20px;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
 }
 
-/* Контент задания (app-frame и code-editor) */
 .task-content {
   display: flex;
   flex: 1;
@@ -153,12 +149,12 @@ body {
   height: 100%;
   border: 1px solid #ddd;
   border-radius: 4px;
-  overflow: hidden; /* Добавляем overflow: hidden для iframe */
+  overflow: hidden;
 }
 
 .app-frame iframe {
-  width: 100%; /* iframe занимает всю ширину контейнера */
-  height: 100%; /* iframe занимает всю высоту контейнера */
-  border: none; /* Убираем границу iframe */
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 </style>

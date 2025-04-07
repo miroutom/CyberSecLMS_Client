@@ -1,0 +1,245 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for Learning Management System (LMS).",
+        "title": "LMS API",
+        "contact": {
+            "name": "Support Team",
+            "url": "http://www.example.com/support",
+            "email": "support@example.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/courses": {
+            "get": {
+                "description": "Retrieves the list of all available courses.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets all courses",
+                "operationId": "get-all-courses",
+                "responses": {
+                    "200": {
+                        "description": "List of courses",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Course"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/{id}": {
+            "get": {
+                "description": "Retrieves a specific course by its unique ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets a course by ID",
+                "operationId": "get-course-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Course details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Course"
+                        }
+                    },
+                    "404": {
+                        "description": "Course not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Handles the login request and returns a JWT token if the credentials are valid.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Login handler",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "Login request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/{user_id}": {
+            "get": {
+                "description": "Retrieves the progress of a user.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets user progress",
+                "operationId": "get-user-progress",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User progress",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserProgress"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/{user_id}/assignments/{assignment_id}/complete": {
+            "put": {
+                "description": "Marks an assignment as completed for a user.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Completes an assignment",
+                "operationId": "complete-assignment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assignment marked as completed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.LoginRequest": {
+            "description": "The structure for login request containing username and password.",
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Course": {
+            "description": "Information about a course.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserProgress": {
+            "description": "Tracks the progress of a user in courses and assignments.",
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "description": "Map of completed assignments: key is the assignment ID, value is whether it is completed.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "last_activity": {
+                    "description": "Timestamp of the user's last activity (e.g., in ISO 8601 format).",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "Unique identifier for the user.",
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

@@ -11,14 +11,13 @@ export default {
       const codeElement = iframeDocument.getElementById("code");
       const initialCode = codeElement ? codeElement.textContent : "";
 
-      // Извлечение описания задания
+      // getting task description
       const descriptionElement =
         iframeDocument.getElementById("task-description");
       const descriptionHTML = descriptionElement
         ? descriptionElement.innerHTML
         : "";
 
-      // Отправка обоих значений через событие
       this.$emit("code-updated", {
         code: initialCode,
         description: descriptionHTML,

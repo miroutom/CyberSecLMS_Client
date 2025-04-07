@@ -18,36 +18,31 @@ export default {
   },
   data() {
     return {
-      code: '// Напишите ваш код здесь\nconsole.log("Hello, Vulnerable App!");', // Начальный код
+      code: '// Напишите ваш код здесь\nconsole.log("Hello, Vulnerable App!");', // Initial code
       editorOptions: {
         selectOnLineNumbers: true,
         roundedSelection: false,
         readOnly: false,
         cursorStyle: "line",
-        automaticLayout: true, // Важно для адаптивности редактора
-        theme: "vs-dark", // Тема редактора (vs, vs-dark, hc-black)
-        // Другие опции Monaco Editor можно настроить здесь
+        automaticLayout: true,
+        theme: "vs-dark",
       },
     };
   },
   methods: {
     editorDidMount(editor, monaco) {
-      // Редактор Monaco Editor готов
       console.log("Monaco Editor is ready!", editor, monaco);
-      // Можно выполнить дополнительные настройки редактора здесь, если нужно
     },
     logChange(newCode) {
-      // Код в редакторе изменился
-      this.$emit("code-changed", newCode); // Эмитим событие с текущим кодом
+      this.$emit("code-changed", newCode);
     },
   },
 };
 </script>
 
 <style scoped>
-/* Стили для редактора*/
 .monaco-editor-container {
-  height: 100%; /* Заполнить родительский контейнер */
+  height: 100%;
   display: flex;
 }
 </style>
