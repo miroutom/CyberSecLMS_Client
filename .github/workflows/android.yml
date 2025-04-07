@@ -28,7 +28,7 @@ jobs:
           java-version: '17'
 
       - name: Ktlint Check
-        run: ./gradlew ktlint
+        run: ./gradlew ktlintCheck
 
   build-debug-apk:
     name: Build Debug APK
