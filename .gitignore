@@ -1,44 +1,33 @@
-# Ignore Gradle cache
+# Gradle files
 .gradle/
-.cache/
-
-# Ignore build output files (APK, AAB, etc.)
 build/
 
-# Ignore local settings
-lms_android/local.properties
+# Local configuration file (sdk path, etc)
+local.properties
 
-# Ignore Android Studio-specific files
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+
+# IntelliJ
 *.iml
-*.swp
-*.swo
-*.class
-*.lock
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
 
-# Ignore Kotlin-specific files
-*.kotlin_module
+# Keystore files
+*.jks
+*.keystore
 
-# Ignore NDK-specific files
-obj/
-libs/
-*.so
+# Google Services (e.g. APIs or Firebase)
+google-services.json
 
-# Ignore test data
-**/test-results/
-**/test-output/
-
-# Ignore temporary files
-**/tmp/
-**/temp/
-
-# Ignore user-specific settings
-**/.DS_Store
-**/.idea/
-**/*.log
-**/*.orig
-
-# Ignore generated resource files
-**/app/build/generated/
-**/app/build/intermediates/
-**/app/build/outputs/
-**/app/build/reports/
+# Android Profiling
+*.hprof
