@@ -1,34 +1,28 @@
 package hse.diploma.cybersecplatform.ui.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.navigation
+import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreen
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreen
 import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreen
+import hse.diploma.cybersecplatform.utils.logD
 
-@Composable
-fun AuthNavigationGraph(
+private const val TAG = "AuthNavigationGraph"
+
+fun NavGraphBuilder.authNavigationGraph(
     navController: NavHostController,
     onAuthCompleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    NavHost(
-        navController = navController,
+
+    navigation(
         startDestination = Screen.Onboarding.route,
-        modifier = modifier,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+        route = "auth_flow",
     ) {
-        composable(Screen.Onboarding.route) {
+        animatedComposable(Screen.Onboarding.route) {
             OnBoardingScreen(
                 onNavigateToAuthorization = {
                     navController.navigate(Screen.Authorization.route)
@@ -36,22 +30,33 @@ fun AuthNavigationGraph(
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
                 },
+                modifier = modifier,
             )
         }
-        composable(Screen.Authorization.route) {
+
+        animatedComposable(Screen.Authorization.route) {
             AuthorizationScreen(
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
                 },
-                onAuthorized = { onAuthCompleted() },
+                onAuthorized = {
+                    logD(TAG, "onAuthorized()")
+                    onAuthCompleted()
+                },
+                modifier = modifier,
             )
         }
-        composable(Screen.Registration.route) {
+
+        animatedComposable(Screen.Registration.route) {
             RegistrationScreen(
                 onNavigateToAuthorization = {
                     navController.navigate(Screen.Authorization.route)
                 },
-                onRegistered = { onAuthCompleted() },
+                onRegistered = {
+                    logD(TAG, "onRegistered()")
+                    onAuthCompleted()
+                },
+                modifier = modifier,
             )
         }
     }

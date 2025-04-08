@@ -42,7 +42,7 @@ open class AuthorizationScreenViewModel : ViewModel() {
         viewModelScope.launch {
             // TODO: connect to backend through REST API
             val isAuthorized =
-                login.value.text == "example@example.com" && password.value.text == "test123."
+                login.value.text == "example@example.com" && password.value.text == "Test123."
 
             if (isAuthorized) {
                 onSuccess()

@@ -1,10 +1,12 @@
 package hse.diploma.cybersecplatform.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -29,16 +31,21 @@ fun ProfileIcon(userProfileImageUrl: String?) {
                     .clip(CircleShape),
         )
     } else {
-        Icon(
-            painter = painterResource(R.drawable.ic_account),
-            contentDescription = "Profile",
-            tint = colorResource(R.color.supporting_text),
+        Box(
             modifier =
                 Modifier
                     .size(48.dp)
                     .clip(CircleShape)
                     .background(color = colorResource(R.color.text_disabled)),
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_account),
+                contentDescription = "Profile",
+                tint = colorResource(R.color.supporting_text),
+                modifier = Modifier.size(36.dp),
+            )
+        }
     }
 }
 
