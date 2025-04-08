@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CyberSec</string>
+    <string name="app_name" translatable="false">CyberSec</string>
 
     <string name="authorization_title">Авторизация</string>
     <string name="registration_title">Регистрация</string>
@@ -39,4 +39,14 @@
     <string name="profile_title">Профиль</string>
 
     <string name="search_bar_label">Поиск</string>
+
+    <string name="xss_tasks_title" translatable="false">XSS</string>
+    <string name="sql_injections_tasks_title" translatable="false">SQL\nInjections</string>
+    <string name="csrf_tasks_title" translatable="false">CSRF</string>
+
+    <string name="xss_tasks_subtitle">Вредоносные скрипты</string>
+    <string name="sql_injections_subtitle">Базы данных</string>
+    <string name="csrf_tasks_subtitle">Эмуляция действий</string>
+
+    <string name="tasks_count">%d заданий</string>
 </resources>

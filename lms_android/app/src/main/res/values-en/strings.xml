@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CyberSec</string>
-
     <string name="authorization_title">Authorization</string>
     <string name="registration_title">Registration</string>
 
@@ -38,4 +36,10 @@
     <string name="statistics_title">Statistics</string>
     <string name="profile_title">Profile</string>
     <string name="search_bar_label">Search</string>
+
+    <string name="xss_tasks_subtitle">Malicious scripts</string>
+    <string name="sql_injections_subtitle">Data bases</string>
+    <string name="csrf_tasks_subtitle">Actions emulating</string>
+
+    <string name="tasks_count">%d tasks</string>
 </resources>
