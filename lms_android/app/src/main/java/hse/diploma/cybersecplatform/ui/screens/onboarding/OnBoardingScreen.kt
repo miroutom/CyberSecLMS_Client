@@ -1,11 +1,5 @@
 package hse.diploma.cybersecplatform.ui.screens.onboarding
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomOutlinedButton
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomStepper
@@ -43,6 +42,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnBoardingScreen(
     onNavigateToAuthorization: () -> Unit,
@@ -51,6 +51,21 @@ fun OnBoardingScreen(
     modifier: Modifier = Modifier,
 ) {
     val currentStep by viewModel.currentPage.collectAsState()
+    val pagerState = rememberPagerState(initialPage = currentStep)
+
+    LaunchedEffect(currentStep) {
+        if (pagerState.currentPage != currentStep) {
+            pagerState.animateScrollToPage(currentStep)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            if (page != currentStep) {
+                viewModel.setPage(page)
+            }
+        }
+    }
 
     Box(
         modifier =
@@ -79,20 +94,18 @@ fun OnBoardingScreen(
                     Spacer(modifier = Modifier.height(48.dp))
                 }
             }
-            AnimatedContent(
-                targetState = currentStep,
-                transitionSpec = {
-                    (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-                },
+
+            HorizontalPager(
+                count = 3,
+                state = pagerState,
                 modifier = Modifier.weight(1f),
-                label = "animated content",
-            ) { step ->
+            ) { page ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     Text(
-                        text = currentStepToText(step).first,
+                        text = currentStepToText(page).first,
                         fontFamily = Montserrat,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 28.sp,
@@ -101,7 +114,7 @@ fun OnBoardingScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
-                        text = currentStepToText(step).second,
+                        text = currentStepToText(page).second,
                         fontFamily = Montserrat,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
@@ -110,7 +123,7 @@ fun OnBoardingScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Image(
-                        painter = currentStepToImage(step),
+                        painter = currentStepToImage(page),
                         contentDescription = null,
                         modifier =
                             Modifier
@@ -119,6 +132,7 @@ fun OnBoardingScreen(
                     )
                 }
             }
+
             FilledButton(
                 text = currentStepToButtonText(currentStep),
                 onClick = {
@@ -129,6 +143,7 @@ fun OnBoardingScreen(
                     }
                 },
             )
+
             if (isLastStep(currentStep)) {
                 CustomOutlinedButton(
                     text = stringResource(R.string.auth_button),

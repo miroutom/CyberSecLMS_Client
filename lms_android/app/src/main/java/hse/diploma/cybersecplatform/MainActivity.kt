@@ -8,13 +8,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.di.ActivityComponent
 import hse.diploma.cybersecplatform.di.ActivityModule
 import hse.diploma.cybersecplatform.di.DaggerActivityComponent
 import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
+import hse.diploma.cybersecplatform.ui.navigation.MainNavigationGraph
 import hse.diploma.cybersecplatform.ui.navigation.authNavigationGraph
-import hse.diploma.cybersecplatform.ui.navigation.mainNavigationGraph
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.utils.logD
@@ -60,8 +61,9 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                             }
                         },
                     )
-
-                    mainNavigationGraph(navController = navController)
+                    composable("main_flow") {
+                        MainNavigationGraph()
+                    }
                 }
             }
         }

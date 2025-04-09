@@ -9,8 +9,10 @@ open class OnBoardingScreenViewModel : ViewModel() {
     open val currentPage = _currentPage.asStateFlow()
 
     fun onNextPage() {
-        if (_currentPage.value < 2) {
-            _currentPage.value++
-        }
+        _currentPage.value = (_currentPage.value + 1).coerceAtMost(2)
+    }
+
+    fun setPage(page: Int) {
+        _currentPage.value = page
     }
 }

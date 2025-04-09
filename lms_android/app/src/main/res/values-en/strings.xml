@@ -42,4 +42,8 @@
     <string name="csrf_tasks_subtitle">Actions emulating</string>
 
     <string name="tasks_count">%d tasks</string>
+    <string name="easy_level">Easy</string>
+    <string name="medium_level">Medium</string>
+    <string name="hard_level">Hard</string>
+    <string name="tasks_title">Tasks</string>
 </resources>

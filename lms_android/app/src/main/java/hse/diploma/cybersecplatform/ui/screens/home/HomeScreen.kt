@@ -3,12 +3,12 @@ package hse.diploma.cybersecplatform.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,45 +19,38 @@ import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.VulnerabilityCard
-import hse.diploma.cybersecplatform.ui.components.systemBars.CustomNavigationBar
-import hse.diploma.cybersecplatform.ui.components.systemBars.TopBar
+import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
-import hse.diploma.cybersecplatform.utils.mockVulnerabilityItems
+import hse.diploma.cybersecplatform.utils.mock.mockVulnerabilityItems
 
 @Composable
 fun HomeScreen(
     navController: NavHostController,
+    paddingValues: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        topBar = {
-            TopBar(navController)
-        },
-        bottomBar = {
-            CustomNavigationBar(navController)
-        },
-        content = { paddingValues ->
-            Column(
-                modifier =
-                    modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()
-                        .background(Color.White),
-            ) {
-                SearchBar(
-                    searchQuery = "",
-                    onSearchQueryChange = {},
-                    modifier = Modifier.background(Color.White),
-                )
-                // TODO: replace with real data
-                ScrollableContent(mockVulnerabilityItems)
-            }
-        },
-    )
+    Column(
+        modifier =
+            modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(Color.White),
+    ) {
+        SearchBar(
+            searchQuery = "",
+            onSearchQueryChange = {},
+            modifier = Modifier.background(Color.White),
+        )
+        // TODO: replace with real data
+        VulnerabilitiesContent(mockVulnerabilityItems, navController)
+    }
 }
 
 @Composable
-fun ScrollableContent(items: List<Pair<VulnerabilityType, Int>>) {
+fun VulnerabilitiesContent(
+    items: List<Pair<VulnerabilityType, Int>>,
+    navController: NavHostController,
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -69,7 +62,7 @@ fun ScrollableContent(items: List<Pair<VulnerabilityType, Int>>) {
                 VulnerabilityCard(
                     type = item.first,
                     tasksCount = item.second,
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.TaskScreen.createRoute(item.first)) },
                 )
             }
         }
@@ -80,6 +73,6 @@ fun ScrollableContent(items: List<Pair<VulnerabilityType, Int>>) {
 @Composable
 fun HomeScreenPreview() {
     CyberSecPlatformTheme {
-        HomeScreen(navController = rememberNavController())
+        HomeScreen(navController = rememberNavController(), PaddingValues(0.dp))
     }
 }

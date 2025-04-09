@@ -1,4 +1,5 @@
 [versions]
+accompanistPager = "0.24.9-beta"
 agp = "8.7.3"
 coilComposeVersion = "2.4.0"
 kotlin = "2.0.21"
@@ -22,6 +23,7 @@ dagger = "2.51.1"
 appcompat = "1.7.0"
 
 [libraries]
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }

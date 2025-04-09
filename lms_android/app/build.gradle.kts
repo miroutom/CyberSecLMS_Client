@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.pager)
 
     // --- Kotlin ---
     implementation(platform(libs.kotlin.bom))
