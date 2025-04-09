@@ -8,7 +8,7 @@ import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
 import hse.diploma.cybersecplatform.ui.screens.favorites.FavoritesScreen
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
-import hse.diploma.cybersecplatform.ui.screens.home.TasksScreen
+import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreen
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreen
 import hse.diploma.cybersecplatform.ui.screens.statistics.StatisticsScreen
 

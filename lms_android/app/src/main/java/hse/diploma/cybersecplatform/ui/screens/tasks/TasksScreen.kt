@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.ui.screens.home
+package hse.diploma.cybersecplatform.ui.screens.tasks
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
