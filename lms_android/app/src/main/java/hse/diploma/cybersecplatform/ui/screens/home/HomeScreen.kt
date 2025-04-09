@@ -37,7 +37,6 @@ fun HomeScreen(
             onSearchQueryChange = {},
             modifier = Modifier.background(Color.White),
         )
-        Spacer(modifier = Modifier.height(8.dp).background(Color.Transparent))
         // TODO: replace with real data
         VulnerabilitiesContent(mockVulnerabilityItems, navController)
     }
@@ -54,6 +53,10 @@ fun VulnerabilitiesContent(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+
         items(items) { item ->
             VulnerabilityCard(
                 type = item.first,
