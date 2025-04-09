@@ -3,12 +3,13 @@ package hse.diploma.cybersecplatform.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,21 +27,17 @@ import hse.diploma.cybersecplatform.utils.mock.mockVulnerabilityItems
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    paddingValues: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier =
-            modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(Color.White),
+        modifier = modifier,
     ) {
         SearchBar(
             searchQuery = "",
             onSearchQueryChange = {},
             modifier = Modifier.background(Color.White),
         )
+        Spacer(modifier = Modifier.height(8.dp).background(Color.Transparent))
         // TODO: replace with real data
         VulnerabilitiesContent(mockVulnerabilityItems, navController)
     }
@@ -55,16 +52,18 @@ fun VulnerabilitiesContent(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        items.forEach { item ->
-            item {
-                VulnerabilityCard(
-                    type = item.first,
-                    tasksCount = item.second,
-                    onClick = { navController.navigate(Screen.TaskScreen.createRoute(item.first)) },
-                )
-            }
+        items(items) { item ->
+            VulnerabilityCard(
+                type = item.first,
+                tasksCount = item.second,
+                onClick = { navController.navigate(Screen.TaskScreen.createRoute(item.first)) },
+            )
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 }
@@ -73,6 +72,6 @@ fun VulnerabilitiesContent(
 @Composable
 fun HomeScreenPreview() {
     CyberSecPlatformTheme {
-        HomeScreen(navController = rememberNavController(), PaddingValues(0.dp))
+        HomeScreen(navController = rememberNavController())
     }
 }

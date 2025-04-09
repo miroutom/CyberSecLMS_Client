@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -48,13 +49,15 @@ fun CustomNavigationBar(
                 .shadow(
                     elevation = 8.dp,
                     shape = RectangleShape,
-                    clip = false,
                     spotColor = Color.Black.copy(alpha = 0.7f),
                 ),
         containerColor = Color.White,
     ) {
         items.forEach { screen ->
-            val selected = currentRoute == screen.route
+            val selected =
+                navBackStackEntry?.destination
+                    ?.hierarchy
+                    ?.any { it.route == screen.route } == true
             val backgroundColor = if (selected) Color(0xFF060051) else Color(0xFFE1E1E3)
 
             NavigationBarItem(
@@ -76,15 +79,12 @@ fun CustomNavigationBar(
                                         ),
                                     onClick = {
                                         if (currentRoute != screen.route) {
-                                            // Если мы не находимся на текущем экране, переходим на него
                                             navController.navigate(screen.route) {
-                                                // Убираем все экраны выше в стеке
                                                 popUpTo(screen.route) { inclusive = false }
                                                 launchSingleTop = true
                                                 restoreState = true
                                             }
                                         } else {
-                                            // Если находимся на этом экране, просто вернуться к нему
                                             navController.popBackStack(screen.route, inclusive = false)
                                         }
                                     },
