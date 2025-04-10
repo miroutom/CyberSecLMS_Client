@@ -3,7 +3,6 @@ package hse.diploma.cybersecplatform.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.model.VulnerabilityType
 
 enum class AuthMethodType {
     PHONE,
@@ -36,34 +35,3 @@ fun getPasswordErrorMessage(password: String): String {
         else -> stringResource(R.string.auth_password_error_no_symbols)
     }
 }
-
-val mockVulnerabilityItems =
-    listOf(
-        Pair(VulnerabilityType.SQL, 10),
-        Pair(VulnerabilityType.XSS, 5),
-        Pair(VulnerabilityType.CSRF, 15),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-        Pair(VulnerabilityType.SQL, 10),
-        Pair(VulnerabilityType.XSS, 5),
-        Pair(VulnerabilityType.CSRF, 15),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.SQL, 12),
-        Pair(VulnerabilityType.XSS, 10),
-        Pair(VulnerabilityType.CSRF, 3),
-    )

@@ -40,6 +40,8 @@
 
     <string name="search_bar_label">Поиск</string>
 
+    <string name="tasks_title">Задания</string>
+
     <string name="xss_tasks_title" translatable="false">XSS</string>
     <string name="sql_injections_tasks_title" translatable="false">SQL\nInjections</string>
     <string name="csrf_tasks_title" translatable="false">CSRF</string>
@@ -49,4 +51,9 @@
     <string name="csrf_tasks_subtitle">Эмуляция действий</string>
 
     <string name="tasks_count">%d заданий</string>
+
+    <string name="difficulty_number_of_task" translatable="false">%s %d</string>
+    <string name="easy_level">Лёгкий</string>
+    <string name="medium_level">Средний</string>
+    <string name="hard_level">Сложный</string>
 </resources>

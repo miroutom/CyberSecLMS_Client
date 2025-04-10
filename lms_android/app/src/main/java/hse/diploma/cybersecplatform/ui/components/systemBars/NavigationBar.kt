@@ -1,6 +1,8 @@
 package hse.diploma.cybersecplatform.ui.components.systemBars
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -8,9 +10,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +48,6 @@ fun CustomNavigationBar(
                 .shadow(
                     elevation = 8.dp,
                     shape = RectangleShape,
-                    clip = false,
                     spotColor = Color.Black.copy(alpha = 0.7f),
                 ),
         containerColor = Color.White,
@@ -55,12 +58,33 @@ fun CustomNavigationBar(
 
             NavigationBarItem(
                 icon = {
+                    val interactionSource = remember { MutableInteractionSource() }
+
                     Box(
                         modifier =
                             Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(backgroundColor),
+                                .background(backgroundColor)
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication =
+                                        ripple(
+                                            bounded = true,
+                                            color = Color.White,
+                                        ),
+                                    onClick = {
+                                        if (currentRoute != screen.route) {
+                                            navController.navigate(screen.route) {
+                                                popUpTo(screen.route) { inclusive = false }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        } else {
+                                            navController.popBackStack(screen.route, inclusive = false)
+                                        }
+                                    },
+                                ),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -72,28 +96,17 @@ fun CustomNavigationBar(
                                     else -> painterResource(R.drawable.ic_account)
                                 },
                             contentDescription = screen.titleId?.let { stringResource(it) },
+                            tint = if (selected) Color.White else Color(0xFF060051),
                         )
                     }
                 },
-                selected = currentRoute == screen.route,
-                onClick = {
-                    if (currentRoute != screen.route) {
-                        navController.navigate(screen.route) {
-                            popUpTo(Screen.HomeScreen.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
+                selected = selected,
+                onClick = {},
                 colors =
-                    NavigationBarItemColors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = Color.Black,
-                        selectedIndicatorColor = Color.Transparent,
-                        unselectedIconColor = Color(0xFF060051),
-                        unselectedTextColor = Color.Black,
-                        disabledIconColor = Color.Gray,
-                        disabledTextColor = Color.Gray,
+                    NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent,
+                        selectedIconColor = Color.Unspecified,
+                        unselectedIconColor = Color.Unspecified,
                     ),
             )
         }

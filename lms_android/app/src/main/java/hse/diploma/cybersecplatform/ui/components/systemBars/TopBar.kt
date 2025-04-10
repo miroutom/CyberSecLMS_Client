@@ -8,10 +8,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -26,36 +29,47 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(navController: NavHostController) {
+    val noBackStackRoutes =
+        setOf(
+            Screen.HomeScreen.route,
+            Screen.Favorites.route,
+            Screen.Statistics.route,
+            Screen.Profile.route,
+        )
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val canNavigateBack = navController.previousBackStackEntry != null
     val currentRoute = navBackStackEntry?.destination?.route
+    val canNavigateBack = navController.previousBackStackEntry != null && currentRoute !in noBackStackRoutes
+
     val currentScreen =
         when (currentRoute) {
             Screen.HomeScreen.route -> Screen.HomeScreen
             Screen.Favorites.route -> Screen.Favorites
             Screen.Statistics.route -> Screen.Statistics
             Screen.Profile.route -> Screen.Profile
+            Screen.TaskScreen.route -> Screen.TaskScreen
             else -> null
         }
 
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text =
-                    currentScreen?.titleId?.let { stringResource(it) } ?: "",
+                text = currentScreen?.titleId?.let { stringResource(it) } ?: "",
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
+                textAlign = TextAlign.Center,
             )
         },
         navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_back),
-                        contentDescription = "Back",
-                    )
-                }
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.alpha(if (canNavigateBack) 1f else 0f),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_back),
+                    contentDescription = "Back",
+                )
             }
         },
         actions = {
