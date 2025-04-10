@@ -1,0 +1,169 @@
+definitions:
+  handlers.LoginRequest:
+    description: The structure for login request containing username and password.
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.Course:
+    description: Information about a course.
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.UserProgress:
+    description: Tracks the progress of a user in courses and assignments.
+    properties:
+      completed:
+        additionalProperties:
+          type: boolean
+        description: 'Map of completed assignments: key is the assignment ID, value
+          is whether it is completed.'
+        type: object
+      last_activity:
+        description: Timestamp of the user's last activity (e.g., in ISO 8601 format).
+        type: string
+      user_id:
+        description: Unique identifier for the user.
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: Support Team
+    url: http://www.example.com/support
+  description: API for Learning Management System (LMS).
+  title: LMS API
+  version: "1.0"
+paths:
+  /courses:
+    get:
+      description: Retrieves the list of all available courses.
+      operationId: get-all-courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of courses
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+      summary: Gets all courses
+  /courses/{id}:
+    get:
+      description: Retrieves a specific course by its unique ID.
+      operationId: get-course-by-id
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Course details
+          schema:
+            $ref: '#/definitions/models.Course'
+        "404":
+          description: Course not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Gets a course by ID
+  /login:
+    post:
+      description: Handles the login request and returns a JWT token if the credentials
+        are valid.
+      operationId: login
+      parameters:
+      - description: Login request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login handler
+  /progress/{user_id}:
+    get:
+      description: Retrieves the progress of a user.
+      operationId: get-user-progress
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User progress
+          schema:
+            $ref: '#/definitions/models.UserProgress'
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Gets user progress
+  /progress/{user_id}/assignments/{assignment_id}/complete:
+    put:
+      description: Marks an assignment as completed for a user.
+      operationId: complete-assignment
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Assignment ID
+        in: path
+        name: assignment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Assignment marked as completed
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Completes an assignment
+swagger: "2.0"
