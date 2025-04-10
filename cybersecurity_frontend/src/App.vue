@@ -9,5 +9,8 @@ export default {
 </script>
 
 <style>
-/* Global styles */
+body {
+  margin: 0;
+  padding: 0;
+}
 </style>
