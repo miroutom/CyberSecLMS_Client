@@ -1,133 +1,98 @@
 <template>
   <div class="main-container">
-    <header class="header">
-      <img src="../assets/icons/logo.png" alt="logo" />
-      <div class="user-info">
-        <img src="user-icon.png" alt="User Icon" class="user-icon" />
-        <span>User Name</span>
-      </div>
-    </header>
+    <TheHeader />
     <div class="content-wrapper">
-      <div class="sidebar">
-        <router-link to="/" class="sidebar-item">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M5 15.1252L20 3.4585L35 15.1252V33.4585C35 34.3426 34.6488 35.1904 34.0237 35.8155C33.3986 36.4406 32.5507 36.7918 31.6667 36.7918H8.33333C7.44928 36.7918 6.60143 36.4406 5.97631 35.8155C5.35119 35.1904 5 34.3426 5 33.4585V15.1252Z"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M15 36.7917V20.125H25V36.7917"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Все курсы
-        </router-link>
-
-        <router-link to="/about" class="sidebar-item">
-          <svg
-            width="40"
-            height="40"
-            class="icon"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M35.2332 7.68345C34.3819 6.83179 33.3712 6.15619 32.2588 5.69525C31.1464 5.23432 29.954 4.99707 28.7499 4.99707C27.5457 4.99707 26.3534 5.23432 25.2409 5.69525C24.1285 6.15619 23.1178 6.83179 22.2665 7.68345L20.4999 9.45011L18.7332 7.68345C17.0137 5.96396 14.6816 4.99796 12.2499 4.99796C9.81815 4.99796 7.48603 5.96396 5.76654 7.68345C4.04705 9.40293 3.08105 11.7351 3.08105 14.1668C3.08105 16.5985 4.04705 18.9306 5.76654 20.6501L7.53321 22.4168L20.4999 35.3834L33.4665 22.4168L35.2332 20.6501C36.0849 19.7989 36.7605 18.7881 37.2214 17.6757C37.6823 16.5633 37.9196 15.3709 37.9196 14.1668C37.9196 12.9626 37.6823 11.7703 37.2214 10.6579C36.7605 9.54542 36.0849 8.53471 35.2332 7.68345Z"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Мои курсы
-        </router-link>
-
-        <router-link to="/tasks" class="sidebar-item">
-          <svg
-            width="40"
-            height="40"
-            class="icon"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M37.1663 20H30.4997L25.4997 35L15.4997 5L10.4997 20H3.83301"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Статистика</router-link
-        >
-        <router-link to="/tasks" class="sidebar-item">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M33.8337 35V31.6667C33.8337 29.8986 33.1313 28.2029 31.881 26.9526C30.6308 25.7024 28.9351 25 27.167 25H13.8337C12.0655 25 10.3699 25.7024 9.11961 26.9526C7.86937 28.2029 7.16699 29.8986 7.16699 31.6667V35"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M20.4997 18.3333C24.1816 18.3333 27.1663 15.3486 27.1663 11.6667C27.1663 7.98477 24.1816 5 20.4997 5C16.8178 5 13.833 7.98477 13.833 11.6667C13.833 15.3486 16.8178 18.3333 20.4997 18.3333Z"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Профиль</router-link
-        >
-      </div>
+      <TheSideBar />
       <main class="all-tasks">
-        <router-link
+        <div
+          class="card-container"
           v-for="vulnerability in vulnerabilities"
           :key="vulnerability.name"
-          :to="{
-            name: 'VulnerabilityTasks',
-            params: { vulnerability: vulnerability.name },
-          }"
-          class="vulnerability-card"
-          :style="{ backgroundColor: vulnerability.color }"
         >
-          {{ vulnerability.name }}
-        </router-link>
+          <router-link
+            :to="{
+              name: 'VulnerabilityTasks',
+              params: { vulnerability: vulnerability.name },
+            }"
+            class="card-link"
+          >
+            <div class="vulnerability-card">
+              <div
+                class="card-top"
+                :style="{
+                  background: vulnerability.gradient,
+                }"
+              >
+                <h2
+                  class="card-title"
+                  :style="{ backgroundImage: vulnerability.titleColor }"
+                >
+                  {{ vulnerability.name }}
+                </h2>
+              </div>
+              <div class="card-content">
+                <p class="card-description">{{ vulnerability.description }}</p>
+                <div
+                  class="task-count"
+                  :style="{ color: vulnerability.accentColor }"
+                >
+                  <span>{{ vulnerability.taskCount }} заданий</span>
+                  <hr
+                    class="line"
+                    :style="{ borderColor: vulnerability.accentColor }"
+                  />
+                </div>
+              </div>
+            </div>
+          </router-link>
+        </div>
       </main>
     </div>
   </div>
 </template>
 
 <script>
+import TheHeader from "./TheHeader.vue";
+import TheSideBar from "./TheSideBar.vue";
+
 export default {
+  components: {
+    TheHeader,
+    TheSideBar,
+  },
   name: "AllTasks",
   data() {
     return {
       vulnerabilities: [
-        { name: "XSS", color: "#8ab5ff" },
-        { name: "CSRF", color: "#a0efde" },
-        { name: "SQL Injection", color: "#ffbe8a" },
-        { name: "XSS", color: "#8ab5ff" },
+        {
+          name: "XSS",
+          gradient: "linear-gradient(180deg, #F2F2FF 0%, #3764ED 100%)",
+          titleColor:
+            "linear-gradient(90deg, #3764ED 0%, #2C4FBC 50%, #1F3987 100%)",
+          description:
+            "XSS уязвимости - внедрение вредоносных скриптов на веб-страницы.",
+          taskCount: 10,
+          accentColor: "#3764ED",
+        },
+        {
+          name: "CSRF",
+          gradient: "linear-gradient(180deg, #F2F2FF 0%, #16B593 100%)",
+          titleColor:
+            "linear-gradient(90deg, #04916E 0%, #046E4C 50%, #004A2E 100%)",
+          description: "CSRF уязвимости - подделка межсайтовых запросов.",
+          taskCount: 15,
+          accentColor: "#3AE8C5",
+        },
+        {
+          name: "SQL Injection",
+          gradient: "linear-gradient(180deg, #FEF3E9 0%, #F9A866 100%)",
+          titleColor:
+            "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
+          description:
+            "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
+          taskCount: 12,
+          accentColor: "#F9A866",
+        },
         // ... other vulnerabilities
       ],
     };
@@ -140,86 +105,94 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: "Arial", sans-serif;
 }
-
-.header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-}
-
-.user-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
 .content-wrapper {
   display: flex;
   flex-grow: 1;
 }
 
-.sidebar {
-  width: 200px;
-  background-color: #f8f9fa;
-  padding: 20px;
-  min-height: calc(100vh - 56px); /* Full screen - header*/
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  text-decoration: none;
-  color: #979797;
-  margin-bottom: 5px;
-  border-radius: 20px;
-}
-.sidebar-item svg {
-  margin-right: 10px;
-}
-.sidebar-item:hover {
-  background-color: #007bff;
-  color: white;
-}
-
 .all-tasks {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   padding: 20px;
   margin-top: 10px;
-  grid-auto-rows: 400px;
+}
+
+.card-link {
+  text-decoration: none;
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .vulnerability-card {
+  width: 300px;
+  height: 400px;
+  background: #f2f2ff;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  border-radius: 15px;
-  text-decoration: none;
-  color: #333;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-weight: bold;
-  font-size: 1.2em;
+  flex-direction: column;
+  font-family: "Montserrat", sans-serif;
 }
 
 .vulnerability-card:hover {
-  transform: translateY(-5px);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Увеличиваем размытие и смещение тени */
+}
+
+.card-top {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.card-title {
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 49px;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 20px;
+  text-align: center;
+}
+
+.card-description {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: #000000;
+  margin-bottom: 20px;
+}
+.task-count {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.line {
+  width: 85px;
+  height: 0px;
+  border: 1px solid;
+  margin: 5px auto 0;
 }
 </style>
