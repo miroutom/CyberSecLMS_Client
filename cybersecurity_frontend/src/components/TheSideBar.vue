@@ -26,7 +26,7 @@
       Все курсы
     </router-link>
 
-    <router-link to="/about" class="sidebar-item">
+    <router-link to="/my_courses" class="sidebar-item">
       <svg
         width="40"
         height="40"
@@ -46,7 +46,7 @@
       Мои курсы
     </router-link>
 
-    <router-link to="/tasks" class="sidebar-item">
+    <router-link to="/statistics" class="sidebar-item">
       <svg
         width="40"
         height="40"
@@ -65,7 +65,7 @@
       </svg>
       Статистика</router-link
     >
-    <router-link to="/tasks" class="sidebar-item">
+    <router-link to="/profile" class="sidebar-item">
       <svg
         width="40"
         height="40"
