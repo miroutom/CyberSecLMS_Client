@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Уязвимое приложение - CSRF</title>
+  </head>
+  <body>
+    <h1>Изменение цвета фона</h1>
+    <form action="/change-background" method="POST">
+      <input type="hidden" name="csrf_token" value="NOT_A_REAL_CSRF_TOKEN" />
+      <label for="color">Выберите цвет:</label>
+      <select name="color" id="color">
+        <option value="red">Красный</option>
+        <option value="green">Зеленый</option>
+        <option value="blue">Синий</option>
+      </select>
+      <button type="submit">Изменить</button>
+    </form>
+
+    <template id="task-description">
+      <h2>Задание: CSRF уязвимость</h2>
+      <p>
+        В данном задании вам необходимо найти и исправить уязвимость подделки
+        межсайтовых запросов (CSRF). Форма изменяет цвет фона, но не защищена от
+        CSRF атак.
+      </p>
+      <p>
+        <b>Цель:</b> Обезопасить форму, предотвратив возможность изменения цвета
+        фона злоумышленником без ведома пользователя.
+      </p>
+      <p>
+        <b>Подсказка:</b> Обратите внимание на отсутствие проверки CSRF токена
+        на сервере.
+      </p>
+    </template>
+
+    <script id="code" type="text/template"></script>
+  </body>
+</html>
