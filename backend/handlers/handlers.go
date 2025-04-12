@@ -1,12 +1,20 @@
 package handlers
 
 import (
-	"lmsmodule/backend/storage"
+	"database/sql"
+	"lmsmodule/backend/models"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
+var db *sql.DB
+
+// SetDB sets the global database connection.
+func SetDB(database *sql.DB) {
+	db = database
+}
 
 // GetCourses
 // @Summary Gets all courses
@@ -16,7 +24,25 @@ import (
 // @Success 200 {object} []models.Course "List of courses"
 // @Router /courses [get]
 func GetCourses(c *gin.Context) {
-	c.JSON(http.StatusOK, storage.Courses)
+	rows, err := db.Query("SELECT id, title, description FROM courses")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve courses"})
+		return
+	}
+	defer rows.Close()
+
+	var courses []models.Course
+	for rows.Next() {
+		var course models.Course
+		err := rows.Scan(&course.ID, &course.Title, &course.Description)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse course data"})
+			return
+		}
+		courses = append(courses, course)
+	}
+
+	c.JSON(http.StatusOK, courses)
 }
 
 // GetCourseByID
@@ -30,13 +56,13 @@ func GetCourses(c *gin.Context) {
 // @Router /courses/{id} [get]
 func GetCourseByID(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	for _, course := range storage.Courses {
-		if course.ID == id {
-			c.JSON(http.StatusOK, course)
-			return
-		}
+	var course models.Course
+	err := db.QueryRow("SELECT id, title, description FROM courses WHERE id = ?", id).Scan(&course.ID, &course.Title, &course.Description)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Course not found"})
+		return
 	}
-	c.JSON(http.StatusNotFound, gin.H{"message": "Course not found"})
+	c.JSON(http.StatusOK, course)
 }
 
 // GetUserProgress
@@ -50,11 +76,26 @@ func GetCourseByID(c *gin.Context) {
 // @Router /progress/{user_id} [get]
 func GetUserProgress(c *gin.Context) {
 	userID, _ := strconv.Atoi(c.Param("user_id"))
-	if progress, exists := storage.UserProgress[userID]; exists {
-		c.JSON(http.StatusOK, progress)
-	} else {
-		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+	rows, err := db.Query("SELECT assignment_id FROM user_progress WHERE user_id = ?", userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve progress"})
+		return
 	}
+	defer rows.Close()
+
+	completed := make(map[int]bool)
+	for rows.Next() {
+		var assignmentID int
+		_ = rows.Scan(&assignmentID)
+		completed[assignmentID] = true
+	}
+
+	progress := models.UserProgress{
+		UserID:    userID,
+		Completed: completed,
+	}
+
+	c.JSON(http.StatusOK, progress)
 }
 
 // CompleteAssignment
@@ -71,10 +112,11 @@ func CompleteAssignment(c *gin.Context) {
 	userID, _ := strconv.Atoi(c.Param("user_id"))
 	assignmentID, _ := strconv.Atoi(c.Param("assignment_id"))
 
-	if progress, exists := storage.UserProgress[userID]; exists {
-		progress.Completed[assignmentID] = true
-		c.JSON(http.StatusOK, gin.H{"message": "Assignment marked as completed"})
-	} else {
-		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+	_, err := db.Exec("INSERT INTO user_progress (user_id, assignment_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE assignment_id = assignment_id", userID, assignmentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to complete assignment"})
+		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Assignment marked as completed"})
 }
