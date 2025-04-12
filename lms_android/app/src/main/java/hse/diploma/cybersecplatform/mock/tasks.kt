@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.utils.mock
+package hse.diploma.cybersecplatform.mock
 
 import hse.diploma.cybersecplatform.model.Task
 import hse.diploma.cybersecplatform.model.VulnerabilityType

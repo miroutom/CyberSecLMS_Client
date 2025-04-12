@@ -13,16 +13,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import hse.diploma.cybersecplatform.mock.mockVulnerabilityItems
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.VulnerabilityCard
 import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
-import hse.diploma.cybersecplatform.utils.mock.mockVulnerabilityItems
 
 @Composable
 fun HomeScreen(
@@ -33,8 +34,10 @@ fun HomeScreen(
         modifier = modifier,
     ) {
         SearchBar(
-            searchQuery = "",
+            searchQuery = TextFieldValue(""),
             onSearchQueryChange = {},
+            enableFiltering = false,
+            onFilterClick = {},
             modifier = Modifier.background(Color.White),
         )
         // TODO: replace with real data

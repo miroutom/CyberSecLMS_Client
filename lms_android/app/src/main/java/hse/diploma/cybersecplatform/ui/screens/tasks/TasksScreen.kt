@@ -10,29 +10,59 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import hse.diploma.cybersecplatform.model.Task
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
-import hse.diploma.cybersecplatform.utils.mock.mockTasksItems
+import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
 
 @Composable
 fun TasksScreen(
     vulnerabilityType: VulnerabilityType,
+    viewModel: TasksScreenViewModel = viewModel(),
     modifier: Modifier = Modifier,
 ) {
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val tasks by viewModel.tasks.collectAsState()
+    var showFilterDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier,
     ) {
         SearchBar(
-            searchQuery = "",
-            onSearchQueryChange = {},
+            searchQuery = searchQuery,
+            onSearchQueryChange = viewModel::onSearchQueryChange,
+            enableFiltering = true,
+            onFilterClick = { showFilterDialog = true },
             modifier = Modifier.background(Color.White),
         )
-        TasksContent(mockTasksItems, vulnerabilityType, modifier)
+
+        TasksContent(tasks, vulnerabilityType)
+    }
+
+    if (showFilterDialog) {
+        FilterSelectionDialog(
+            onFilterSelected = { selectedDifficulties ->
+                viewModel.filterTaskByDifficulty(selectedDifficulties)
+                showFilterDialog = false
+            },
+            onDismiss = {
+                showFilterDialog = false
+            },
+            onClearFilters = {
+                showFilterDialog = false
+                viewModel.resetFilters()
+            },
+        )
     }
 }
 
