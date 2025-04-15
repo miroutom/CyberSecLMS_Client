@@ -1,7 +1,7 @@
 <template>
   <div class="registration-page">
     <div class="registration-container">
-      <img src="../assets/icons/logo.png" alt="logo" />
+      <img src="../../assets/icons/logo.png" alt="logo" />
       <form @submit.prevent>
         <div class="input-group">
           <input type="text" id="username" required placeholder=" " />
@@ -27,7 +27,7 @@
   align-items: center;
   min-height: 100vh;
   font-family: sans-serif;
-  background-image: url("../assets/login_background.png");
+  background-image: url("../../assets/login_background.png");
   background-size: cover;
   background-repeat: no-repeat;
 }
