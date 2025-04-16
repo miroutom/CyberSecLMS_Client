@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gin-gonic/gin"
 	"lmsmodule/backend/storage"
 	"net/http"
