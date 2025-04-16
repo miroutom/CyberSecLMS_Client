@@ -26,8 +26,12 @@ export default {
           return "Статистика";
         case "/profile":
           return "Профиль";
+        case "/tasks/XSS":
+          return "XSS";
+        case "/tasks/CSRF":
+          return "CSRF";
         default:
-          return "null"; // Или null, если не нужен заголовок для других маршрутов
+          return "null";
       }
     },
   },

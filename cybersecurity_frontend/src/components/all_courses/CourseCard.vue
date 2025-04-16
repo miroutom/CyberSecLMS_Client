@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="{ name: 'VulnerabilityTasks', params: { vulnerability: courseId } }"
+    :to="{ name: 'TaskList', params: { vulnerability: courseId } }"
     class="card-link"
   >
     <div class="vulnerability-card">
