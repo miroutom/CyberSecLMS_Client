@@ -108,9 +108,11 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: sticky;
 }
 
 .sidebar-item {
+  font-family: "Arial", sans-serif;
   display: flex;
   align-items: center;
   padding: 10px;

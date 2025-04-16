@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="{ name: 'VulnerabilityTasks', params: { vulnerability: courseId } }"
+    :to="{ name: 'TaskList', params: { vulnerability: courseId } }"
     class="card-link"
   >
     <div class="vulnerability-card">
@@ -125,8 +125,8 @@ export default {
 
 .progress-wrapper {
   display: flex;
-  flex-direction: column; /* элементы располагаются вертикально */
-  align-items: center; /* центрируем элементы по горизонтали */
+  flex-direction: column;
+  align-items: center;
 }
 
 .progress-container {
@@ -136,7 +136,7 @@ export default {
   border-radius: 10px;
   border: 1px solid;
   margin-bottom: 10px;
-  overflow: hidden; /* Чтобы progress-bar не выходил за границы */
+  overflow: hidden;
 }
 
 .progress-bar {
@@ -150,9 +150,8 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 12px;
-  color: white; /* Или другой подходящий цвет */
-  z-index: 1; /* Чтобы текст был поверх progress-bar */
-  /* Добавьте mix-blend-mode: difference; для лучшей читаемости на разных фонах */
+  color: white;
+  z-index: 1;
 }
 
 .continue-button {
