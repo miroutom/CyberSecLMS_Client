@@ -28,7 +28,6 @@ jobs:
       - name: Download dependencies
         run: |
           go mod download
-          go install github.com/golang-jwt/jwt/v5@latest
 
       - name: Clean modcache
         run: |
@@ -40,4 +39,4 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          args: --out-format=colored-line-number --skip-dirs-use-default --skip-files=_test.go --disable=goanalysis_metalinter
+          args: --out-format=colored-line-number --skip-files=_test.go
