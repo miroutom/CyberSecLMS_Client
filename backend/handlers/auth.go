@@ -40,18 +40,17 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	//	"username": req.Username,
-	//	"exp":      time.Now().Add(time.Hour * 24).Unix(), // токен действителен в течение 24 часов
-	//})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": req.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(), // токен действителен в течение 24 часов
+	})
 
-	//secret := "your-secret-key" // заменить на нормальный секретный ключ
-	//tokenString, err := token.SignedString([]byte(secret))
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-	//	return
-	//}
+	secret := "your-secret-key" // заменить на нормальный секретный ключ
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
 
-	//c.JSON(http.StatusOK, gin.H{"token": tokenString})
-	c.JSON(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
