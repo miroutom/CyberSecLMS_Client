@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
 	handlers2 "lmsmodule/backend/handlers"
+	"log"
 )
 
 // @title LMS API
@@ -17,6 +20,22 @@ import (
 // @scheme http
 
 func main() {
+	// Initialize DB connection
+	dsn := "root:2003@tcp(localhost:3306)/lms_db"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatal("Database is not reachable:", err)
+	}
+	log.Println("Connected to MySQL database")
+
+	// Pass DB to handlers if needed via global/shared mechanism or context
+	handlers2.SetDB(db) // assume a setter exists in handlers2
+
 	r := gin.Default()
 
 	// @Summary Logs in the user
@@ -69,5 +88,8 @@ func main() {
 	// @Router /progress/{user_id}/assignments/{assignment_id}/complete [post]
 	r.POST("/progress/:user_id/:assignment_id/complete", handlers2.CompleteAssignment)
 
-	r.Run(":8080") // Starts the service on port 8080
+	// Starts the service on port 8080
+	if err := r.Run(":8080"); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+	}
 }
