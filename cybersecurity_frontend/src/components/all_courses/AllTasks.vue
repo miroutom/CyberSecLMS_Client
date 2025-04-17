@@ -88,9 +88,11 @@ export default {
   min-height: 100vh;
   font-family: "Arial", sans-serif;
 }
+
 .content-wrapper {
-  display: flex;
-  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
 }
 
 .all-tasks {

@@ -1,9 +1,9 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import TaskPage from "@/components/task/TaskPage.vue";
 import AllTasks from "@/components/all_courses/AllTasks.vue";
-import VulnerabilityTasks from "@/components/VulnerabilityTasks.vue";
 import LoginPage from "@/components/login/LoginPage.vue";
 import MyCourses from "@/components/my_courses/MyCourses.vue";
+import TaskList from "@/components/task-list/TaskList.vue";
 
 const routes = [
   {
@@ -23,8 +23,8 @@ const routes = [
   },
   {
     path: "/tasks/:vulnerability",
-    name: "VulnerabilityTasks",
-    component: VulnerabilityTasks,
+    name: "TaskList",
+    component: TaskList,
     props: true,
   },
   {
