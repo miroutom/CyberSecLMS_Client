@@ -88,5 +88,7 @@ func main() {
 	// @Router /progress/{user_id}/assignments/{assignment_id}/complete [post]
 	r.POST("/progress/:user_id/:assignment_id/complete", handlers2.CompleteAssignment)
 
-	r.Run(":8080") // Starts the service on port 8080
+	// Starts the service on port 8080
+	if err := r.Run(":8080"); err != nil {
+        log.Fatal("Failed to start server: %v", err)
 }
