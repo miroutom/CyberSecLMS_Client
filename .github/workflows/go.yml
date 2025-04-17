@@ -23,12 +23,20 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
-      - name: Install golangci-lint
+      - name: Download dependencies
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.1
+          go mod download
+     
+      - name: Clean modcache
+        run: |
+          go clean -modcache
+          go clean -cache
+          go mod tidy
 
-      - name: Lint Go code with golangci-lint
-        run: |
-          golangci-lint run
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          args: --out-format=colored-line-number
