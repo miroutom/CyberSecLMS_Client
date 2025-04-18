@@ -10,7 +10,8 @@ import javax.inject.Singleton
 @Component(
     modules = [
         AppModule::class,
-        AuthStateViewModelModule::class,
+        ViewModelModule::class,
+        RepoModule::class,
     ],
 )
 interface AppComponent {
@@ -18,5 +19,5 @@ interface AppComponent {
 
     fun applicationContext(): Context
 
-    fun authStateViewModelFactory(): ViewModelProvider.Factory
+    fun viewModelFactory(): ViewModelProvider.Factory
 }

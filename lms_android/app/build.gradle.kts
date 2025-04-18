@@ -69,6 +69,7 @@ dependencies {
     // --- DI ---
     implementation(libs.dagger)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
     kapt(libs.dagger.compiler)
 
     // --- Testing ---
