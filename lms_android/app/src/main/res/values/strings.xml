@@ -56,4 +56,8 @@
     <string name="easy_level">Лёгкий</string>
     <string name="medium_level">Средний</string>
     <string name="hard_level">Сложный</string>
+
+    <string name="filter_selection_dialog_title">Выберите сложность</string>
+    <string name="reset_button">Сброс</string>
+    <string name="confirm_button">Готово</string>
 </resources>

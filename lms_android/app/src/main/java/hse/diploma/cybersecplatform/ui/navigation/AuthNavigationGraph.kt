@@ -17,7 +17,6 @@ fun NavGraphBuilder.authNavigationGraph(
     onAuthCompleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
     navigation(
         startDestination = Screen.Onboarding.route,
         route = "auth_flow",

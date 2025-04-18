@@ -28,9 +28,9 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 @Composable
 fun SearchBar(
     searchQuery: TextFieldValue,
-    enableFiltering: Boolean,
+    enableFiltering: Boolean = true,
     onSearchQueryChange: (TextFieldValue) -> Unit,
-    onFilterClick: () -> Unit,
+    onFilterClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Box(

@@ -41,7 +41,6 @@ fun TasksScreen(
         SearchBar(
             searchQuery = searchQuery,
             onSearchQueryChange = viewModel::onSearchQueryChange,
-            enableFiltering = true,
             onFilterClick = { showFilterDialog = true },
             modifier = Modifier.background(Color.White),
         )
