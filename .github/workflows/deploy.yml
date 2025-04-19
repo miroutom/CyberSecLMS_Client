@@ -2,10 +2,10 @@ name: CD Deploy LMS
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
 
   pull_request_target:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
   deploy:
