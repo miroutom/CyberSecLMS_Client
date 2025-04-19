@@ -13,7 +13,10 @@ val localProperties =
         load(rootProject.file("local.properties").inputStream())
     }
 
-val baseUrl: String = localProperties.getProperty("BASE_URL")
+val baseUrl: String =
+    System.getProperty("BASE_URL")
+        ?: localProperties.getProperty("BASE_URL")
+        ?: error("BASE_URL not specified")
 
 android {
     namespace = "hse.diploma.cybersecplatform"

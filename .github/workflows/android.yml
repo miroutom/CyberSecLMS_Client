@@ -31,8 +31,14 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Create local.properties with BASE_URL
+        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
+
       - name: Ktlint Check
         run: ./gradlew ktlintCheck
+
+      - name: Create local.properties with BASE_URL
+        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
 
       - name: Lint Check
         run: ./gradlew lintDebug
@@ -49,6 +55,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+
+      - name: Create local.properties with BASE_URL
+        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
