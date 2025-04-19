@@ -11,6 +11,7 @@ import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenViewModel
+import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenViewModel
 
 @Module
 abstract class ViewModelModule {
@@ -26,6 +27,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(HomeScreenViewModel::class)
     abstract fun provideHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TasksScreenViewModel::class)
+    abstract fun provideTasksScreenViewModel(viewModel: TasksScreenViewModel): ViewModel
 
     @Binds
     @IntoMap

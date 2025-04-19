@@ -7,9 +7,7 @@ import hse.diploma.cybersecplatform.data.model.LoginResponse
 import hse.diploma.cybersecplatform.data.model.RegisterRequest
 import hse.diploma.cybersecplatform.domain.AuthRepo
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class AuthRepoImpl @Inject constructor(
     private val api: ApiService,
     private val tokenManager: TokenManager,

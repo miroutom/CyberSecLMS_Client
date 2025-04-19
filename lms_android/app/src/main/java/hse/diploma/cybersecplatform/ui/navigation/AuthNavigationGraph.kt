@@ -72,6 +72,7 @@ fun NavGraphBuilder.authNavigationGraph(
                 modifier = modifier,
             )
 
+            // TODO: replace with dialog
             errorMessage?.let { error ->
                 Snackbar(
                     modifier = Modifier.padding(16.dp),
@@ -101,6 +102,7 @@ fun NavGraphBuilder.authNavigationGraph(
                 modifier = modifier,
             )
 
+            // TODO: replace with dialog
             errorMessage?.let { error ->
                 Snackbar(
                     modifier = Modifier.padding(16.dp),

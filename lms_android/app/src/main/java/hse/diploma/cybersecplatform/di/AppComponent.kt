@@ -6,6 +6,7 @@ import dagger.Component
 import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
 import hse.diploma.cybersecplatform.data.api.TokenManager
+import hse.diploma.cybersecplatform.domain.AuthRepo
 import javax.inject.Singleton
 
 @Singleton
@@ -27,4 +28,6 @@ interface AppComponent {
     fun tokenManager(): TokenManager
 
     fun appPreferencesManager(): AppPreferencesManager
+
+    fun authRepo(): AuthRepo
 }

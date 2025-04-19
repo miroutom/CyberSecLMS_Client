@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
@@ -40,7 +41,7 @@ fun AuthorizationScreen(
     onNavigateToRegistration: () -> Unit,
     onAuthorized: () -> Unit,
     onError: (String) -> Unit,
-    viewModel: AuthorizationScreenViewModel = viewModel(),
+    viewModel: AuthorizationScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
     val login by viewModel.login.collectAsState()

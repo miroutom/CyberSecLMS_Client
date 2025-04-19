@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.VulnerabilityCard
@@ -31,7 +32,7 @@ fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeScreenViewModel = viewModel()
+    val viewModel: HomeScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
     val searchQuery by viewModel.searchQuery.collectAsState()
     val vulnerabilities by viewModel.vulnerabilities.collectAsState()
 

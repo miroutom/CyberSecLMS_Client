@@ -15,6 +15,5 @@ interface RepoModule {
     fun bindVulnerabilityRepo(vulnerabilityRepo: VulnerabilityRepoImpl): VulnerabilityRepo
 
     @Binds
-    @Singleton
     fun bindAuthRepo(authRepo: AuthRepoImpl): AuthRepo
 }

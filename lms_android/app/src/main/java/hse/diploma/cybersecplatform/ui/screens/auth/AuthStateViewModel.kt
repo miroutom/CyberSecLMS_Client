@@ -5,9 +5,7 @@ import hse.diploma.cybersecplatform.domain.AuthRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class AuthStateViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
     private val _isAuthorized = MutableStateFlow(authRepo.isAuthorized())
     val isAuthorized = _isAuthorized.asStateFlow()

@@ -3,6 +3,7 @@ package hse.diploma.cybersecplatform
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
@@ -14,6 +15,7 @@ import hse.diploma.cybersecplatform.data.api.TokenManager
 import hse.diploma.cybersecplatform.di.ActivityComponent
 import hse.diploma.cybersecplatform.di.ActivityModule
 import hse.diploma.cybersecplatform.di.DaggerActivityComponent
+import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
 import hse.diploma.cybersecplatform.ui.navigation.MainNavigationGraph
 import hse.diploma.cybersecplatform.ui.navigation.authNavigationGraph
@@ -51,27 +53,31 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
 
         setContent {
             CyberSecPlatformTheme {
-                val navController = rememberNavController()
-                navController.setViewModelStore(viewModelStore)
-
-                val isAuthorized by authStateViewModel.isAuthorized.collectAsState()
-
-                NavHost(
-                    navController = navController,
-                    startDestination = if (isAuthorized) "main_flow" else "auth_flow",
+                CompositionLocalProvider(
+                    LocalViewModelFactory provides viewModelFactory,
                 ) {
-                    authNavigationGraph(
+                    val navController = rememberNavController()
+                    navController.setViewModelStore(viewModelStore)
+
+                    val isAuthorized by authStateViewModel.isAuthorized.collectAsState()
+
+                    NavHost(
                         navController = navController,
-                        onAuthCompleted = {
-                            authStateViewModel.authorize()
-                            navController.navigate("main_flow") {
-                                popUpTo("auth_flow") { inclusive = true }
-                            }
-                        },
-                        appPreferencesManager = appPreferencesManager,
-                    )
-                    composable("main_flow") {
-                        MainNavigationGraph()
+                        startDestination = if (isAuthorized) "main_flow" else "auth_flow",
+                    ) {
+                        authNavigationGraph(
+                            navController = navController,
+                            onAuthCompleted = {
+                                authStateViewModel.authorize()
+                                navController.navigate("main_flow") {
+                                    popUpTo("auth_flow") { inclusive = true }
+                                }
+                            },
+                            appPreferencesManager = appPreferencesManager,
+                        )
+                        composable("main_flow") {
+                            MainNavigationGraph()
+                        }
                     }
                 }
             }
