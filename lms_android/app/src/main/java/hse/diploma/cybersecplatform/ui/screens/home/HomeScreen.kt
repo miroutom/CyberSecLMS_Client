@@ -18,10 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.VulnerabilityCard
@@ -33,7 +31,7 @@ fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeScreenViewModel = viewModel(factory = MainApplication.appComponent.viewModelFactory())
+    val viewModel: HomeScreenViewModel = viewModel()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val vulnerabilities by viewModel.vulnerabilities.collectAsState()
 

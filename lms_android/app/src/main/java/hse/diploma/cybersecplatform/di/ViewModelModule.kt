@@ -8,6 +8,8 @@ import dagger.multibindings.IntoMap
 import hse.diploma.cybersecplatform.di.vm.ViewModelFactory
 import hse.diploma.cybersecplatform.di.vm.ViewModelKey
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
+import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenViewModel
+import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenViewModel
 
 @Module
@@ -24,4 +26,14 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(HomeScreenViewModel::class)
     abstract fun provideHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(AuthorizationScreenViewModel::class)
+    abstract fun provideAuthorizationScreenViewModel(viewModel: AuthorizationScreenViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(RegistrationScreenViewModel::class)
+    abstract fun provideRegistrationScreenViewModel(viewModel: RegistrationScreenViewModel): ViewModel
 }

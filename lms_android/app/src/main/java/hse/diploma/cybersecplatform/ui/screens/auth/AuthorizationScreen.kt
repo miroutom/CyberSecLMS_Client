@@ -8,32 +8,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
-import hse.diploma.cybersecplatform.ui.components.textFields.AuthMethodTextField
+import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
-import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
-import hse.diploma.cybersecplatform.utils.isPasswordValid
 import hse.diploma.cybersecplatform.utils.logD
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 private const val TAG = "AuthorizationScreen"
 
@@ -41,12 +39,16 @@ private const val TAG = "AuthorizationScreen"
 fun AuthorizationScreen(
     onNavigateToRegistration: () -> Unit,
     onAuthorized: () -> Unit,
+    onError: (String) -> Unit,
     viewModel: AuthorizationScreenViewModel = viewModel(),
     modifier: Modifier = Modifier,
 ) {
     val login by viewModel.login.collectAsState()
     val password by viewModel.password.collectAsState()
+    val username by viewModel.username.collectAsState()
+
     val isAuthorizationEnabled by viewModel.isAuthorizationEnabled.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -58,6 +60,12 @@ fun AuthorizationScreen(
                         .background(Color.White)
                         .padding(paddingValues),
             ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+
                 Column(
                     modifier =
                         Modifier
@@ -82,9 +90,10 @@ fun AuthorizationScreen(
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        AuthMethodTextField(
-                            value = login,
-                            onValueChange = viewModel::onLoginChange,
+                        AdditionalTextField(
+                            value = username,
+                            onValueChange = viewModel::onUsernameChange,
+                            labelId = R.string.auth_label_username,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordField(
@@ -102,8 +111,15 @@ fun AuthorizationScreen(
                     FilledButton(
                         text = stringResource(R.string.auth_button),
                         onClick = {
-                            logD(TAG, "onLoginClicked performAuthorization")
-                            viewModel.performAuthorization(onAuthorized)
+                            logD(TAG, "onLoginClicked login")
+                            viewModel.login(username.text, password.text) { result ->
+                                result.onSuccess {
+                                    // Сохраняем токен, если нужно
+                                    onAuthorized()
+                                }.onFailure { error ->
+                                    onError(error.message ?: "Ошибка авторизации")
+                                }
+                            }
                         },
                         enabled = isAuthorizationEnabled,
                     )
@@ -121,23 +137,10 @@ fun AuthorizationScreen(
 @Preview
 @Composable
 fun AuthorizationScreenPreview() {
-    val mockViewModel =
-        object : AuthorizationScreenViewModel() {
-            override val login: StateFlow<TextFieldValue>
-                get() = MutableStateFlow(TextFieldValue("9300315295"))
-            override val password: StateFlow<TextFieldValue>
-                get() = MutableStateFlow(TextFieldValue("8991A.64783k1"))
-            override val isAuthorizationEnabled: StateFlow<Boolean>
-                get() =
-                    MutableStateFlow(
-                        isLoginValidAndAuthMethodType(login.value.text).first &&
-                            isPasswordValid(password.value.text),
-                    )
-        }
-
     AuthorizationScreen(
         onNavigateToRegistration = {},
         onAuthorized = {},
-        viewModel = mockViewModel,
+        onError = {},
+        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationScreenViewModel::class.java),
     )
 }

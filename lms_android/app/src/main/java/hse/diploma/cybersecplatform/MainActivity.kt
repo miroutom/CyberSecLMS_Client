@@ -3,13 +3,14 @@ package hse.diploma.cybersecplatform
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
+import hse.diploma.cybersecplatform.data.api.TokenManager
 import hse.diploma.cybersecplatform.di.ActivityComponent
 import hse.diploma.cybersecplatform.di.ActivityModule
 import hse.diploma.cybersecplatform.di.DaggerActivityComponent
@@ -33,7 +34,14 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
     override val viewModelFactory: ViewModelProvider.Factory
         get() = viewModelFactoryInternal
 
-    private val authStateViewModel: AuthStateViewModel by viewModels { viewModelFactory }
+    @Inject
+    lateinit var tokenManager: TokenManager
+
+    @Inject
+    lateinit var appPreferencesManager: AppPreferencesManager
+
+    @Inject
+    lateinit var authStateViewModel: AuthStateViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logD(TAG, "onCreate")
@@ -60,6 +68,7 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                                 popUpTo("auth_flow") { inclusive = true }
                             }
                         },
+                        appPreferencesManager = appPreferencesManager,
                     )
                     composable("main_flow") {
                         MainNavigationGraph()
