@@ -3,11 +3,9 @@ name: CD Deploy LMS
 on:
   push:
     branches: [main]
-    types: [opened, synchronize, reopened]
 
   pull_request_target:
     branches: [main]
-    types: [opened, synchronize, reopened]
 
 jobs:
   deploy:
