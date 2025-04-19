@@ -10,61 +10,100 @@ import (
 	"time"
 )
 
-// LoginRequest представляет структуру запроса для аутентификации
-// @Description Запрос на авторизацию пользователя
+// LoginRequest represents login request
 type LoginRequest struct {
-	// Username
 	Username string `json:"username" binding:"required" example:"admin"`
-	// Password
 	Password string `json:"password" binding:"required" example:"password123"`
 }
 
-// LoginResponse представляет структуру успешного ответа
-// @Description Ответ с JWT токеном и информацией о пользователе
+// RegisterRequest represents registration request
+type RegisterRequest struct {
+	Username string `json:"username" binding:"required" example:"newuser"`
+	Password string `json:"password" binding:"required" example:"newpassword123"`
+	Email    string `json:"email" binding:"required" example:"user@example.com"`
+	FullName string `json:"fullName" binding:"required" example:"New User"`
+}
+
+// LoginResponse represents successful login response
 type LoginResponse struct {
-	// JWT токен для аутентификации
 	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	// Информация о пользователе
-	User struct {
-		// ID пользователя
-		ID int `json:"id" example:"1"`
-		// Имя пользователя
+	User  struct {
+		ID       int    `json:"id" example:"1"`
 		Username string `json:"username" example:"admin"`
-		// Полное имя
-		FullName string `json:"fullName" example:"Администратор Системы"`
-		// Email
-		Email string `json:"email" example:"admin@lms.example"`
+		FullName string `json:"fullName" example:"Admin User"`
+		Email    string `json:"email" example:"admin@example.com"`
 	} `json:"user"`
 }
 
-// ErrorResponse представляет структуру ошибки
-// @Description Стандартный формат ошибки
+// ErrorResponse represents error response
 type ErrorResponse struct {
-	// Сообщение об ошибке
 	Error string `json:"error" example:"Invalid credentials"`
 }
 
-// LoginHandler обрабатывает запрос на авторизацию
-// @Summary Аутентификация пользователя
-// @Description Проверяет учетные данные пользователя и возвращает JWT токен
-// @Tags Аутентификация
+// RegisterHandler handles user registration
+// @Summary Register new user
+// @Description Create a new user account
+// @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param request body LoginRequest true "Данные для входа"
-// @Success 200 {object} LoginResponse "Успешная аутентификация"
-// @Failure 400 {object} ErrorResponse "Неверный формат запроса"
-// @Failure 401 {object} ErrorResponse "Неверные учетные данные"
-// @Failure 500 {object} ErrorResponse "Ошибка сервера"
+// @Param request body RegisterRequest true "Registration data"
+// @Success 201 {object} LoginResponse "User created"
+// @Failure 400 {object} ErrorResponse "Invalid request"
+// @Failure 409 {object} ErrorResponse "User already exists"
+// @Failure 500 {object} ErrorResponse "Server error"
+// @Router /register [post]
+func RegisterHandler(c *gin.Context) {
+	var req RegisterRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Password hashing failed"})
+		return
+	}
+
+	var userID int
+	err = db.QueryRow(`
+		INSERT INTO users (username, password_hash, email, full_name) 
+		VALUES (?, ?, ?, ?) RETURNING id`,
+		req.Username, hashedPassword, req.Email, req.FullName).Scan(&userID)
+
+	if err != nil {
+		if isDuplicateKeyError(err) {
+			c.JSON(http.StatusConflict, ErrorResponse{"User already exists"})
+		} else {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
+		}
+		return
+	}
+
+	generateAndSendToken(c, userID, req.Username, req.FullName, req.Email)
+}
+
+// LoginHandler handles user login
+// @Summary Authenticate user
+// @Description Verify user credentials and return JWT token
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login data"
+// @Success 200 {object} LoginResponse "Authentication successful"
+// @Failure 400 {object} ErrorResponse "Invalid request"
+// @Failure 401 {object} ErrorResponse "Invalid credentials"
+// @Failure 500 {object} ErrorResponse "Server error"
 // @Router /login [post]
 func LoginHandler(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid request"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
 		return
 	}
 
-	// Получаем пользователя из базы данных
 	var user struct {
 		ID           int
 		Username     string
@@ -81,58 +120,53 @@ func LoginHandler(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "Invalid credentials"})
+			c.JSON(http.StatusUnauthorized, ErrorResponse{"Invalid credentials"})
 		} else {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Database error"})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
 		}
 		return
 	}
 
-	// Проверяем пароль
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "Invalid credentials"})
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{"Invalid credentials"})
 		return
 	}
 
-	// Генерируем JWT токен
+	_, _ = db.Exec("UPDATE users SET last_login = NOW() WHERE id = ?", user.ID)
+	generateAndSendToken(c, user.ID, user.Username, user.FullName, user.Email)
+}
+
+func generateAndSendToken(c *gin.Context, userID int, username, fullName, email string) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":      user.ID,
-		"username": user.Username,
+		"sub":      userID,
+		"username": username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 		"iat":      time.Now().Unix(),
 	})
 
-	secret := "your-secret-key" // В реальном приложении брать из конфига
-	tokenString, err := token.SignedString([]byte(secret))
+	tokenString, err := token.SignedString([]byte("your-secret-key"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Failed to generate token"})
 		return
 	}
 
-	// Обновляем время последнего входа
-	_, _ = db.Exec("UPDATE users SET last_login = NOW() WHERE id = ?", user.ID)
-
-	// Формируем ответ
-	response := LoginResponse{
+	c.JSON(http.StatusOK, LoginResponse{
 		Token: tokenString,
 		User: struct {
 			ID       int    `json:"id" example:"1"`
 			Username string `json:"username" example:"admin"`
-			FullName string `json:"fullName" example:"Администратор Системы"`
-			Email    string `json:"email" example:"admin@lms.example"`
-		}(struct {
-			ID       int    `json:"id"`
-			Username string `json:"username"`
-			FullName string `json:"fullName"`
-			Email    string `json:"email"`
+			FullName string `json:"fullName" example:"Admin User"`
+			Email    string `json:"email" example:"admin@example.com"`
 		}{
-			ID:       user.ID,
-			Username: user.Username,
-			FullName: user.FullName,
-			Email:    user.Email,
-		}),
-	}
+			ID:       userID,
+			Username: username,
+			FullName: fullName,
+			Email:    email,
+		},
+	})
+}
 
-	c.JSON(http.StatusOK, response)
+func isDuplicateKeyError(err error) bool {
+	// Implement database-specific duplicate key error check
+	return err != nil && errors.Is(err, sql.ErrNoRows)
 }
