@@ -54,34 +54,70 @@ type ErrorResponse struct {
 // @Router /register [post]
 func RegisterHandler(c *gin.Context) {
 	var req RegisterRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{"Password hashing failed"})
-		return
-	}
-
-	var userID int
-	err = db.QueryRow(`
-		INSERT INTO users (username, password_hash, email, full_name) 
-		VALUES (?, ?, ?, ?) RETURNING id`,
-		req.Username, hashedPassword, req.Email, req.FullName).Scan(&userID)
+	// Проверка существования пользователя
+	var exists bool
+	err := db.QueryRow(`
+        SELECT EXISTS(
+            SELECT 1 FROM users 
+            WHERE username = ? OR email = ?
+        )`, req.Username, req.Email).Scan(&exists)
 
 	if err != nil {
-		if isDuplicateKeyError(err) {
-			c.JSON(http.StatusConflict, ErrorResponse{"User already exists"})
-		} else {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Database check failed",
+			"details": err.Error(),
+		})
 		return
 	}
 
-	generateAndSendToken(c, userID, req.Username, req.FullName, req.Email)
+	if exists {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "Username or email already exists",
+		})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(req.Password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Password hashing failed",
+		})
+		return
+	}
+
+	// Явное указание всех полей
+	_, err = db.Exec(`
+        INSERT INTO users (
+            username, 
+            password_hash, 
+            email, 
+            full_name,
+            is_active
+        ) VALUES (?, ?, ?, ?, ?)`,
+		req.Username,
+		string(hashedPassword),
+		req.Email,
+		req.FullName,
+		true, // is_active
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "User registration failed",
+			"details": err.Error(), // Полный текст ошибки
+		})
+		return
+	}
+
+	c.Status(http.StatusCreated)
 }
 
 // LoginHandler handles user login
@@ -164,9 +200,4 @@ func generateAndSendToken(c *gin.Context, userID int, username, fullName, email 
 			Email:    email,
 		},
 	})
-}
-
-func isDuplicateKeyError(err error) bool {
-	// Implement database-specific duplicate key error check
-	return err != nil && errors.Is(err, sql.ErrNoRows)
 }
