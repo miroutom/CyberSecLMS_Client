@@ -31,11 +31,14 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Create local.properties with BASE_URL
+        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
+
       - name: Ktlint Check
-        run: ./gradlew ktlintCheck
+        run: ./gradlew ktlintCheck -PBASE_URL=${{ secrets.BASE_URL }}
 
       - name: Lint Check
-        run: ./gradlew lintDebug
+        run: ./gradlew lintDebug -PBASE_URL=${{ secrets.BASE_URL }}
 
   build-debug-apk:
     name: Build Debug APK
@@ -50,8 +53,11 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Create local.properties with BASE_URL
+        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
+
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace -PBASE_URL=${{ secrets.BASE_URL }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
