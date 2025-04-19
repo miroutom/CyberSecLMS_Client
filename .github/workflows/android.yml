@@ -34,6 +34,9 @@ jobs:
       - name: Ktlint Check
         run: ./gradlew ktlintCheck
 
+      - name: Lint Check
+        run: ./gradlew lintDebug
+
   build-debug-apk:
     name: Build Debug APK
     needs: [static-code-analysis]
