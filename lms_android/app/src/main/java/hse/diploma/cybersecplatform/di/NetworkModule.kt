@@ -1,5 +1,7 @@
 package hse.diploma.cybersecplatform.di
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import hse.diploma.cybersecplatform.BuildConfig
@@ -14,6 +16,14 @@ import javax.inject.Singleton
 
 @Module
 class NetworkModule {
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .setLenient()
+            .create()
+    }
+
     @Provides
     @Singleton
     fun provideOkHttpClient(tokenManager: TokenManager): OkHttpClient {
@@ -50,11 +60,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        gson: Gson,
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 

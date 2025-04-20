@@ -5,6 +5,5 @@ data class RegisterRequest(
     val password: String,
     // TODO: add phone register possibility
     val email: String,
-    // TODO: divide to name and surname
     val fullName: String,
 )

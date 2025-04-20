@@ -8,15 +8,17 @@ plugins {
     id("kotlin-kapt")
 }
 
-val localProperties =
-    Properties().apply {
-        load(rootProject.file("local.properties").inputStream())
-    }
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 
 val baseUrl: String =
     System.getProperty("BASE_URL")
+        ?: System.getenv("BASE_URL")
         ?: localProperties.getProperty("BASE_URL")
-        ?: error("BASE_URL not specified")
+        ?: "\"https://default-url.example.com/api/\""
 
 android {
     namespace = "hse.diploma.cybersecplatform"
