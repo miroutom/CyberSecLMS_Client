@@ -2,14 +2,12 @@ name: Go Lint
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - '**.go'
 
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - '**.go'
+  pull_request_target:
+    branches: [main]
 
 jobs:
   lint:
