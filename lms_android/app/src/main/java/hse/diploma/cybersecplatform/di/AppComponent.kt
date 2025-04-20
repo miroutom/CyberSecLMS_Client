@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import dagger.Component
 import hse.diploma.cybersecplatform.MainApplication
+import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
+import hse.diploma.cybersecplatform.data.api.TokenManager
+import hse.diploma.cybersecplatform.domain.AuthRepo
 import javax.inject.Singleton
 
 @Singleton
@@ -12,6 +15,7 @@ import javax.inject.Singleton
         AppModule::class,
         ViewModelModule::class,
         RepoModule::class,
+        NetworkModule::class,
     ],
 )
 interface AppComponent {
@@ -20,4 +24,10 @@ interface AppComponent {
     fun applicationContext(): Context
 
     fun viewModelFactory(): ViewModelProvider.Factory
+
+    fun tokenManager(): TokenManager
+
+    fun appPreferencesManager(): AppPreferencesManager
+
+    fun authRepo(): AuthRepo
 }

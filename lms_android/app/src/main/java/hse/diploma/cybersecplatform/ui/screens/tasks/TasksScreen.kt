@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.model.Task
 import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
@@ -28,7 +29,7 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
 @Composable
 fun TasksScreen(
     vulnerabilityType: VulnerabilityType,
-    viewModel: TasksScreenViewModel = viewModel(),
+    viewModel: TasksScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()

@@ -5,7 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import dagger.Module
 import dagger.Provides
-import hse.diploma.cybersecplatform.data.repo.VulnerabilityRepoImpl
+import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
+import hse.diploma.cybersecplatform.data.api.TokenManager
 import javax.inject.Singleton
 
 @Module
@@ -21,7 +22,14 @@ class AppModule(
     fun providePackageManager(context: Context): PackageManager = context.packageManager
 
     @Provides
-    fun provideVulnerabilityRepository(context: Context): VulnerabilityRepoImpl {
-        return VulnerabilityRepoImpl(context)
+    @Singleton
+    fun provideAppPreferencesManager(context: Context): AppPreferencesManager {
+        return AppPreferencesManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenManager(context: Context): TokenManager {
+        return TokenManager(context)
     }
 }

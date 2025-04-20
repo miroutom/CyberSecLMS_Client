@@ -7,8 +7,9 @@ import hse.diploma.cybersecplatform.utils.Difficulty
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class TasksScreenViewModel : ViewModel() {
+class TasksScreenViewModel @Inject constructor() : ViewModel() {
     // TODO: replace with real data
     private val _tasks = MutableStateFlow(mockTasksItems)
     val tasks = _tasks.asStateFlow()

@@ -33,14 +33,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomOutlinedButton
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomStepper
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.SkipButton
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -185,15 +184,9 @@ private fun currentStepToButtonText(step: Int): String {
 @Preview
 @Composable
 fun OnBoardingScreenPreview() {
-    val mockViewModel =
-        object : OnBoardingScreenViewModel() {
-            override val currentPage: StateFlow<Int>
-                get() = MutableStateFlow(0)
-        }
-
     OnBoardingScreen(
         onNavigateToAuthorization = {},
         onNavigateToRegistration = {},
-        viewModel = mockViewModel,
+        viewModel = MainApplication.appComponent.viewModelFactory().create(OnBoardingScreenViewModel::class.java),
     )
 }
