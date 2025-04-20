@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var db *sql.DB
+var Db *sql.DB
 
 // SetDB устанавливает соединение с БД
 func SetDB(database *sql.DB) {
-	db = database
+	Db = database
 }
 
 // GetCourses возвращает список всех курсов
@@ -22,7 +22,7 @@ func SetDB(database *sql.DB) {
 // @Success 200 {array} models.Course
 // @Router /courses [get]
 func GetCourses(c *gin.Context) {
-	rows, err := db.Query("SELECT id, title, description FROM courses")
+	rows, err := Db.Query("SELECT id, title, description FROM courses")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -53,7 +53,7 @@ func GetCourseByID(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var course models.Course
 
-	err := db.QueryRow("SELECT id, title, description FROM courses WHERE id = ?", id).
+	err := Db.QueryRow("SELECT id, title, description FROM courses WHERE id = ?", id).
 		Scan(&course.ID, &course.Title, &course.Description)
 
 	if err != nil {
@@ -74,7 +74,7 @@ func GetCourseByID(c *gin.Context) {
 func GetUserProgress(c *gin.Context) {
 	userID, _ := strconv.Atoi(c.Param("user_id"))
 
-	rows, err := db.Query("SELECT assignment_id FROM user_progress WHERE user_id = ?", userID)
+	rows, err := Db.Query("SELECT assignment_id FROM user_progress WHERE user_id = ?", userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -109,7 +109,7 @@ func CompleteAssignment(c *gin.Context) {
 	userID := c.Param("user_id")
 	assignmentID := c.Param("assignment_id")
 
-	_, err := db.Exec(
+	_, err := Db.Exec(
 		"INSERT INTO user_progress (user_id, assignment_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE assignment_id = VALUES(assignment_id)",
 		userID, assignmentID,
 	)
