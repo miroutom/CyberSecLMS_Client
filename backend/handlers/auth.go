@@ -22,6 +22,11 @@ type User struct {
 	Is2FAEnabled bool
 }
 
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type LoginResponse struct {
 	Token    string `json:"token"`
 	UserID   int    `json:"userId"`
@@ -36,8 +41,30 @@ type RegisterRequest struct {
 	FullName string `json:"fullName" binding:"required" example:"New User"`
 }
 
+type VerifyOTPRequest struct {
+	TempToken string `json:"tempToken" binding:"required"`
+	OTP       string `json:"otp" binding:"required"`
+}
+
+type Enable2FARequest struct {
+	OTP string `json:"otp" binding:"required"`
+}
+
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
+type TempTokenResponse struct {
+	TempToken string `json:"tempToken"`
+	Message   string `json:"message"`
+}
+
+type Enable2FAResponse struct {
+	Status string `json:"status"`
 }
 
 const (
@@ -50,7 +77,7 @@ const (
 // @Accept json
 // @Produce json
 // @Param request body RegisterRequest true "Registration data"
-// @Success 201 {object} LoginResponse "User created"
+// @Success 201 {object} SuccessResponse "User created"
 // @Failure 400 {object} ErrorResponse "Invalid request"
 // @Failure 409 {object} ErrorResponse "User already exists"
 // @Failure 500 {object} ErrorResponse "Server error"
@@ -58,7 +85,7 @@ const (
 func RegisterHandler(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request data"})
 		return
 	}
 
@@ -68,7 +95,7 @@ func RegisterHandler(c *gin.Context) {
             WHERE username = ? OR email = ?
         )`)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
 		return
 	}
 	defer checkStmt.Close()
@@ -76,12 +103,12 @@ func RegisterHandler(c *gin.Context) {
 	var exists bool
 	err = checkStmt.QueryRow(req.Username, req.Email).Scan(&exists)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database check failed"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Database check failed"})
 		return
 	}
 
 	if exists {
-		c.JSON(http.StatusConflict, gin.H{"error": "Username or email already exists"})
+		c.JSON(http.StatusConflict, ErrorResponse{"Username or email already exists"})
 		return
 	}
 
@@ -90,7 +117,7 @@ func RegisterHandler(c *gin.Context) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password hashing failed"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Password hashing failed"})
 		return
 	}
 
@@ -100,7 +127,7 @@ func RegisterHandler(c *gin.Context) {
 		SecretSize:  20,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate 2FA key"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Failed to generate 2FA key"})
 		return
 	}
 
@@ -114,7 +141,7 @@ func RegisterHandler(c *gin.Context) {
             totp_secret
         ) VALUES (?, ?, ?, ?, ?, ?)`)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
 		return
 	}
 	defer insertStmt.Close()
@@ -129,11 +156,11 @@ func RegisterHandler(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User registration failed"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"User registration failed"})
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, SuccessResponse{"User created successfully"})
 }
 
 // @Summary Login
@@ -141,20 +168,20 @@ func RegisterHandler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body LoginRequest true "Credentials"
-// @Success 200 {object} gin.H
+// @Success 200 {object} TempTokenResponse "OTP sent to registered email (if 2FA enabled)"
+// @Success 200 {object} LoginResponse "User logged in successfully (if 2FA disabled)"
+// @Failure 400 {object} ErrorResponse "Invalid request"
+// @Failure 401 {object} ErrorResponse "Invalid credentials"
+// @Failure 500 {object} ErrorResponse "System error"
 // @Router /login [post]
 func LoginHandler(c *gin.Context) {
-	var req struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
-
+	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
 		return
 	}
 
-	stmt, err := Db.Prepare("SELECT id, username, password_hash, email, full_name, totp_secret FROM users WHERE username = ?")
+	stmt, err := Db.Prepare("SELECT id, username, password_hash, email, full_name, totp_secret, is_2fa_enabled FROM users WHERE username = ?")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
 		return
@@ -162,7 +189,7 @@ func LoginHandler(c *gin.Context) {
 	defer stmt.Close()
 
 	var user User
-	err = stmt.QueryRow(req.Username).Scan(&user.ID, &user.Username, &user.PasswordHash, &user.Email, &user.FullName, &user.TOTPSecret)
+	err = stmt.QueryRow(req.Username).Scan(&user.ID, &user.Username, &user.PasswordHash, &user.Email, &user.FullName, &user.TOTPSecret, &user.Is2FAEnabled)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusUnauthorized, ErrorResponse{"Invalid credentials"})
@@ -190,19 +217,37 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	code, _ := totp.GenerateCode(user.TOTPSecret, time.Now())
-	sendOTPEmail(user.Email, code)
+	// Проверяем, включена ли двухфакторная аутентификация
+	if user.Is2FAEnabled {
+		// Если 2FA включена, отправляем OTP и временный токен
+		code, _ := totp.GenerateCode(user.TOTPSecret, time.Now())
+		sendOTPEmail(user.Email, code)
 
-	tempToken, err := createTempToken(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{"System error"})
-		return
+		tempToken, err := createTempToken(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{"System error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, TempTokenResponse{
+			TempToken: tempToken,
+			Message:   "OTP sent to registered email",
+		})
+	} else {
+		// Если 2FA не включена, выдаём обычный JWT-токен
+		token, err := createJWTToken(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{"System error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, LoginResponse{
+			Token:    token,
+			UserID:   user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		})
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"tempToken": tempToken,
-		"message":   "OTP sent to registered email",
-	})
 }
 
 // @Summary Verify OTP
@@ -210,14 +255,13 @@ func LoginHandler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body VerifyOTPRequest true "OTP data"
-// @Success 200 {object} LoginResponse
+// @Success 200 {object} LoginResponse "User logged in successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request"
+// @Failure 401 {object} ErrorResponse "Invalid token or OTP"
+// @Failure 500 {object} ErrorResponse "System error"
 // @Router /verify-otp [post]
 func VerifyOTPHandler(c *gin.Context) {
-	var req struct {
-		TempToken string `json:"tempToken" binding:"required"`
-		OTP       string `json:"otp" binding:"required"`
-	}
-
+	var req VerifyOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
 		return
@@ -262,17 +306,21 @@ func VerifyOTPHandler(c *gin.Context) {
 	})
 }
 
+// Enable2FAHandler включает двухфакторную аутентификацию для пользователя
 // @Summary Enable 2FA
+// @Description Включает двухфакторную аутентификацию для пользователя после проверки OTP кода
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} gin.H
+// @Param request body Enable2FARequest true "OTP данные для верификации"
+// @Success 200 {object} Enable2FAResponse "2FA успешно включена"
+// @Failure 400 {object} ErrorResponse "Неверный запрос или OTP код"
+// @Failure 401 {object} ErrorResponse "Неавторизованный доступ"
+// @Failure 500 {object} ErrorResponse "Ошибка сервера"
 // @Router /account/2fa/enable [post]
 func Enable2FAHandler(c *gin.Context) {
 	userID := c.GetString("userID")
-	var req struct {
-		OTP string `json:"otp" binding:"required"`
-	}
+	var req Enable2FARequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
@@ -311,7 +359,7 @@ func Enable2FAHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "2FA enabled"})
+	c.JSON(http.StatusOK, Enable2FAResponse{"2FA enabled"})
 }
 
 func createTempToken(userID int) (string, error) {

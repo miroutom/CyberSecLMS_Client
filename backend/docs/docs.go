@@ -9,27 +9,73 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "Support Team",
-            "url": "http://www.example.com/support",
-            "email": "support@example.com"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/courses": {
-            "get": {
-                "description": "Retrieves the list of all available courses.",
+        "/account/2fa/enable": {
+            "post": {
+                "description": "Включает двухфакторную аутентификацию для пользователя после проверки OTP кода",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets all courses",
-                "operationId": "get-all-courses",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Enable 2FA",
+                "parameters": [
+                    {
+                        "description": "OTP данные для верификации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Enable2FARequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "List of courses",
+                        "description": "2FA успешно включена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Enable2FAResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос или OTP код",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all courses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -42,12 +88,10 @@ const docTemplate = `{
         },
         "/courses/{id}": {
             "get": {
-                "description": "Retrieves a specific course by its unique ID.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets a course by ID",
-                "operationId": "get-course-by-id",
+                "summary": "Get course by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -59,16 +103,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Course details",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Course"
                         }
                     },
                     "404": {
-                        "description": "Course not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -76,16 +119,20 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Handles the login request and returns a JWT token if the credentials are valid.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Login handler",
-                "operationId": "login",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
                 "parameters": [
                     {
-                        "description": "Login request body",
-                        "name": "body",
+                        "description": "Credentials",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -95,24 +142,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful login",
+                        "description": "OTP sent to registered email",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.TempTokenResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -120,12 +170,10 @@ const docTemplate = `{
         },
         "/progress/{user_id}": {
             "get": {
-                "description": "Retrieves the progress of a user.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets user progress",
-                "operationId": "get-user-progress",
+                "summary": "Get user progress",
                 "parameters": [
                     {
                         "type": "integer",
@@ -137,16 +185,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "User progress",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.UserProgress"
                         }
                     },
                     "404": {
-                        "description": "User not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -154,12 +201,10 @@ const docTemplate = `{
         },
         "/progress/{user_id}/assignments/{assignment_id}/complete": {
             "put": {
-                "description": "Marks an assignment as completed for a user.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Completes an assignment",
-                "operationId": "complete-assignment",
+                "summary": "Complete assignment",
                 "parameters": [
                     {
                         "type": "integer",
@@ -178,17 +223,117 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Assignment marked as completed",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.SuccessResponse"
                         }
                     },
                     "404": {
-                        "description": "User not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "Registration data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "User already exists",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/verify-otp": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verify OTP",
+                "parameters": [
+                    {
+                        "description": "OTP data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.VerifyOTPRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token or OTP",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -196,8 +341,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.Enable2FARequest": {
+            "type": "object",
+            "required": [
+                "otp"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.Enable2FAResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.LoginRequest": {
-            "description": "The structure for login request containing username and password.",
             "type": "object",
             "required": [
                 "password",
@@ -212,8 +383,85 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "fullName",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "fullName": {
+                    "type": "string",
+                    "example": "New User"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "newpassword123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "newuser"
+                }
+            }
+        },
+        "handlers.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TempTokenResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "tempToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.VerifyOTPRequest": {
+            "type": "object",
+            "required": [
+                "otp",
+                "tempToken"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string"
+                },
+                "tempToken": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Course": {
-            "description": "Information about a course.",
             "type": "object",
             "properties": {
                 "description": {
@@ -228,25 +476,28 @@ const docTemplate = `{
             }
         },
         "models.UserProgress": {
-            "description": "Tracks the progress of a user in courses and assignments.",
             "type": "object",
             "properties": {
                 "completed": {
-                    "description": "Map of completed assignments: key is the assignment ID, value is whether it is completed.",
                     "type": "object",
                     "additionalProperties": {
                         "type": "boolean"
                     }
                 },
                 "last_activity": {
-                    "description": "Timestamp of the user's last activity (e.g., in ISO 8601 format).",
                     "type": "string"
                 },
                 "user_id": {
-                    "description": "Unique identifier for the user.",
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -255,10 +506,10 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "LMS API",
-	Description:      "API for Learning Management System (LMS).",
+	Description:      "API for Learning Management System",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
