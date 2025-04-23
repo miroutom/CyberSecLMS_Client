@@ -5,6 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "lmsmodule/backend/docs"
 	"lmsmodule/backend/handlers"
 	"log"
 	"net/http"
@@ -40,6 +43,8 @@ func main() {
 	handlers.Db = db
 	r := gin.Default()
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	public := r.Group("/api")
 	{
 		public.POST("/register", handlers.RegisterHandler)
@@ -67,7 +72,7 @@ func main() {
 	}
 
 	log.Printf("Server starting on port %s", port)
-	if err := r.Run("0.0.0.0:" + port); err != nil {
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Server failed:", err)
 	}
 }

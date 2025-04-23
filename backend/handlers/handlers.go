@@ -24,7 +24,7 @@ func SetDB(database *sql.DB) {
 func GetCourses(c *gin.Context) {
 	rows, err := Db.Query("SELECT id, title, description FROM courses")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -33,7 +33,7 @@ func GetCourses(c *gin.Context) {
 	for rows.Next() {
 		var course models.Course
 		if err := rows.Scan(&course.ID, &course.Title, &course.Description); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 			return
 		}
 		courses = append(courses, course)
@@ -47,7 +47,7 @@ func GetCourses(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Course ID"
 // @Success 200 {object} models.Course
-// @Failure 404 {object} gin.H
+// @Failure 404 {object} ErrorResponse
 // @Router /courses/{id} [get]
 func GetCourseByID(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -57,7 +57,7 @@ func GetCourseByID(c *gin.Context) {
 		Scan(&course.ID, &course.Title, &course.Description)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
+		c.JSON(http.StatusNotFound, ErrorResponse{Error: "Course not found"})
 		return
 	}
 
@@ -69,14 +69,14 @@ func GetCourseByID(c *gin.Context) {
 // @Produce json
 // @Param user_id path int true "User ID"
 // @Success 200 {object} models.UserProgress
-// @Failure 404 {object} gin.H
+// @Failure 404 {object} ErrorResponse
 // @Router /progress/{user_id} [get]
 func GetUserProgress(c *gin.Context) {
 	userID, _ := strconv.Atoi(c.Param("user_id"))
 
 	rows, err := Db.Query("SELECT assignment_id FROM user_progress WHERE user_id = ?", userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -85,7 +85,7 @@ func GetUserProgress(c *gin.Context) {
 	for rows.Next() {
 		var assignmentID int
 		if err := rows.Scan(&assignmentID); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 			return
 		}
 		completed[assignmentID] = true
@@ -102,8 +102,8 @@ func GetUserProgress(c *gin.Context) {
 // @Produce json
 // @Param user_id path int true "User ID"
 // @Param assignment_id path int true "Assignment ID"
-// @Success 200 {object} gin.H
-// @Failure 404 {object} gin.H
+// @Success 200 {object} SuccessResponse
+// @Failure 404 {object} ErrorResponse
 // @Router /progress/{user_id}/assignments/{assignment_id}/complete [put]
 func CompleteAssignment(c *gin.Context) {
 	userID := c.Param("user_id")
@@ -114,9 +114,9 @@ func CompleteAssignment(c *gin.Context) {
 		userID, assignmentID,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Assignment completed"})
+	c.JSON(http.StatusOK, SuccessResponse{Message: "Assignment completed"})
 }
