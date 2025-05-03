@@ -31,7 +31,7 @@ var UserProgress = map[int]*models.UserProgress{
 // @Title Users
 // @Description The list of users with their credentials.
 var Users = map[string]models.User{
-	"admin":    {Username: "admin", Password: "password"},
-	"user123":  {Username: "user123", Password: "mypassword"},
-	"testuser": {Username: "testuser", Password: "testpass"},
+	"admin":    {Username: "admin", PasswordHash: "password"},
+	"user123":  {Username: "user123", PasswordHash: "mypassword"},
+	"testuser": {Username: "testuser", PasswordHash: "testpass"},
 }

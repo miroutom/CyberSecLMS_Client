@@ -24,7 +24,7 @@ func SetDB(database *sql.DB) {
 func GetCourses(c *gin.Context) {
 	rows, err := Db.Query("SELECT id, title, description FROM courses")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -33,7 +33,7 @@ func GetCourses(c *gin.Context) {
 	for rows.Next() {
 		var course models.Course
 		if err := rows.Scan(&course.ID, &course.Title, &course.Description); err != nil {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 			return
 		}
 		courses = append(courses, course)
@@ -57,11 +57,47 @@ func GetCourseByID(c *gin.Context) {
 		Scan(&course.ID, &course.Title, &course.Description)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, ErrorResponse{Error: "Course not found"})
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Course not found"})
 		return
 	}
 
 	c.JSON(http.StatusOK, course)
+}
+
+// GetUserByID возвращает информацию о пользователе по ID
+// @Summary Get user by ID
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} models.User
+// @Failure 404 {object} ErrorResponse
+// @Router /users/{id} [get]
+func GetUserByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID"})
+		return
+	}
+
+	var user models.User_Data
+	err = Db.QueryRow("SELECT id, username, email, full_name FROM users WHERE id = ?", id).
+		Scan(&user.ID, &user.Username, &user.Email, &user.FullName)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		}
+		return
+	}
+
+	// Возвращаем только необходимые поля, без конфиденциальных данных
+	c.JSON(http.StatusOK, gin.H{
+		"id":        user.ID,
+		"username":  user.Username,
+		"email":     user.Email,
+		"full_name": user.FullName,
+	})
 }
 
 // GetUserProgress возвращает прогресс пользователя
@@ -76,7 +112,7 @@ func GetUserProgress(c *gin.Context) {
 
 	rows, err := Db.Query("SELECT assignment_id FROM user_progress WHERE user_id = ?", userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -85,7 +121,7 @@ func GetUserProgress(c *gin.Context) {
 	for rows.Next() {
 		var assignmentID int
 		if err := rows.Scan(&assignmentID); err != nil {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 			return
 		}
 		completed[assignmentID] = true
@@ -114,9 +150,9 @@ func CompleteAssignment(c *gin.Context) {
 		userID, assignmentID,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, SuccessResponse{Message: "Assignment completed"})
+	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Assignment completed"})
 }
