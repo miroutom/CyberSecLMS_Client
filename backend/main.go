@@ -57,6 +57,7 @@ func main() {
 	{
 		api.GET("/courses", handlers.GetCourses)
 		api.GET("/courses/:id", handlers.GetCourseByID)
+		api.GET("/users/:id", handlers.GetUserByID)
 		api.GET("/progress/:user_id", handlers.GetUserProgress)
 		api.POST("/progress/:user_id/assignments/:assignment_id/complete", handlers.CompleteAssignment)
 
