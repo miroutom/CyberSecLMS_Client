@@ -1,31 +1,9 @@
 package models
 
-// Course represents a learning course
-// @Schema
-type Course struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-}
+import (
+	"time"
+)
 
-// Assignment represents a course task
-// @Schema
-type Assignment struct {
-	ID       int    `json:"id"`
-	CourseID int    `json:"course_id"`
-	Title    string `json:"title"`
-}
-
-// UserProgress tracks user completion status
-// @Schema
-type UserProgress struct {
-	UserID       int          `json:"user_id"`
-	Completed    map[int]bool `json:"completed"`
-	LastActivity string       `json:"last_activity"`
-}
-
-// User represents system user credentials
-// @Schema
 type User struct {
 	ID           int
 	Username     string
@@ -34,15 +12,30 @@ type User struct {
 	FullName     string
 	TOTPSecret   string
 	Is2FAEnabled bool
+	IsAdmin      bool
+	IsActive     bool
+	LastLogin    time.Time
 }
 
-// User_Data represents user data needed for frontend
-// @Schema
-type User_Data struct {
-	ID       int
-	Username string
-	Email    string
-	FullName string
+type UserProfile struct {
+	ID           int       `json:"id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	FullName     string    `json:"fullName"`
+	Is2FAEnabled bool      `json:"is2faEnabled"`
+	IsAdmin      bool      `json:"isAdmin,omitempty"`   // Только для админов
+	IsActive     bool      `json:"isActive,omitempty"`  // Только для админов
+	LastLogin    time.Time `json:"lastLogin,omitempty"` // Только для админов
+}
+
+type UpdateProfileRequest struct {
+	Email    string `json:"email,omitempty"`
+	FullName string `json:"fullName,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+type UpdateStatusRequest struct {
+	IsActive bool `json:"isActive" binding:"required"`
 }
 
 type LoginRequest struct {
@@ -70,7 +63,7 @@ type VerifyOTPRequest struct {
 }
 
 type Enable2FARequest struct {
-	OTP string `json:"otp" binding:"required"`
+	OTP string `json:"otp" binding:"required" example:"123456"`
 }
 
 type ErrorResponse struct {
@@ -87,5 +80,23 @@ type TempTokenResponse struct {
 }
 
 type Enable2FAResponse struct {
-	Status string `json:"status"`
+	Status string `json:"status" example:"2FA enabled"`
+}
+
+type Course struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type Assignment struct {
+	ID          int    `json:"id"`
+	CourseID    int    `json:"courseId"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type UserProgress struct {
+	UserID    int          `json:"userId"`
+	Completed map[int]bool `json:"completed"`
 }
