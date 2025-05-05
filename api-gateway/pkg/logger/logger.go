@@ -73,7 +73,9 @@ func (l *Logger) log(logger *log.Logger, format string, args ...interface{}) {
 	if len(args) > 0 {
 		message = fmt.Sprintf(format, args...)
 	}
-	logger.Output(2, message)
+	if err := logger.Output(2, message); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to log message: %v\n", err)
+	}
 }
 
 func (l *Logger) WithFields(fields map[string]interface{}) *Logger {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"lmsmodule/api-gateway/internal/api"
@@ -22,8 +21,8 @@ func main() {
 	logger := logger.NewLogger(config.LogLevel)
 
 	server := api.NewServer(config, logger)
-	logger.Info(fmt.Sprintf("Starting API Gateway on port %d", config.Port))
+	logger.Info("Starting API Gateway on port %d", config.Port)
 	if err := server.Run(); err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to start server: %v", err))
+		logger.Fatal("Failed to start server: %v", err)
 	}
 }

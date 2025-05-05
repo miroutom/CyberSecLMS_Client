@@ -49,7 +49,7 @@ func (s *Server) proxyRequest(targetURL string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		remote, err := url.Parse(targetURL)
 		if err != nil {
-			s.logger.Error(fmt.Sprintf("Failed to parse target URL: %v", err))
+			s.logger.Error("Failed to parse target URL: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
 		}
@@ -67,7 +67,11 @@ func (s *Server) proxyRequest(targetURL string) gin.HandlerFunc {
 				}
 			}
 
-			s.logger.Info(fmt.Sprintf("Proxying request: %s %s -> %s%s", req.Method, c.Request.URL.Path, remote, req.URL.Path))
+			s.logger.Info("Proxying request: %s %s -> %s%s",
+				req.Method,
+				c.Request.URL.Path,
+				remote,
+				req.URL.Path)
 		}
 
 		proxy.ServeHTTP(c.Writer, c.Request)
