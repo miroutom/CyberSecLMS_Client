@@ -1,0 +1,11 @@
+port: 8080
+log_level: "INFO"
+
+# Сервисы
+auth_service:
+  url: "http://localhost:8081"
+  timeout: 30
+
+course_service:
+  url: "http://localhost:8081"
+  timeout: 30
