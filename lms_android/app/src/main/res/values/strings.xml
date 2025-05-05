@@ -7,6 +7,8 @@
     <string name="auth_label_password">Пароль</string>
     <string name="auth_label_confirm_password">Подтвердите пароль</string>
     <string name="auth_label_phone_number_email">Номер телефона/e-mail</string>
+    <string name="auth_label_full_name">Имя и фамилия</string>
+    <string name="auth_label_username">Имя пользователя</string>
     <string name="auth_label_error">Неверный</string>
 
     <string name="auth_password_error_length">Пароль должен содержать не менее 8 символов</string>
@@ -35,7 +37,6 @@
 
     <string name="homescreen_title">Все курсы</string>
     <string name="favorites_title">Мои курсы</string>
-    <string name="statistics_title">Статистика</string>
     <string name="profile_title">Профиль</string>
 
     <string name="search_bar_label">Поиск</string>
@@ -56,4 +57,8 @@
     <string name="easy_level">Лёгкий</string>
     <string name="medium_level">Средний</string>
     <string name="hard_level">Сложный</string>
+
+    <string name="filter_selection_dialog_title">Выберите сложность</string>
+    <string name="reset_button">Сброс</string>
+    <string name="confirm_button">Готово</string>
 </resources>

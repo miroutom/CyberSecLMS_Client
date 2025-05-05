@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,9 +8,22 @@ plugins {
     id("kotlin-kapt")
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+val baseUrl: String =
+    System.getProperty("BASE_URL")
+        ?: System.getenv("BASE_URL")
+        ?: localProperties.getProperty("BASE_URL")
+        ?: "\"https://default-url.example.com/api/\""
+
 android {
     namespace = "hse.diploma.cybersecplatform"
     compileSdk = 35
+    buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "hse.diploma.cybersecplatform"
@@ -28,6 +43,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            buildConfigField("String", "BASE_URL", baseUrl)
+        }
+
+        debug {
+            buildConfigField("String", "BASE_URL", baseUrl)
         }
     }
     compileOptions {
@@ -69,7 +89,13 @@ dependencies {
     // --- DI ---
     implementation(libs.dagger)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
     kapt(libs.dagger.compiler)
+
+    // --- REST API ---
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp3.logging.interceptor)
 
     // --- Testing ---
     testImplementation(libs.junit)

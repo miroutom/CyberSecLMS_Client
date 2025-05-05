@@ -3,14 +3,14 @@ accompanistPager = "0.24.9-beta"
 agp = "8.7.3"
 coilComposeVersion = "2.4.0"
 kotlin = "2.0.21"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinBom = "1.8.22"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.03.01"
+composeBom = "2025.04.00"
 multidex = "2.0.1"
 navigationCompose = "2.8.9"
 runtimeAndroid = "1.7.8"
@@ -19,8 +19,13 @@ runtimeAndroid = "1.7.8"
 ktlint = "12.1.0"
 
 # DI
-dagger = "2.51.1"
+dagger = "2.52"
 appcompat = "1.7.0"
+fragment = "1.8.5"
+
+# REST API
+retrofit = "2.9.0"
+okhttp = "4.9.3"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
@@ -44,6 +49,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlinBom" }
+androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
 
 # DI
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
@@ -51,6 +57,12 @@ dagger-android = { group = "com.google.dagger", name = "dagger-android", version
 dagger-android-processor = { group = "com.google.dagger", name = "dagger-android-processor", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+# REST API
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp3", version.ref = "okhttp" }
+okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

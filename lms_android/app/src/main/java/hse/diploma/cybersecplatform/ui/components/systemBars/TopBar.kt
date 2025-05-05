@@ -33,7 +33,6 @@ fun TopBar(navController: NavHostController) {
         setOf(
             Screen.HomeScreen.route,
             Screen.Favorites.route,
-            Screen.Statistics.route,
             Screen.Profile.route,
         )
 
@@ -45,7 +44,6 @@ fun TopBar(navController: NavHostController) {
         when (currentRoute) {
             Screen.HomeScreen.route -> Screen.HomeScreen
             Screen.Favorites.route -> Screen.Favorites
-            Screen.Statistics.route -> Screen.Statistics
             Screen.Profile.route -> Screen.Profile
             Screen.TaskScreen.route -> Screen.TaskScreen
             else -> null

@@ -3,25 +3,36 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.domain.AuthRepo
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-open class RegistrationScreenViewModel : ViewModel() {
+class RegistrationScreenViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
+    private val _fullName = MutableStateFlow(TextFieldValue(""))
+    val fullName = _fullName.asStateFlow()
+
+    private val _username = MutableStateFlow(TextFieldValue(""))
+    val username = _username.asStateFlow()
+
     private val _login = MutableStateFlow(TextFieldValue(""))
-    open val login = _login.asStateFlow()
+    val login = _login.asStateFlow()
 
     private val _password = MutableStateFlow(TextFieldValue(""))
-    open val password = _password.asStateFlow()
+    val password = _password.asStateFlow()
 
     private val _passwordConfirmation = MutableStateFlow(TextFieldValue(""))
-    open val passwordConfirmation = _passwordConfirmation.asStateFlow()
+    val passwordConfirmation = _passwordConfirmation.asStateFlow()
 
     private val _isRegistrationEnabled = MutableStateFlow(false)
-    open val isRegistrationEnabled = _isRegistrationEnabled.asStateFlow()
+    val isRegistrationEnabled = _isRegistrationEnabled.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -39,6 +50,14 @@ open class RegistrationScreenViewModel : ViewModel() {
         }
     }
 
+    fun onFullNameChange(newFullName: TextFieldValue) {
+        _fullName.value = newFullName
+    }
+
+    fun onUsernameChange(newUsername: TextFieldValue) {
+        _username.value = newUsername
+    }
+
     fun onLoginChange(newLogin: TextFieldValue) {
         _login.value = newLogin
     }
@@ -51,18 +70,19 @@ open class RegistrationScreenViewModel : ViewModel() {
         _passwordConfirmation.value = newPasswordConfirmation
     }
 
-    fun performRegistration(onSuccess: () -> Unit) {
+    fun register(
+        username: String,
+        password: String,
+        email: String,
+        fullName: String,
+        onResult: (Result<Unit>) -> Unit,
+    ) {
         viewModelScope.launch {
-            // TODO: connect to backend through REST API
-            val isRegistered =
-                login.value.text == "example@example.com" &&
-                    password.value.text == "test123." &&
-                    password.value.text == passwordConfirmation.value.text
-
-            if (isRegistered) {
-                onSuccess()
-            } else {
-                // TODO: implement error state
+            _isLoading.value = true
+            try {
+                onResult(authRepo.register(username, password, email, fullName))
+            } finally {
+                _isLoading.value = false
             }
         }
     }

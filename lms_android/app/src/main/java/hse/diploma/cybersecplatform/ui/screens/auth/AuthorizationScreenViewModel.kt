@@ -3,31 +3,45 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.data.model.LoginResponse
+import hse.diploma.cybersecplatform.domain.AuthRepo
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-open class AuthorizationScreenViewModel : ViewModel() {
+class AuthorizationScreenViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
+    private val _username = MutableStateFlow(TextFieldValue(""))
+    val username = _username.asStateFlow()
+
     private val _login = MutableStateFlow(TextFieldValue(""))
-    open val login = _login.asStateFlow()
+    val login = _login.asStateFlow()
 
     private val _password = MutableStateFlow(TextFieldValue(""))
-    open val password = _password.asStateFlow()
+    val password = _password.asStateFlow()
 
     private val _isAuthorizationEnabled = MutableStateFlow(false)
-    open val isAuthorizationEnabled = _isAuthorizationEnabled.asStateFlow()
+    val isAuthorizationEnabled = _isAuthorizationEnabled.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
     init {
         viewModelScope.launch {
-            combine(_login, _password) { login, password ->
-                isLoginValidAndAuthMethodType(login.text).first && isPasswordValid(password.text)
+            combine(_login, _password, _username) { login, password, username ->
+                (isLoginValidAndAuthMethodType(login.text).first || username.text.isNotEmpty()) &&
+                    isPasswordValid(password.text)
             }.collect { isValid ->
                 _isAuthorizationEnabled.value = isValid
             }
         }
+    }
+
+    fun onUsernameChange(newUsername: TextFieldValue) {
+        _username.value = newUsername
     }
 
     fun onLoginChange(newLogin: TextFieldValue) {
@@ -38,16 +52,17 @@ open class AuthorizationScreenViewModel : ViewModel() {
         _password.value = newPassword
     }
 
-    fun performAuthorization(onSuccess: () -> Unit) {
+    fun login(
+        username: String,
+        password: String,
+        onResult: (Result<LoginResponse>) -> Unit,
+    ) {
         viewModelScope.launch {
-            // TODO: connect to backend through REST API
-            val isAuthorized =
-                login.value.text == "example@example.com" && password.value.text == "Test123."
-
-            if (isAuthorized) {
-                onSuccess()
-            } else {
-                // TODO: implement error state
+            _isLoading.value = true
+            try {
+                onResult(authRepo.login(username, password))
+            } finally {
+                _isLoading.value = false
             }
         }
     }

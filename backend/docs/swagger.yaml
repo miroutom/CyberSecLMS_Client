@@ -1,6 +1,23 @@
+basePath: /api
 definitions:
+  handlers.Enable2FARequest:
+    properties:
+      otp:
+        type: string
+    required:
+    - otp
+    type: object
+  handlers.Enable2FAResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
   handlers.LoginRequest:
-    description: The structure for login request containing username and password.
     properties:
       password:
         type: string
@@ -10,8 +27,60 @@ definitions:
     - password
     - username
     type: object
+  handlers.LoginResponse:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+      userId:
+        type: integer
+      username:
+        type: string
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      fullName:
+        example: New User
+        type: string
+      password:
+        example: newpassword123
+        type: string
+      username:
+        example: newuser
+        type: string
+    required:
+    - email
+    - fullName
+    - password
+    - username
+    type: object
+  handlers.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handlers.TempTokenResponse:
+    properties:
+      message:
+        type: string
+      tempToken:
+        type: string
+    type: object
+  handlers.VerifyOTPRequest:
+    properties:
+      otp:
+        type: string
+      tempToken:
+        type: string
+    required:
+    - otp
+    - tempToken
+    type: object
   models.Course:
-    description: Information about a course.
     properties:
       description:
         type: string
@@ -21,49 +90,72 @@ definitions:
         type: string
     type: object
   models.UserProgress:
-    description: Tracks the progress of a user in courses and assignments.
     properties:
       completed:
         additionalProperties:
           type: boolean
-        description: 'Map of completed assignments: key is the assignment ID, value
-          is whether it is completed.'
         type: object
       last_activity:
-        description: Timestamp of the user's last activity (e.g., in ISO 8601 format).
         type: string
       user_id:
-        description: Unique identifier for the user.
         type: integer
     type: object
 host: localhost:8080
 info:
-  contact:
-    email: support@example.com
-    name: Support Team
-    url: http://www.example.com/support
-  description: API for Learning Management System (LMS).
+  contact: {}
+  description: API for Learning Management System
   title: LMS API
   version: "1.0"
 paths:
-  /courses:
-    get:
-      description: Retrieves the list of all available courses.
-      operationId: get-all-courses
+  /account/2fa/enable:
+    post:
+      consumes:
+      - application/json
+      description: Включает двухфакторную аутентификацию для пользователя после проверки
+        OTP кода
+      parameters:
+      - description: OTP данные для верификации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.Enable2FARequest'
       produces:
       - application/json
       responses:
         "200":
-          description: List of courses
+          description: 2FA успешно включена
+          schema:
+            $ref: '#/definitions/handlers.Enable2FAResponse'
+        "400":
+          description: Неверный запрос или OTP код
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Enable 2FA
+      tags:
+      - Auth
+  /courses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
             items:
               $ref: '#/definitions/models.Course'
             type: array
-      summary: Gets all courses
+      summary: Get all courses
   /courses/{id}:
     get:
-      description: Retrieves a specific course by its unique ID.
-      operationId: get-course-by-id
       parameters:
       - description: Course ID
         in: path
@@ -74,24 +166,22 @@ paths:
       - application/json
       responses:
         "200":
-          description: Course details
+          description: OK
           schema:
             $ref: '#/definitions/models.Course'
         "404":
-          description: Course not found
+          description: Not Found
           schema:
-            additionalProperties: true
-            type: object
-      summary: Gets a course by ID
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get course by ID
   /login:
     post:
-      description: Handles the login request and returns a JWT token if the credentials
-        are valid.
-      operationId: login
+      consumes:
+      - application/json
       parameters:
-      - description: Login request body
+      - description: Credentials
         in: body
-        name: body
+        name: request
         required: true
         schema:
           $ref: '#/definitions/handlers.LoginRequest'
@@ -99,25 +189,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successful login
+          description: OTP sent to registered email
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handlers.TempTokenResponse'
         "400":
           description: Invalid request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Invalid credentials
           schema:
-            additionalProperties: true
-            type: object
-      summary: Login handler
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: System error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Login
+      tags:
+      - Auth
   /progress/{user_id}:
     get:
-      description: Retrieves the progress of a user.
-      operationId: get-user-progress
       parameters:
       - description: User ID
         in: path
@@ -128,19 +219,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: User progress
+          description: OK
           schema:
             $ref: '#/definitions/models.UserProgress'
         "404":
-          description: User not found
+          description: Not Found
           schema:
-            additionalProperties: true
-            type: object
-      summary: Gets user progress
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get user progress
   /progress/{user_id}/assignments/{assignment_id}/complete:
     put:
-      description: Marks an assignment as completed for a user.
-      operationId: complete-assignment
       parameters:
       - description: User ID
         in: path
@@ -156,14 +244,83 @@ paths:
       - application/json
       responses:
         "200":
-          description: Assignment marked as completed
+          description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handlers.SuccessResponse'
         "404":
-          description: User not found
+          description: Not Found
           schema:
-            additionalProperties: true
-            type: object
-      summary: Completes an assignment
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Complete assignment
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Register new user
+      tags:
+      - Authentication
+  /verify-otp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: OTP data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully
+          schema:
+            $ref: '#/definitions/handlers.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Invalid token or OTP
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: System error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Verify OTP
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

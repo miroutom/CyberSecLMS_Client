@@ -2,7 +2,6 @@ package hse.diploma.cybersecplatform.di
 
 import dagger.Component
 import hse.diploma.cybersecplatform.MainActivity
-import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import javax.inject.Scope
 
 @Scope
@@ -20,6 +19,4 @@ annotation class ActivityScope
 )
 interface ActivityComponent {
     fun inject(mainActivity: MainActivity)
-
-    fun authStateViewModel(): AuthStateViewModel
 }

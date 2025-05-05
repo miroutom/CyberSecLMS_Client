@@ -18,8 +18,6 @@ sealed class Screen(
 
     data object Favorites : Screen("favorites", R.string.favorites_title)
 
-    data object Statistics : Screen("statistics", R.string.statistics_title)
-
     data object Profile : Screen("profile", R.string.profile_title)
 
     data object TaskScreen : Screen("taskScreen/{vulnerabilityType}", R.string.tasks_title) {

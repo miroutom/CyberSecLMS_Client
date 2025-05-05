@@ -1,51 +1,102 @@
 package models
 
-// Course
-// @Schema models.Course
-// @Title Course
-// @Description Information about a course.
-// @Property ID int The unique identifier for the course.
-// @Property Title string The title of the course.
-// @Property Description string The brief description of the course.
+import (
+	"time"
+)
+
+type User struct {
+	ID           int
+	Username     string
+	PasswordHash string
+	Email        string
+	FullName     string
+	TOTPSecret   string
+	Is2FAEnabled bool
+	IsAdmin      bool
+	IsActive     bool
+	LastLogin    time.Time
+}
+
+type UserProfile struct {
+	ID           int       `json:"id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	FullName     string    `json:"fullName"`
+	Is2FAEnabled bool      `json:"is2faEnabled"`
+	IsAdmin      bool      `json:"isAdmin,omitempty"`   // Только для админов
+	IsActive     bool      `json:"isActive,omitempty"`  // Только для админов
+	LastLogin    time.Time `json:"lastLogin,omitempty"` // Только для админов
+}
+
+type UpdateProfileRequest struct {
+	Email    string `json:"email,omitempty"`
+	FullName string `json:"fullName,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+type UpdateStatusRequest struct {
+	IsActive bool `json:"isActive" binding:"required"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginResponse struct {
+	Token    string `json:"token"`
+	UserID   int    `json:"userId"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+type RegisterRequest struct {
+	Username string `json:"username" binding:"required" example:"newuser"`
+	Password string `json:"password" binding:"required" example:"newpassword123"`
+	Email    string `json:"email" binding:"required" example:"user@example.com"`
+	FullName string `json:"fullName" binding:"required" example:"New User"`
+}
+
+type VerifyOTPRequest struct {
+	TempToken string `json:"tempToken" binding:"required"`
+	OTP       string `json:"otp" binding:"required"`
+}
+
+type Enable2FARequest struct {
+	OTP string `json:"otp" binding:"required" example:"123456"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
+type TempTokenResponse struct {
+	TempToken string `json:"tempToken"`
+	Message   string `json:"message"`
+}
+
+type Enable2FAResponse struct {
+	Status string `json:"status" example:"2FA enabled"`
+}
+
 type Course struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-// Assignment
-// @Schema models.Assignment
-// @Title Assignment
-// @Description A task or assignment linked to a specific course.
-// @Property ID int The unique identifier for the assignment.
-// @Property CourseID int Identifier of the course this assignment belongs to.
-// @Property Title string Title of the assignment.
 type Assignment struct {
-	ID       int    `json:"id"`
-	CourseID int    `json:"course_id"`
-	Title    string `json:"title"`
+	ID          int    `json:"id"`
+	CourseID    int    `json:"courseId"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
-// UserProgress
-// @Schema models.UserProgress
-// @Title UserProgress
-// @Description Tracks the progress of a user in courses and assignments.
-// @Property UserID int Unique identifier for the user.
-// @Property Completed map[int]bool Map of completed assignments: key is the assignment ID, value is whether it is completed.
-// @Property LastActivity string Timestamp of the user's last activity (e.g., in ISO 8601 format).
 type UserProgress struct {
-	UserID       int          `json:"user_id"`       // Unique identifier for the user.
-	Completed    map[int]bool `json:"completed"`     // Map of completed assignments: key is the assignment ID, value is whether it is completed.
-	LastActivity string       `json:"last_activity"` // Timestamp of the user's last activity (e.g., in ISO 8601 format).
-}
-
-// User
-// @Schema models.User
-// @Title User
-// @Description Represents a system user with authentication credentials.
-// @Property Username string Unique username of the user.
-// @Property Password string User's password (stored in plain text for mock purposes, should be hashed in production).
-type User struct {
-	Username string `json:"username"` // Unique username of the user.
-	Password string `json:"password"` // User's password (stored in plain text for mock purposes, should be hashed in production).
+	UserID    int          `json:"userId"`
+	Completed map[int]bool `json:"completed"`
 }

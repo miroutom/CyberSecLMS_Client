@@ -6,6 +6,8 @@
     <string name="auth_label_password">Password</string>
     <string name="auth_label_confirm_password">Confirm the password</string>
     <string name="auth_label_phone_number_email">Phone number/e-mail</string>
+    <string name="auth_label_full_name">Name and surname</string>
+    <string name="auth_label_username">Username</string>
     <string name="auth_label_error">Wrong</string>
 
     <string name="auth_password_error_length">Password must containt at least 8 characters</string>
@@ -33,7 +35,6 @@
 
     <string name="homescreen_title">All courses</string>
     <string name="favorites_title">My courses</string>
-    <string name="statistics_title">Statistics</string>
     <string name="profile_title">Profile</string>
     <string name="search_bar_label">Search</string>
 
@@ -42,8 +43,13 @@
     <string name="csrf_tasks_subtitle">Actions emulating</string>
 
     <string name="tasks_count">%d tasks</string>
+
     <string name="easy_level">Easy</string>
     <string name="medium_level">Medium</string>
     <string name="hard_level">Hard</string>
     <string name="tasks_title">Tasks</string>
+
+    <string name="filter_selection_dialog_title">Select Difficulty</string>
+    <string name="reset_button">Reset</string>
+    <string name="confirm_button">Confirm</string>
 </resources>
