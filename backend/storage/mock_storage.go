@@ -283,3 +283,15 @@ func (s *MockStorage) DemoteFromAdmin(userID int) error {
 	mockUsers[userID] = user
 	return nil
 }
+
+func (s *MockStorage) ClearOTPCode(userID int) error {
+	return nil
+}
+
+func (s *MockStorage) VerifyOTPCode(userID int, code string) (bool, error) {
+	return true, nil
+}
+
+func (s *MockStorage) SaveOTPCode(userID int, code string) error {
+	return nil
+}
