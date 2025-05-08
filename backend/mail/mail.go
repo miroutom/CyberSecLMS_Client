@@ -2,6 +2,7 @@ package mail
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"net/smtp"
 	"strings"
@@ -65,7 +66,48 @@ func SendOTPEmail(email, code string) error {
 }
 
 func sendOTPEmailFallback(email, code string) error {
+	// Настройка TLS-конфигурации для SSL-соединения (порт 465)
+	tlsConfig := &tls.Config{
+		ServerName: smtpHost,
+	}
+
+	// Создаем SSL-соединение
+	conn, err := tls.Dial("tcp", smtpHost+":"+smtpPort, tlsConfig)
+	if err != nil {
+		fmt.Printf("SSL connection error: %v\n", err)
+		fmt.Printf("OTP for %s: %s\n", email, code)
+		return err
+	}
+
+	// Создаем SMTP-клиент поверх SSL-соединения
+	client, err := smtp.NewClient(conn, smtpHost)
+	if err != nil {
+		fmt.Printf("Error creating SMTP client: %v\n", err)
+		return err
+	}
+	defer client.Close()
+
+	// Аутентификация
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	if err = client.Auth(auth); err != nil {
+		fmt.Printf("Authentication error: %v\n", err)
+		fmt.Printf("OTP for %s: %s\n", email, code)
+		return err
+	}
+
+	// Далее код отправки email...
+	if err = client.Mail(smtpUsername); err != nil {
+		return err
+	}
+
+	if err = client.Rcpt(email); err != nil {
+		return err
+	}
+
+	w, err := client.Data()
+	if err != nil {
+		return err
+	}
 
 	plainText := fmt.Sprintf("Your verification code is: %s\nThis code is valid for 5 minutes.", code)
 
@@ -77,10 +119,13 @@ func sendOTPEmailFallback(email, code string) error {
 		"%s",
 		smtpFrom, email, plainText))
 
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, smtpUsername, []string{email}, message)
+	_, err = w.Write(message)
 	if err != nil {
-		fmt.Printf("Error sending fallback email: %v\n", err)
-		fmt.Printf("OTP for %s: %s\n", email, code)
+		return err
+	}
+
+	err = w.Close()
+	if err != nil {
 		return err
 	}
 
