@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	smtpHost     = "smtp.gmail.com"
-	smtpPort     = "587"
-	smtpUsername = "cybersecplatform@gmail.com"
-	smtpPassword = "YA4-hHd-s9S-3GG"
-	smtpFrom     = "Cybersecurity Platform <cybersecplatform@gmail.com>"
+	smtpHost     = "smtp.mail.ru"
+	smtpPort     = "465"
+	smtpUsername = "tristan.nik@mail.ru"
+	smtpPassword = "xYCkbEGbm4Vf4WrrMX5H"
+	smtpFrom     = "Cybersecurity Platform <tristan.nik@mail.ru>"
 
 	emailTemplates map[string]*template.Template
 )
