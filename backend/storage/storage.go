@@ -1,37 +1,41 @@
 package storage
 
 import (
+	"database/sql"
 	"lmsmodule/backend/models"
 )
 
-// Courses represents the list of available courses.
-// @Title Courses
-// @Description The list of courses available in the system.
-var Courses = []models.Course{
-	{ID: 1, Title: "Go Basics", Description: "Learn the basics of Go programming."},
-	{ID: 2, Title: "Advanced Go", Description: "Deep dive into Go."},
+// Storage определяет интерфейс для работы с данными
+type Storage interface {
+	GetCourses() ([]models.Course, error)
+	GetCourseByID(id int) (models.Course, error)
+	GetUserProgress(userID int) (models.UserProgress, error)
+	CompleteAssignment(userID, assignmentID int) error
+
+	CreateUser(user models.User) error
+	GetUserByUsername(username string) (models.User, error)
+	GetUserByID(id int) (models.User, error)
+	UpdateUserLastLogin(userID int) error
+	Enable2FA(userID int) error
+	IsAdmin(userID int) (bool, error)
+
+	GetAllUsers() ([]models.User, error)
+	UpdateUserProfile(userID int, data models.UpdateProfileRequest) error
+	GetUsersByRole(isAdmin bool) ([]models.User, error)
+	SearchUsers(query string) ([]models.User, error)
+	UpdateUserStatus(userID int, isActive bool) error
+	PromoteToAdmin(userID int) error
+	DemoteFromAdmin(userID int) error
+
+	SaveOTPCode(userID int, code string) error
+	VerifyOTPCode(userID int, code string) (bool, error)
+	ClearOTPCode(userID int) error
 }
 
-// Assignments represents the list of assignments.
-// @Title Assignments
-// @Description The list of assignments associated with courses.
-var Assignments = []models.Assignment{
-	{ID: 1, CourseID: 1, Title: "Introduction to Go"},
-	{ID: 2, CourseID: 1, Title: "Variables and Types"},
+// DBStorage имплементирует Storage используя реальную базу данных
+type DBStorage struct {
+	DB *sql.DB
 }
 
-// UserProgress represents the progress of users.
-// @Title User Progress
-// @Description The progress of users in the courses.
-var UserProgress = map[int]*models.UserProgress{
-	1: {UserID: 1, Completed: map[int]bool{}, LastActivity: ""},
-}
-
-// Users represents the list of users.
-// @Title Users
-// @Description The list of users with their credentials.
-var Users = map[string]models.User{
-	"admin":    {Username: "admin", Password: "password"},
-	"user123":  {Username: "user123", Password: "mypassword"},
-	"testuser": {Username: "testuser", Password: "testpass"},
-}
+// MockStorage имплементирует Storage используя моковые данные в памяти
+type MockStorage struct{}

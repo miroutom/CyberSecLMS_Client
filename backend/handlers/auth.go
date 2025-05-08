@@ -1,84 +1,36 @@
 package handlers
 
 import (
-	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
+	"lmsmodule/backend/mail"
+	"lmsmodule/backend/models"
 	"net/http"
 	"time"
 )
 
-// LoginRequest represents login request
-type LoginRequest struct {
-	Username string `json:"username" binding:"required" example:"admin"`
-	Password string `json:"password" binding:"required" example:"password123"`
-}
+const (
+	tempJWTSecret = "temp_2fa_secret_here"
+)
 
-// RegisterRequest represents registration request
-type RegisterRequest struct {
-	Username string `json:"username" binding:"required" example:"newuser"`
-	Password string `json:"password" binding:"required" example:"newpassword123"`
-	Email    string `json:"email" binding:"required" example:"user@example.com"`
-	FullName string `json:"fullName" binding:"required" example:"New User"`
-}
-
-// LoginResponse represents successful login response
-type LoginResponse struct {
-	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	User  struct {
-		ID       int    `json:"id" example:"1"`
-		Username string `json:"username" example:"admin"`
-		FullName string `json:"fullName" example:"Admin User"`
-		Email    string `json:"email" example:"admin@example.com"`
-	} `json:"user"`
-}
-
-// ErrorResponse represents error response
-type ErrorResponse struct {
-	Error string `json:"error" example:"Invalid credentials"`
-}
-
-// RegisterHandler handles user registration
 // @Summary Register new user
-// @Description Create a new user account
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param request body RegisterRequest true "Registration data"
-// @Success 201 {object} LoginResponse "User created"
-// @Failure 400 {object} ErrorResponse "Invalid request"
-// @Failure 409 {object} ErrorResponse "User already exists"
-// @Failure 500 {object} ErrorResponse "Server error"
+// @Param request body models.RegisterRequest true "Registration data"
+// @Success 201 {object} models.RegisterResponse "User created"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Failure 409 {object} models.ErrorResponse "User already exists"
+// @Failure 500 {object} models.ErrorResponse "Server error"
 // @Router /register [post]
 func RegisterHandler(c *gin.Context) {
-	var req RegisterRequest
+	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
-		return
-	}
-
-	// Проверка существования пользователя
-	var exists bool
-	err := db.QueryRow(`
-        SELECT EXISTS(
-            SELECT 1 FROM users 
-            WHERE username = ? OR email = ?
-        )`, req.Username, req.Email).Scan(&exists)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Database check failed",
-			"details": err.Error(),
-		})
-		return
-	}
-
-	if exists {
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "Username or email already exists",
-		})
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request data"})
 		return
 	}
 
@@ -87,117 +39,293 @@ func RegisterHandler(c *gin.Context) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Password hashing failed",
-		})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Password hashing failed"})
 		return
 	}
 
-	// Явное указание всех полей
-	_, err = db.Exec(`
-        INSERT INTO users (
-            username, 
-            password_hash, 
-            email, 
-            full_name,
-            is_active
-        ) VALUES (?, ?, ?, ?, ?)`,
-		req.Username,
-		string(hashedPassword),
-		req.Email,
-		req.FullName,
-		true, // is_active
-	)
-
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "LMS System",
+		AccountName: req.Username,
+		SecretSize:  20,
+	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "User registration failed",
-			"details": err.Error(), // Полный текст ошибки
-		})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to generate 2FA key"})
 		return
 	}
 
-	c.Status(http.StatusCreated)
-}
-
-// LoginHandler handles user login
-// @Summary Authenticate user
-// @Description Verify user credentials and return JWT token
-// @Tags Authentication
-// @Accept json
-// @Produce json
-// @Param request body LoginRequest true "Login data"
-// @Success 200 {object} LoginResponse "Authentication successful"
-// @Failure 400 {object} ErrorResponse "Invalid request"
-// @Failure 401 {object} ErrorResponse "Invalid credentials"
-// @Failure 500 {object} ErrorResponse "Server error"
-// @Router /login [post]
-func LoginHandler(c *gin.Context) {
-	var req LoginRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{"Invalid request"})
-		return
+	user := models.User{
+		Username:     req.Username,
+		PasswordHash: string(hashedPassword),
+		Email:        req.Email,
+		FullName:     req.FullName,
+		TOTPSecret:   key.Secret(),
+		Is2FAEnabled: true,
+		IsActive:     true,
 	}
 
-	var user struct {
-		ID           int
-		Username     string
-		PasswordHash string
-		FullName     string
-		Email        string
-	}
-
-	err := db.QueryRow(`
-		SELECT id, username, password_hash, full_name, email 
-		FROM users 
-		WHERE username = ?`, req.Username).Scan(
-		&user.ID, &user.Username, &user.PasswordHash, &user.FullName, &user.Email)
-
+	err = Store.CreateUser(user)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.JSON(http.StatusUnauthorized, ErrorResponse{"Invalid credentials"})
+		if err.Error() == "username or email already exists" {
+			c.JSON(http.StatusConflict, models.ErrorResponse{Error: "Username or email already exists"})
 		} else {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{"Database error"})
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User registration failed: " + err.Error()})
 		}
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{"Invalid credentials"})
+	createdUser, err := Store.GetUserByUsername(user.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User created but failed to retrieve"})
 		return
 	}
 
-	_, _ = db.Exec("UPDATE users SET last_login = NOW() WHERE id = ?", user.ID)
-	generateAndSendToken(c, user.ID, user.Username, user.FullName, user.Email)
+	token, err := createJWTToken(createdUser.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.RegisterResponse{
+		Token:   token,
+		Message: "User created successfully",
+	})
 }
 
-func generateAndSendToken(c *gin.Context, userID int, username, fullName, email string) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":      userID,
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
-		"iat":      time.Now().Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte("your-secret-key"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{"Failed to generate token"})
+// @Summary Login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.LoginRequest true "Credentials"
+// @Success 200 {object} models.TempTokenResponse "OTP sent to registered email (if 2FA enabled)"
+// @Success 200 {object} models.LoginResponse "User logged in successfully (if 2FA disabled)"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Failure 401 {object} models.ErrorResponse "Invalid credentials"
+// @Failure 500 {object} models.ErrorResponse "System error"
+// @Router /login [post]
+func LoginHandler(c *gin.Context) {
+	var req models.LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
 		return
 	}
 
-	c.JSON(http.StatusOK, LoginResponse{
-		Token: tokenString,
-		User: struct {
-			ID       int    `json:"id" example:"1"`
-			Username string `json:"username" example:"admin"`
-			FullName string `json:"fullName" example:"Admin User"`
-			Email    string `json:"email" example:"admin@example.com"`
-		}{
-			ID:       userID,
-			Username: username,
-			FullName: fullName,
-			Email:    email,
-		},
+	user, err := Store.GetUserByUsername(req.Username)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid credentials"})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid credentials"})
+		return
+	}
+
+	err = Store.UpdateUserLastLogin(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	if user.Is2FAEnabled {
+		code, err := totp.GenerateCode(user.TOTPSecret, time.Now())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to generate OTP"})
+			return
+		}
+
+		err = Store.SaveOTPCode(user.ID, code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to save OTP code"})
+			return
+		}
+
+		err = mail.SendOTPEmail(user.Email, code)
+		if err != nil {
+			fmt.Printf("Error sending OTP email: %v\n", err)
+		}
+
+		tempToken, err := createTempToken(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, models.TempTokenResponse{
+			TempToken: tempToken,
+			Message:   "OTP sent to registered email",
+		})
+	} else {
+		token, err := createJWTToken(user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, models.LoginResponse{
+			Token:    token,
+			UserID:   user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		})
+	}
+}
+
+// @Summary Verify OTP
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.VerifyOTPRequest true "OTP data"
+// @Success 200 {object} models.LoginResponse "User logged in successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Failure 401 {object} models.ErrorResponse "Invalid token or OTP"
+// @Failure 500 {object} models.ErrorResponse "System error"
+// @Router /verify-otp [post]
+func VerifyOTPHandler(c *gin.Context) {
+	var req models.VerifyOTPRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	userID, err := validateTempToken(req.TempToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid token"})
+		return
+	}
+
+	valid, err := Store.VerifyOTPCode(userID, req.OTP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid or expired OTP code"})
+		return
+	}
+
+	err = Store.ClearOTPCode(userID)
+	if err != nil {
+		fmt.Printf("Error clearing OTP code: %v\n", err)
+	}
+
+	user, err := Store.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User not found"})
+		return
+	}
+
+	token, err := createJWTToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.LoginResponse{
+		Token:    token,
+		UserID:   user.ID,
+		Username: user.Username,
+		Email:    user.Email,
 	})
+}
+
+// @Summary Enable 2FA
+// @Description Включает двухфакторную аутентификацию для пользователя после проверки OTP кода
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.Enable2FARequest true "OTP данные для верификации"
+// @Success 200 {object} models.Enable2FAResponse "2FA успешно включена"
+// @Failure 400 {object} models.ErrorResponse "Неверный запрос или OTP код"
+// @Failure 401 {object} models.ErrorResponse "Неавторизованный доступ"
+// @Failure 500 {object} models.ErrorResponse "Ошибка сервера"
+// @Router /account/2fa/enable [post]
+func Enable2FAHandler(c *gin.Context) {
+	userIDInterface, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Invalid user ID format"})
+		return
+	}
+
+	var req models.Enable2FARequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	user, err := Store.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User not found"})
+		return
+	}
+
+	if !totp.Validate(req.OTP, user.TOTPSecret) {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid OTP code"})
+		return
+	}
+
+	err = Store.Enable2FA(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to enable 2FA: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.Enable2FAResponse{Status: "2FA enabled"})
+}
+
+// @Summary Reload email templates
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.SuccessResponse "Templates reloaded"
+// @Failure 403 {object} models.ErrorResponse "Access denied"
+// @Failure 500 {object} models.ErrorResponse "Server error"
+// @Router /admin/reload-templates [post]
+func ReloadTemplatesHandler(c *gin.Context) {
+	if err := mail.ReloadTemplates(); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: fmt.Sprintf("Failed to reload templates: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Templates reloaded successfully"})
+}
+
+func createTempToken(userID int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": userID,
+		"exp": time.Now().Add(5 * time.Minute).Unix(),
+	})
+	return token.SignedString([]byte(tempJWTSecret))
+}
+
+func validateTempToken(tokenString string) (int, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(tempJWTSecret), nil
+	})
+	if err != nil || !token.Valid {
+		return 0, errors.New("invalid token")
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, errors.New("invalid token claims")
+	}
+	userIDFloat, ok := claims["sub"].(float64)
+	if !ok {
+		return 0, errors.New("invalid user id in token")
+	}
+	return int(userIDFloat), nil
+}
+
+func createJWTToken(userID int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": userID,
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
+	})
+	return token.SignedString([]byte(JWTSecret))
 }

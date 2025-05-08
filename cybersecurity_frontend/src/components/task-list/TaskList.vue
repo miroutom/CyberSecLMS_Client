@@ -50,7 +50,9 @@ export default {
 
 <style scoped>
 .content-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
 }
 
 .vulnerability-tasks {

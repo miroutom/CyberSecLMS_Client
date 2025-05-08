@@ -57,6 +57,13 @@ jobs:
           go build -o lms_back .
           ls -lh lms_back
 
+      - name: Build Gateway
+        run: |
+          cd api-gateway
+          go mod download
+          go build -o gateway_bin .
+          ls -lh gateway_bin
+
       - name: Upload Go binary to server
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -64,6 +71,14 @@ jobs:
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
           rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" backend/lms_back $USERNAME@$SERVER_IP:$SERVER_DIR
+
+      - name: Upload Gateway binary to server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+          SERVER_DIR: ${{ secrets.SERVER_DIR }}
+        run: |
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" api-gateway/gateway_bin api-gateway/configs/config.yaml $USERNAME@$SERVER_IP:$SERVER_DIR
 
       - name: Restart backend service
         env:
@@ -74,4 +89,14 @@ jobs:
           ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
             sudo systemctl restart lms_back ||
             (sudo pkill lms_back; nohup $SERVER_DIR/lms_back > /dev/null 2>&1 &)
+          "
+      - name: Restart gateway service
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          USERNAME: ${{ secrets.USERNAME }}
+          SERVER_DIR: ${{ secrets.SERVER_DIR }}
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
+            sudo systemctl restart gateway_bin ||
+            (sudo pkill gateway_bin; nohup $SERVER_DIR/gateway_bin > /dev/null 2>&1 &)
           "
