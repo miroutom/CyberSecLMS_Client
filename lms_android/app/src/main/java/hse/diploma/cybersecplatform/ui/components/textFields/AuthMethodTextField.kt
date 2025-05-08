@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -17,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,7 +24,6 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
-import hse.diploma.cybersecplatform.utils.AuthMethodType
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 
 @Composable
@@ -35,9 +32,8 @@ fun AuthMethodTextField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label = stringResource(R.string.auth_label_phone_number_email)
-
-    val (isAuthMethodTypeValid, authMethodType) = isLoginValidAndAuthMethodType(value.text)
+    val label = stringResource(R.string.auth_label_email)
+    val isAuthMethodTypeValid = isLoginValidAndAuthMethodType(value.text)
 
     Column(modifier = modifier.padding(8.dp)) {
         if (!isAuthMethodTypeValid && value.text.isNotEmpty()) {
@@ -62,12 +58,6 @@ fun AuthMethodTextField(
                     color = Color.Black,
                 )
             },
-            keyboardOptions =
-                if (authMethodType == AuthMethodType.EMAIL) {
-                    KeyboardOptions(keyboardType = KeyboardType.Email)
-                } else {
-                    KeyboardOptions(keyboardType = KeyboardType.Phone)
-                },
             colors =
                 TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,

@@ -3,7 +3,8 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.domain.AuthRepo
+import hse.diploma.cybersecplatform.data.model.RegisterResponse
+import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +42,7 @@ class RegistrationScreenViewModel @Inject constructor(private val authRepo: Auth
                 _password,
                 _passwordConfirmation,
             ) { login, password, passwordConfirmation ->
-                isLoginValidAndAuthMethodType(login.text).first &&
+                isLoginValidAndAuthMethodType(login.text) &&
                     isPasswordValid(password.text) &&
                     password.text == passwordConfirmation.text
             }.collect { isValid ->
@@ -75,7 +76,7 @@ class RegistrationScreenViewModel @Inject constructor(private val authRepo: Auth
         password: String,
         email: String,
         fullName: String,
-        onResult: (Result<Unit>) -> Unit,
+        onResult: (Result<RegisterResponse>) -> Unit,
     ) {
         viewModelScope.launch {
             _isLoading.value = true

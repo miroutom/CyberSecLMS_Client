@@ -6,8 +6,10 @@ on:
     paths:
       - 'cybersecurity_frontend/**'
 
-  pull_request_target:
+  pull_request:
     branches: [main]
+    paths:
+      - 'cybersecurity_frontend/**'
 
 jobs:
   lint:

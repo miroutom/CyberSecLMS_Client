@@ -3,8 +3,8 @@ package hse.diploma.cybersecplatform.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
 import hse.diploma.cybersecplatform.extensions.animatedComposable
-import hse.diploma.cybersecplatform.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
 import hse.diploma.cybersecplatform.ui.screens.favorites.FavoritesScreen
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
@@ -30,7 +30,7 @@ fun MainNavigationGraph() {
                 FavoritesScreen(mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
-                ProfileScreen(mainNavController)
+                ProfileScreen()
             }
 
             animatedComposable(Screen.TaskScreen.route) { backStackEntry ->

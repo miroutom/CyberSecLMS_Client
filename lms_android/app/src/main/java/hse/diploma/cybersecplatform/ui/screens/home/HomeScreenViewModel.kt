@@ -3,8 +3,8 @@ package hse.diploma.cybersecplatform.ui.screens.home
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import dagger.Module
-import hse.diploma.cybersecplatform.domain.VulnerabilityRepo
-import hse.diploma.cybersecplatform.model.VulnerabilityType
+import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
+import hse.diploma.cybersecplatform.domain.repository.VulnerabilityRepo
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

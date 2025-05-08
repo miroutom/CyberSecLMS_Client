@@ -33,7 +33,7 @@ class NetworkModule {
                 val token = tokenManager.getToken()
 
                 val request =
-                    if (token != null) {
+                    if (!token.isNullOrEmpty()) {
                         original.newBuilder()
                             .header("Authorization", "Bearer $token")
                             .build()

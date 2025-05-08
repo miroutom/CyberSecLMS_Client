@@ -2,7 +2,7 @@ package hse.diploma.cybersecplatform.ui.navigation
 
 import androidx.annotation.StringRes
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.model.VulnerabilityType
+import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
 
 sealed class Screen(
     val route: String,

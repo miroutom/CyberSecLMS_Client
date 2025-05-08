@@ -3,9 +3,8 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.data.model.LoginResponse
-import hse.diploma.cybersecplatform.domain.AuthRepo
-import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
+import hse.diploma.cybersecplatform.data.model.TempTokenResponse
+import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,9 +15,6 @@ import javax.inject.Inject
 class AuthorizationScreenViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
     private val _username = MutableStateFlow(TextFieldValue(""))
     val username = _username.asStateFlow()
-
-    private val _login = MutableStateFlow(TextFieldValue(""))
-    val login = _login.asStateFlow()
 
     private val _password = MutableStateFlow(TextFieldValue(""))
     val password = _password.asStateFlow()
@@ -31,9 +27,8 @@ class AuthorizationScreenViewModel @Inject constructor(private val authRepo: Aut
 
     init {
         viewModelScope.launch {
-            combine(_login, _password, _username) { login, password, username ->
-                (isLoginValidAndAuthMethodType(login.text).first || username.text.isNotEmpty()) &&
-                    isPasswordValid(password.text)
+            combine(_password, _username) { password, username ->
+                username.text.isNotEmpty() && isPasswordValid(password.text)
             }.collect { isValid ->
                 _isAuthorizationEnabled.value = isValid
             }
@@ -44,10 +39,6 @@ class AuthorizationScreenViewModel @Inject constructor(private val authRepo: Aut
         _username.value = newUsername
     }
 
-    fun onLoginChange(newLogin: TextFieldValue) {
-        _login.value = newLogin
-    }
-
     fun onPasswordChange(newPassword: TextFieldValue) {
         _password.value = newPassword
     }
@@ -55,7 +46,7 @@ class AuthorizationScreenViewModel @Inject constructor(private val authRepo: Aut
     fun login(
         username: String,
         password: String,
-        onResult: (Result<LoginResponse>) -> Unit,
+        onResult: (Result<TempTokenResponse>) -> Unit,
     ) {
         viewModelScope.launch {
             _isLoading.value = true

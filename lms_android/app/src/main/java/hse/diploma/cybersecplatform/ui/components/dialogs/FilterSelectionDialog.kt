@@ -118,14 +118,14 @@ fun FilterSelectionDialog(
                 )
             }
         },
-        containerColor = colorResource(R.color.xss_card_color),
+        containerColor = colorResource(R.color.dialog_color),
         tonalElevation = 8.dp,
     )
 }
 
 @Preview
 @Composable
-fun FilterSelectionDialogPreview() {
+private fun FilterSelectionDialogPreview() {
     FilterSelectionDialog(
         onFilterSelected = {},
         onDismiss = {},
