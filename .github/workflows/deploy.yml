@@ -63,7 +63,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           SERVER_DIR: ${{ secrets.SERVER_DIR }}
         run: |
-          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" api-gateway/gateway_bin $USERNAME@$SERVER_IP:$SERVER_DIR
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" api-gateway/gateway_bin api-gateway/configs/config.yaml $USERNAME@$SERVER_IP:$SERVER_DIR
 
       - name: Restart backend service
         env:
