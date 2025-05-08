@@ -73,7 +73,13 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	token, err := createJWTToken(user.ID)
+	createdUser, err := Store.GetUserByUsername(user.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User created but failed to retrieve"})
+		return
+	}
+
+	token, err := createJWTToken(createdUser.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
 		return
