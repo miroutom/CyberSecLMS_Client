@@ -59,7 +59,7 @@ func RegisterHandler(c *gin.Context) {
 		Email:        req.Email,
 		FullName:     req.FullName,
 		TOTPSecret:   key.Secret(),
-		Is2FAEnabled: false,
+		Is2FAEnabled: true,
 		IsActive:     true,
 	}
 
