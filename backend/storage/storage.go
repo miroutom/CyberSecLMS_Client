@@ -26,6 +26,10 @@ type Storage interface {
 	UpdateUserStatus(userID int, isActive bool) error
 	PromoteToAdmin(userID int) error
 	DemoteFromAdmin(userID int) error
+
+	SaveOTPCode(userID int, code string) error
+	VerifyOTPCode(userID int, code string) (bool, error)
+	ClearOTPCode(userID int) error
 }
 
 // DBStorage имплементирует Storage используя реальную базу данных

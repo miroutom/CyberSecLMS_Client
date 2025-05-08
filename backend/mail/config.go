@@ -49,7 +49,7 @@ func loadEmailTemplates() {
 		return
 	}
 
-	templatePath := filepath.Join(rootDir, "templates", "emails", "otp_email.html")
+	templatePath := filepath.Join(rootDir, "backend", "templates", "emails", "otp_email.html")
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		fmt.Printf("Error loading email template: %v\n", err)

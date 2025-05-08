@@ -1,11 +1,13 @@
 package storage
 
 import (
+	"crypto/subtle"
 	"database/sql"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend/models"
+	"time"
 )
 
 // GetCourses возвращает список всех курсов из базы данных
@@ -199,6 +201,60 @@ func (s *DBStorage) GetUserByID(id int) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (s *DBStorage) SaveOTPCode(userID int, code string) error {
+	expiresAt := time.Now().Add(5 * time.Minute)
+
+	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(code, expiresAt, userID)
+	return err
+}
+
+func (s *DBStorage) VerifyOTPCode(userID int, code string) (bool, error) {
+	var storedCode string
+	var expiresAt time.Time
+
+	stmt, err := s.DB.Prepare("SELECT otp_code, otp_expires_at FROM users WHERE id = ?")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userID).Scan(&storedCode, &expiresAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+
+	if storedCode == "" {
+		return false, nil
+	}
+
+	if time.Now().After(expiresAt) {
+		return false, nil
+	}
+
+	return subtle.ConstantTimeCompare([]byte(code), []byte(storedCode)) == 1, nil
+}
+
+func (s *DBStorage) ClearOTPCode(userID int) error {
+	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = NULL, otp_expires_at = NULL WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userID)
+	return err
 }
 
 // GetUsersByRole возвращает список пользователей с определенной ролью (admin или не admin)

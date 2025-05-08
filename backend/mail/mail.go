@@ -66,12 +66,10 @@ func SendOTPEmail(email, code string) error {
 }
 
 func sendOTPEmailFallback(email, code string) error {
-	// Настройка TLS-конфигурации для SSL-соединения (порт 465)
 	tlsConfig := &tls.Config{
 		ServerName: smtpHost,
 	}
 
-	// Создаем SSL-соединение
 	conn, err := tls.Dial("tcp", smtpHost+":"+smtpPort, tlsConfig)
 	if err != nil {
 		fmt.Printf("SSL connection error: %v\n", err)
@@ -79,7 +77,6 @@ func sendOTPEmailFallback(email, code string) error {
 		return err
 	}
 
-	// Создаем SMTP-клиент поверх SSL-соединения
 	client, err := smtp.NewClient(conn, smtpHost)
 	if err != nil {
 		fmt.Printf("Error creating SMTP client: %v\n", err)
@@ -87,7 +84,6 @@ func sendOTPEmailFallback(email, code string) error {
 	}
 	defer client.Close()
 
-	// Аутентификация
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
 	if err = client.Auth(auth); err != nil {
 		fmt.Printf("Authentication error: %v\n", err)
@@ -95,7 +91,6 @@ func sendOTPEmailFallback(email, code string) error {
 		return err
 	}
 
-	// Далее код отправки email...
 	if err = client.Mail(smtpUsername); err != nil {
 		return err
 	}
