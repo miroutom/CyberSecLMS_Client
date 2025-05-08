@@ -33,7 +33,7 @@ var (
 			ID:           1,
 			Username:     "admin",
 			PasswordHash: "$2a$10$XJaM5WKk3xQQbUgRIl9YGuRzJtfuZ/lsGQKJQL9AVG1cAP5DJFuTa", // "admin123"
-			Email:        "admin@example.com",
+			Email:        "eyuborisova@yandex.ru",
 			FullName:     "Admin User",
 			TOTPSecret:   "JBSWY3DPEHPK3PXP",
 			Is2FAEnabled: true,
