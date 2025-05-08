@@ -22,7 +22,7 @@ const (
 // @Accept json
 // @Produce json
 // @Param request body models.RegisterRequest true "Registration data"
-// @Success 201 {object} models.SuccessResponse "User created"
+// @Success 201 {object} models.RegisterResponse "User created"
 // @Failure 400 {object} models.ErrorResponse "Invalid request"
 // @Failure 409 {object} models.ErrorResponse "User already exists"
 // @Failure 500 {object} models.ErrorResponse "Server error"
@@ -73,7 +73,16 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, models.SuccessResponse{Message: "User created successfully"})
+	token, err := createJWTToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.RegisterResponse{
+		Token:   token,
+		Message: "User created successfully",
+	})
 }
 
 // @Summary Login

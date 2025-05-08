@@ -57,6 +57,11 @@ type RegisterRequest struct {
 	FullName string `json:"fullName" binding:"required" example:"New User"`
 }
 
+type RegisterResponse struct {
+	Token   string `json:"token"`
+	Message string `json:"message"`
+}
+
 type VerifyOTPRequest struct {
 	TempToken string `json:"tempToken" binding:"required"`
 	OTP       string `json:"otp" binding:"required"`
