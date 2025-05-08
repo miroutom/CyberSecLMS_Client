@@ -7,14 +7,21 @@ on:
       - 'lms_android/**'
 
   pull_request_target:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
-  start:
+  check-paths:
     runs-on: ubuntu-latest
+    outputs:
+      android_changed: ${{ steps.filter.outputs.android }}
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            android:
+              - 'lms_android/**'
 
   static-code-analysis:
     name: Perform static code analysis
@@ -29,21 +36,10 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Ktlint Check
+      - name: Pull Request Check (ktlint, lint)
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
-        run: ./gradlew ktlintCheck
-
-      - name: Create local.properties with BASE_URL
-        run: |
-          echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
-          echo "Content of local.properties:"
-          cat local.properties
-
-      - name: Lint Check
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-        run: ./gradlew lintDebug
+        run: ./gradlew pullRequestCheck
 
   build-debug-apk:
     name: Build Debug APK

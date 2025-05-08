@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.model
+package hse.diploma.cybersecplatform.domain.model
 
 import hse.diploma.cybersecplatform.utils.Difficulty
 

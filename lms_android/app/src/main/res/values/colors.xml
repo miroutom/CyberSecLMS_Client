@@ -14,4 +14,15 @@
 
     <color name="csrf_card_color">#F1FFFF</color>
     <color name="csrf_signature_color">#3AE8C5</color>
+
+    <color name="dialog_color">#F5FAFF</color>
+
+    <color name="icon_black_tint">#484848</color>
+
+    <color name="logout">#C61414</color>
+
+    <color name="error_dialog_background">#FFF3F3</color>
+    <color name="error_dialog_text">#C61414</color>
+
+    <color name="menu_divider">#BCBCBC</color>
 </resources>

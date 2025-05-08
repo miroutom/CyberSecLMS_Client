@@ -8,8 +8,23 @@ on:
     branches: [main]
 
 jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - '**.go'
+              - 'backend/**'
+              - 'go.mod'
+              - 'go.sum'
   deploy:
-    if: github.repository == 'CyberSecurityLMS/LMS'
+    if: github.repository == 'CyberSecurityLMS/LMS' && needs.check-paths.outputs.backend_changed == 'true'
     runs-on: ubuntu-latest
 
     steps:

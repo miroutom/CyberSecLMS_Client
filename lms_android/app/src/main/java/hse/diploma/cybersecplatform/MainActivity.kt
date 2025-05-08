@@ -15,6 +15,7 @@ import hse.diploma.cybersecplatform.data.api.TokenManager
 import hse.diploma.cybersecplatform.di.ActivityComponent
 import hse.diploma.cybersecplatform.di.ActivityModule
 import hse.diploma.cybersecplatform.di.DaggerActivityComponent
+import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
 import hse.diploma.cybersecplatform.ui.navigation.MainNavigationGraph
@@ -55,6 +56,7 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
             CyberSecPlatformTheme {
                 CompositionLocalProvider(
                     LocalViewModelFactory provides viewModelFactory,
+                    LocalAuthStateViewModel provides authStateViewModel,
                 ) {
                     val navController = rememberNavController()
                     navController.setViewModelStore(viewModelStore)

@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.placeholder)
 
     // --- Kotlin ---
     implementation(platform(libs.kotlin.bom))

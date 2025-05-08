@@ -17,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,8 +34,11 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
+import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
+import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
 import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
+import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.logD
@@ -45,14 +51,20 @@ fun AuthorizationScreen(
     onAuthorized: () -> Unit,
     onError: (String) -> Unit,
     viewModel: AuthorizationScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
+    otpViewModel: OtpViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
-    val login by viewModel.login.collectAsState()
     val password by viewModel.password.collectAsState()
     val username by viewModel.username.collectAsState()
 
     val isAuthorizationEnabled by viewModel.isAuthorizationEnabled.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    var tempTokenForOtp by remember { mutableStateOf<String?>(null) }
+    var otpError by remember { mutableStateOf<String?>(null) }
+    val isOtpLoading by otpViewModel.isLoading.collectAsState()
+
+    var errorDialogMessage by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -64,12 +76,6 @@ fun AuthorizationScreen(
                         .background(Color.White)
                         .padding(paddingValues),
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                }
-
                 Column(
                     modifier =
                         Modifier
@@ -117,13 +123,15 @@ fun AuthorizationScreen(
                     FilledButton(
                         text = stringResource(R.string.auth_button),
                         onClick = {
-                            logD(TAG, "onLoginClicked login")
+                            logD(TAG, "onLoginClicked()")
                             viewModel.login(username.text, password.text) { result ->
-                                result.onSuccess {
-                                    // Сохраняем токен, если нужно
-                                    onAuthorized()
+                                logD(TAG, "onLoginClicked() result: $result")
+                                result.onSuccess { tempResp ->
+                                    logD(TAG, "onLoginClicked() tempToken: ${tempResp.tempToken}")
+                                    tempTokenForOtp = tempResp.tempToken
+                                    otpError = null
                                 }.onFailure { error ->
-                                    onError(error.message ?: "Ошибка авторизации")
+                                    onError(error.message ?: "Authorization error")
                                 }
                             }
                         },
@@ -135,6 +143,50 @@ fun AuthorizationScreen(
                         onClick = onNavigateToRegistration,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    if (tempTokenForOtp != null) {
+                        OtpDialog(
+                            email = "",
+                            isLoading = isOtpLoading,
+                            error = otpError,
+                            onOtpSubmit = { enteredCode ->
+                                otpViewModel.verifyOtp(
+                                    tempToken = tempTokenForOtp!!,
+                                    otp = enteredCode,
+                                    onResult = { result ->
+                                        result.onSuccess {
+                                            tempTokenForOtp = null
+                                            otpError = null
+                                            onAuthorized()
+                                        }.onFailure { err ->
+                                            otpError = err.message ?: "Wrong code"
+                                        }
+                                    },
+                                )
+                            },
+                            onDismiss = {
+                                tempTokenForOtp = null
+                                otpError = null
+                            },
+                        )
+                    }
+                }
+
+                if (isLoading) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.White.copy(alpha = 0.7f)),
+                    ) {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    }
+                }
+
+                errorDialogMessage?.let { msg ->
+                    ErrorDialog(
+                        errorMessage = msg,
+                        onDismiss = { errorDialogMessage = null },
+                    )
                 }
             }
         },

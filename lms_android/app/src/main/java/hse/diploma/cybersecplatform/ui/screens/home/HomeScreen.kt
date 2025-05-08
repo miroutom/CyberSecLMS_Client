@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
-import hse.diploma.cybersecplatform.model.VulnerabilityType
+import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.VulnerabilityCard
 import hse.diploma.cybersecplatform.ui.navigation.Screen

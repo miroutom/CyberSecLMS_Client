@@ -11,6 +11,8 @@ import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenViewModel
+import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenViewModel
 
 @Module
@@ -22,6 +24,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(AuthStateViewModel::class)
     abstract fun provideAuthStateViewModel(viewModel: AuthStateViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(OtpViewModel::class)
+    abstract fun provideOtpViewModel(viewModel: OtpViewModel): ViewModel
 
     @Binds
     @IntoMap
@@ -42,4 +49,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(RegistrationScreenViewModel::class)
     abstract fun provideRegistrationScreenViewModel(viewModel: RegistrationScreenViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProfileScreenViewModel::class)
+    abstract fun provideProfileScreenViewModel(viewModel: ProfileScreenViewModel): ViewModel
 }

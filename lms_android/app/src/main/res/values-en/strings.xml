@@ -5,7 +5,7 @@
 
     <string name="auth_label_password">Password</string>
     <string name="auth_label_confirm_password">Confirm the password</string>
-    <string name="auth_label_phone_number_email">Phone number/e-mail</string>
+    <string name="auth_label_email">E-mail</string>
     <string name="auth_label_full_name">Name and surname</string>
     <string name="auth_label_username">Username</string>
     <string name="auth_label_error">Wrong</string>
@@ -52,4 +52,24 @@
     <string name="filter_selection_dialog_title">Select Difficulty</string>
     <string name="reset_button">Reset</string>
     <string name="confirm_button">Confirm</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="ok_button">Ok</string>
+
+    <string name="welcome_text">Hello, %s</string>
+
+    <string name="profile_statistics_section">Statistics</string>
+    <string name="profile_theory_section">Theory</string>
+    <string name="profile_settings_section">Settings</string>
+    <string name="profile_support_section">Support</string>
+    <string name="profile_logout">Logout</string>
+
+    <string name="otp_dialog_title">Confirm that it\'s you</string>
+    <string name="otp_sent_to_email">Code was sent to %1$s</string>
+    <string name="otp_input_label">Enter the code</string>
+
+    <string name="error_dialog_title">Error</string>
+    <string name="authorization_error">"Authorization error"</string>
+    <string name="registration_error">"Registration error"</string>"
+    <string name="otp_error">"OTP error"</string>
+    <string name="unknown_error">"Unknown error"</string>
 </resources>

@@ -1,20 +1,16 @@
 package hse.diploma.cybersecplatform.ui.navigation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.navigation
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
 import hse.diploma.cybersecplatform.extensions.animatedComposable
+import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreen
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreen
 import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreen
@@ -72,18 +68,11 @@ fun NavGraphBuilder.authNavigationGraph(
                 modifier = modifier,
             )
 
-            // TODO: replace with dialog
             errorMessage?.let { error ->
-                Snackbar(
-                    modifier = Modifier.padding(16.dp),
-                    action = {
-                        TextButton(onClick = { errorMessage = null }) {
-                            Text("ОК")
-                        }
-                    },
-                ) {
-                    Text(error)
-                }
+                ErrorDialog(
+                    errorMessage = error,
+                    onDismiss = { errorMessage = null },
+                )
             }
         }
 
@@ -102,18 +91,11 @@ fun NavGraphBuilder.authNavigationGraph(
                 modifier = modifier,
             )
 
-            // TODO: replace with dialog
             errorMessage?.let { error ->
-                Snackbar(
-                    modifier = Modifier.padding(16.dp),
-                    action = {
-                        TextButton(onClick = { errorMessage = null }) {
-                            Text("ОК")
-                        }
-                    },
-                ) {
-                    Text(error)
-                }
+                ErrorDialog(
+                    errorMessage = error,
+                    onDismiss = { errorMessage = null },
+                )
             }
         }
     }
