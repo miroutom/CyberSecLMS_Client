@@ -118,6 +118,12 @@ func LoginHandler(c *gin.Context) {
 			return
 		}
 
+		err = Store.SaveOTPCode(user.ID, code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to save OTP code"})
+			return
+		}
+
 		err = mail.SendOTPEmail(user.Email, code)
 		if err != nil {
 			fmt.Printf("Error sending OTP email: %v\n", err)
@@ -172,14 +178,25 @@ func VerifyOTPHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := Store.GetUserByID(userID)
+	valid, err := Store.VerifyOTPCode(userID, req.OTP)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User not found"})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
 		return
 	}
 
-	if !totp.Validate(req.OTP, user.TOTPSecret) {
-		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid OTP code"})
+	if !valid {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid or expired OTP code"})
+		return
+	}
+
+	err = Store.ClearOTPCode(userID)
+	if err != nil {
+		fmt.Printf("Error clearing OTP code: %v\n", err)
+	}
+
+	user, err := Store.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "User not found"})
 		return
 	}
 
