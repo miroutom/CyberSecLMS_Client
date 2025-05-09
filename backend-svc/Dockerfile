@@ -1,20 +1,18 @@
 FROM golang:1.24 AS builder
 
-WORKDIR /app
+WORKDIR /go/src/lmsmodule
 
-COPY go.mod ./
-COPY go.sum ./
+COPY . .
+
 RUN go mod download
-
-COPY backend-svc/ ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/backend-svc ./backend-svc
 
 FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
-COPY --from=builder /app/app /app/app
+COPY --from=builder /go/bin/backend-svc /app/backend-svc
+COPY --from=builder /go/src/lmsmodule/backend-svc/configs /app/configs
 
 EXPOSE 8081
 
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/backend-svc"]

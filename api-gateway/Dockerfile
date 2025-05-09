@@ -1,21 +1,18 @@
 FROM golang:1.24 AS builder
 
-WORKDIR /app
+WORKDIR /go/src/lmsmodule
 
-COPY go.mod ./
-COPY go.sum ./
+COPY . .
+
 RUN go mod download
-
-COPY api-gateway/ ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/api-gateway ./api-gateway
 
 FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
-COPY --from=builder /app/app /app/app
-COPY --from=builder /app/configs /app/configs
+COPY --from=builder /go/bin/api-gateway /app/api-gateway
+COPY --from=builder /go/src/lmsmodule/api-gateway/configs /app/configs
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/api-gateway"]

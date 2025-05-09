@@ -1,20 +1,18 @@
 FROM golang:1.24 AS builder
 
-WORKDIR /app
+WORKDIR /go/src/lmsmodule
 
-COPY go.mod ./
-COPY go.sum ./
+COPY . .
+
 RUN go mod download
-
-COPY admin-svc/ ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/admin-svc ./admin-svc
 
 FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
-COPY --from=builder /app/app /app/app
+COPY --from=builder /go/bin/admin-svc /app/admin-svc
+COPY --from=builder /go/src/lmsmodule/admin-svc/configs /app/configs
 
 EXPOSE 8082
 
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/admin-svc"]
