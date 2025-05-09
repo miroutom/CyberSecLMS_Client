@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   discovery-server:
     image: steeltoeoss/eureka-server
@@ -22,6 +20,8 @@ services:
       - EUREKA_URL=http://discovery-server:8761/eureka
       - APP_NAME=api-gateway
       - INSTANCE_IP=api-gateway
+    volumes:
+      - ./api-gateway/configs:/app/configs
     depends_on:
       discovery-server:
         condition: service_healthy
