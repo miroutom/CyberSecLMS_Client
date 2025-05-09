@@ -55,15 +55,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-backend:latest
 
-      - name: Build and push admin-service
-        if: github.event_name != 'pull_request_target'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./admin-svc/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-admin:latest
-
       - name: Build and push nginx
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
