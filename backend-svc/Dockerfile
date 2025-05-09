@@ -5,7 +5,7 @@ WORKDIR /go/src/lmsmodule
 COPY . .
 
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/backend-svc ./backend-svc
+RUN CGO_ENABLED=0 GOOS=linux go build -buildvcs=false -a -installsuffix cgo -o /go/bin/backend-svc ./backend-svc
 
 FROM gcr.io/distroless/base-debian12
 
