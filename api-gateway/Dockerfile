@@ -6,7 +6,7 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
-COPY admin-svc/ ./
+COPY api-gateway/ ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./
 
