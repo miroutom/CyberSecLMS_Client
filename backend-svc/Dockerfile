@@ -11,7 +11,6 @@ FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 COPY --from=builder /go/bin/backend-svc /app/backend-svc
-COPY --from=builder /go/src/lmsmodule/backend-svc/configs /app/configs
 
 EXPOSE 8081
 
