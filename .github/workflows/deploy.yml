@@ -100,15 +100,33 @@ jobs:
           script: |
             mkdir -p ${{ secrets.SERVER_DIR }}/nginx/certs
 
-      - name: Upload SSL certificates if provided
-        if: "${{ secrets.SSL_CERT != '' && secrets.SSL_KEY != '' }}"
+      - name: Check for SSL certificates in repo
+        id: check-ssl
+        run: |
+          if [ -d "nginx/certs" ] && [ -f "nginx/certs/cert.pem" ] && [ -f "nginx/certs/key.pem" ]; then
+            echo "repo_certs=true" >> $GITHUB_OUTPUT
+          else
+            echo "repo_certs=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Choose SSL strategy
+        id: ssl-strategy
+        run: |
+          if [ "${{ secrets.SSL_CERT }}" != "" ] && [ "${{ secrets.SSL_KEY }}" != "" ]; then
+            echo "use_secret_certs=true" >> $GITHUB_OUTPUT
+          else
+            echo "use_secret_certs=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload SSL certificates from secrets
+        if: steps.ssl-strategy.outputs.use_secret_certs == 'true'
         run: |
           echo "${{ secrets.SSL_CERT }}" > cert.pem
           echo "${{ secrets.SSL_KEY }}" > key.pem
           scp -P 1337 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa cert.pem key.pem ${{ secrets.USERNAME }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_DIR }}/nginx/certs/
 
-      - name: Send SSL certificates from repo if available
-        if: "${{ secrets.SSL_CERT == '' || secrets.SSL_KEY == '' }}"
+      - name: Send SSL certificates from repo
+        if: steps.ssl-strategy.outputs.use_secret_certs == 'false' && steps.check-ssl.outputs.repo_certs == 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
