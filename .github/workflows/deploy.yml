@@ -10,93 +10,150 @@ on:
 jobs:
   check-paths:
     runs-on: ubuntu-latest
-    outputs:
-      backend_changed: ${{ steps.filter.outputs.backend }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            backend:
-              - '**.go'
-              - 'backend/**'
-              - 'go.mod'
-              - 'go.sum'
+
   deploy:
-    if: github.repository == 'CyberSecurityLMS/LMS' && needs.check-paths.outputs.backend_changed == 'true'
+    if: github.repository == 'CyberSecurityLMS/LMS'
     runs-on: ubuntu-latest
+    needs: check-paths
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Decrypt secrets
+        uses: amplium/git-crypt-action@v0.1.5
+        with:
+          key_encoded: ${{ secrets.GIT_CRYPT_KEY }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request_target'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push api-gateway
+        if: github.event_name != 'pull_request_target'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./api-gateway/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-api-gateway:latest
+
+      - name: Build and push backend
+        if: github.event_name != 'pull_request_target'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./backend-svc/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-backend:latest
+
+      - name: Build and push nginx
+        if: github.event_name != 'pull_request_target'
+        uses: docker/build-push-action@v4
+        with:
+          context: ./nginx
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-nginx:latest
 
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          ssh-keyscan -p 1337 ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      - name: Prepare server directory
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DIR: ${{ secrets.SERVER_DIR }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
-            sudo mkdir -p $SERVER_DIR || exit 1
-            sudo chown $USERNAME:$USERNAME $SERVER_DIR || exit 1
-            sudo chmod 755 $SERVER_DIR || exit 1
-          "
+      - name: Send .env & docker-compose.yml to the server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ".env,docker-compose.yml,nginx/default.conf"
+          target: "${{ secrets.SERVER_DIR }}"
+          strip_components: 0
 
-      - name: Build Go backend
-        run: |
-          cd backend
-          go mod download
-          go build -o lms_back .
-          ls -lh lms_back
+      - name: Prepare SSL certificates directory
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ${{ secrets.SERVER_DIR }}/nginx/certs
 
-      - name: Build Gateway
+      - name: Check for SSL certificates in repo
+        id: check-ssl
         run: |
-          cd api-gateway
-          go mod download
-          go build -o gateway_bin .
-          ls -lh gateway_bin
+          if [ -d "nginx/certs" ] && [ -f "nginx/certs/cert.pem" ] && [ -f "nginx/certs/key.pem" ]; then
+            echo "repo_certs=true" >> $GITHUB_OUTPUT
+          else
+            echo "repo_certs=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Upload Go binary to server
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DIR: ${{ secrets.SERVER_DIR }}
+      - name: Choose SSL strategy
+        id: ssl-strategy
         run: |
-          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" backend/lms_back $USERNAME@$SERVER_IP:$SERVER_DIR
+          if [ "${{ secrets.SSL_CERT }}" != "" ] && [ "${{ secrets.SSL_KEY }}" != "" ]; then
+            echo "use_secret_certs=true" >> $GITHUB_OUTPUT
+          else
+            echo "use_secret_certs=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Upload Gateway binary to server
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DIR: ${{ secrets.SERVER_DIR }}
+      - name: Upload SSL certificates from secrets
+        if: steps.ssl-strategy.outputs.use_secret_certs == 'true'
         run: |
-          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337" api-gateway/gateway_bin api-gateway/configs/config.yaml $USERNAME@$SERVER_IP:$SERVER_DIR
+          echo "${{ secrets.SSL_CERT }}" > cert.pem
+          echo "${{ secrets.SSL_KEY }}" > key.pem
+          scp -P 1337 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa cert.pem key.pem ${{ secrets.USERNAME }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_DIR }}/nginx/certs/
 
-      - name: Restart backend service
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DIR: ${{ secrets.SERVER_DIR }}
-        run: |
-          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
-            sudo systemctl restart lms_back ||
-            (sudo pkill lms_back; nohup $SERVER_DIR/lms_back > /dev/null 2>&1 &)
-          "
-      - name: Restart gateway service
-        env:
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          USERNAME: ${{ secrets.USERNAME }}
-          SERVER_DIR: ${{ secrets.SERVER_DIR }}
-        run: |
-          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 1337 $USERNAME@$SERVER_IP "
-            sudo systemctl restart gateway_bin ||
-            (sudo pkill gateway_bin; nohup $SERVER_DIR/gateway_bin > /dev/null 2>&1 &)
-          "
+      - name: Send SSL certificates from repo
+        if: steps.ssl-strategy.outputs.use_secret_certs == 'false' && steps.check-ssl.outputs.repo_certs == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "nginx/certs/*"
+          target: "${{ secrets.SERVER_DIR }}"
+          strip_components: 0
+
+      - name: Start backend services
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.SERVER_DIR }}
+            docker compose down
+            docker compose pull
+            docker compose up -d
+            docker compose ps
+
+      - name: Check service health
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sleep 30
+            
+            curl -k https://localhost 2>&1 | grep -q 'HTTP' && echo 'Nginx is running' || echo 'Nginx check failed'
+            
+            curl -k https://localhost/api/health 2>&1 | grep -q 'success' && echo 'API Gateway is accessible through Nginx' || echo 'API Gateway check failed'
+            
+            curl -s http://localhost:8761/eureka/apps 2>&1 | grep -q 'application' && echo 'Eureka is running' || echo 'Eureka check failed'

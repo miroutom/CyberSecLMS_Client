@@ -25,7 +25,6 @@ jobs:
 
   static-code-analysis:
     name: Perform static code analysis
-    needs: [start]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
