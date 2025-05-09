@@ -7,8 +7,8 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
-	"lmsmodule/backend/mail"
-	"lmsmodule/backend/models"
+	"lmsmodule/backend-svc/mail"
+	"lmsmodule/backend-svc/models"
 	"net/http"
 	"time"
 )

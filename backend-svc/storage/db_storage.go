@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
-	"lmsmodule/backend/models"
+	"lmsmodule/backend-svc/models"
 	"time"
 )
 

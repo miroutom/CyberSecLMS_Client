@@ -3,7 +3,7 @@ package storage
 import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
-	"lmsmodule/backend/models"
+	"lmsmodule/backend-svc/models"
 	"strings"
 	"time"
 )

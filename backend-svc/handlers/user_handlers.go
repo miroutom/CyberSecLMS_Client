@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"lmsmodule/backend/models"
+	"lmsmodule/backend-svc/models"
 	"net/http"
 	"strconv"
 )
