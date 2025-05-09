@@ -10,9 +10,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -buildvcs=false -a -installsuffix cgo -o /
 FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
-COPY --from=builder /go/bin/api-gateway /app/api-gateway
-COPY --from=builder /go/src/lmsmodule/api-gateway/configs /app/configs
+COPY --from=builder /go/src/lmsmodule/api-gateway ./api-gateway
+COPY --from=builder /go/src/lmsmodule/api-gateway/configs ./configs
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/api-gateway"]
+ENTRYPOINT ["./api-gateway"]
+
