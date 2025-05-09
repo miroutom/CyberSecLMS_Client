@@ -1,0 +1,105 @@
+version: "3.9"
+
+services:
+  discovery-server:
+    build:
+      context: .
+      dockerfile: ./discovery-server/Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - cybersec
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8761/eureka/apps"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_URL=http://discovery-server:8761/eureka
+      - APP_NAME=api-gateway
+      - INSTANCE_IP=api-gateway
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+
+  backend-svc:
+    build:
+      context: .
+      dockerfile: ./backend-svc/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_URL=http://discovery-server:8761/eureka
+      - APP_NAME=backend-service
+      - INSTANCE_IP=backend-svc
+      - DATABASE_DSN=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(db:3306)/${MYSQL_DATABASE}?parseTime=true
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - cybersec
+
+  admin-svc:
+    build:
+      context: .
+      dockerfile: ./admin-svc/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_URL=http://discovery-server:8761/eureka
+      - APP_NAME=admin-service
+      - INSTANCE_IP=admin-svc
+      - BACKEND_URL=http://backend-svc:8081
+    depends_on:
+      backend-svc:
+        condition: service_started
+    networks:
+      - cybersec
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend-svc
+    networks:
+      - cybersec
+
+  db:
+    image: mysql:8.0
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - cybersec
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+networks:
+  cybersec:
+
+volumes:
+  mysql_data:

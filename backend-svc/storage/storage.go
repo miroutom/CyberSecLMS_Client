@@ -2,7 +2,7 @@ package storage
 
 import (
 	"database/sql"
-	"lmsmodule/backend/models"
+	"lmsmodule/backend-svc/models"
 )
 
 // Storage определяет интерфейс для работы с данными

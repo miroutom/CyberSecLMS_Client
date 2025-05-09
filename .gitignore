@@ -32,5 +32,13 @@ google-services.json
 # Android Profiling
 *.hprof
 
-#Node Files
+# Node Files
 node_modules/
+
+# Target
+discovery-server/target/
+
+# Nginx
+nginx/certs/*.tmp
+nginx/certs/temp/
+nginx/certs/*.bak
