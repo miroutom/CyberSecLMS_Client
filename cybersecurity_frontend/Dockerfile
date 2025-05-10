@@ -1,7 +1,7 @@
 FROM node:18 AS builder
 
 WORKDIR /app
-COPY . .
+COPY ./cybersecurity_frontend/ .
 
 RUN npm install && npm run build
 
