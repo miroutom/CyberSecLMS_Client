@@ -50,9 +50,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
     depends_on:
       - api-gateway
       - backend-svc
@@ -63,6 +60,8 @@ services:
 
   frontend-svc:
     image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
+    ports:
+      - "80:80"
     networks:
       - cybersec
     depends_on:
