@@ -111,6 +111,7 @@ jobs:
           source: "frontend-svc/nginx.conf"
           target: "${{ secrets.SERVER_DIR }}"
           strip_components: 0
+          overwrite: true
 
       - name: Prepare SSL certificates directory
         uses: appleboy/ssh-action@v0.1.5
