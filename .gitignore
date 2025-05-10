@@ -34,7 +34,7 @@ google-services.json
 
 # Node Files
 node_modules/
-dist/
+**/dist/
 
 # Target
 discovery-server/target/
