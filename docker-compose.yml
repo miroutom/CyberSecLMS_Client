@@ -59,7 +59,7 @@ services:
       - cybersec
     restart: always
 
-  frontend:
+  frontend-svc:
     image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
     build:
       context: .
