@@ -63,6 +63,15 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-nginx:latest
 
+      - name: Build and push frontend
+        if: github.event_name != 'pull_request_target'
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-frontend:latest
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
