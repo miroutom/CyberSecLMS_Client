@@ -59,7 +59,8 @@ jobs:
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
         with:
-          context: ./nginx
+          context: .
+          file: ./nginx/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-nginx:latest
 
@@ -100,18 +101,6 @@ jobs:
           source: "migrations/*"
           target: "${{ secrets.SERVER_DIR }}/migrations"
           strip_components: 0
-
-      - name: Send frontend nginx config to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          port: 1337
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "frontend-svc/nginx.conf"
-          target: "${{ secrets.SERVER_DIR }}"
-          strip_components: 0
-          overwrite: true
 
       - name: Prepare SSL certificates directory
         uses: appleboy/ssh-action@v0.1.5
