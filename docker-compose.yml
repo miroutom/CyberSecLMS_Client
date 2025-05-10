@@ -46,27 +46,28 @@ services:
     restart: always
 
   nginx:
-    image: ${DOCKER_HUB_USERNAME}/lms-nginx:latest
+    image: nginx:stable-alpine
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - api-gateway
       - backend-svc
-      - frontend-svc
     networks:
       - cybersec
     restart: always
 
   frontend-svc:
     image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
-    volumes:
-      - ./frontend-svc/vue-nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "3000:3000"
     networks:
       - cybersec
     depends_on:
-      - api-gateway
-      - backend-svc
+      - nginx
     restart: always
 
   db:
