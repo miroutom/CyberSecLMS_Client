@@ -67,7 +67,7 @@ jobs:
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./frontend-svc
           file: ./frontend-svc/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-frontend:latest
