@@ -59,8 +59,7 @@ jobs:
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./nginx/Dockerfile
+          context: ./nginx
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-nginx:latest
 
