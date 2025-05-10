@@ -40,5 +40,5 @@ discovery-server/target/
 
 # Nginx
 nginx/certs/*.tmp
-nginx/certs/temp/
+frontend-svc/nginx/certs/temp/
 nginx/certs/*.bak

@@ -55,14 +55,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-backend:latest
 
-      - name: Build and push nginx
-        if: github.event_name != 'pull_request_target'
-        uses: docker/build-push-action@v4
-        with:
-          context: ./nginx
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-nginx:latest
-
       - name: Build and push frontend
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
@@ -86,7 +78,7 @@ jobs:
           port: 1337
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".env,docker-compose.yml,nginx/nginx.conf"
+          source: ".env,docker-compose.yml,frontend-svc/nginx/nginx.conf"
           target: "${{ secrets.SERVER_DIR }}"
           strip_components: 0
 
