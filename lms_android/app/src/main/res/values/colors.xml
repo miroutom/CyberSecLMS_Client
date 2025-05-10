@@ -25,4 +25,6 @@
     <color name="error_dialog_text">#C61414</color>
 
     <color name="menu_divider">#BCBCBC</color>
+
+    <color name="tab_button_not_selected_color">#979797</color>
 </resources>

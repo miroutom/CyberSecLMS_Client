@@ -16,7 +16,7 @@ sealed class Screen(
 
     data object HomeScreen : Screen("home_screen", R.string.homescreen_title)
 
-    data object Favorites : Screen("favorites", R.string.favorites_title)
+    data object MyCourses : Screen("my_courses", R.string.my_courses_title)
 
     data object Profile : Screen("profile", R.string.profile_title)
 

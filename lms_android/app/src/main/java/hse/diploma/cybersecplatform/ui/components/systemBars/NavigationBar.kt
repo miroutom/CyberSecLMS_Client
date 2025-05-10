@@ -37,7 +37,7 @@ fun CustomNavigationBar(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val items = listOf(Screen.HomeScreen, Screen.Favorites, Screen.Profile)
+    val items = listOf(Screen.HomeScreen, Screen.MyCourses, Screen.Profile)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -91,7 +91,7 @@ fun CustomNavigationBar(
                             painter =
                                 when (screen) {
                                     Screen.HomeScreen -> painterResource(R.drawable.ic_home)
-                                    Screen.Favorites -> painterResource(R.drawable.ic_favorite)
+                                    Screen.MyCourses -> painterResource(R.drawable.ic_favorite)
                                     else -> painterResource(R.drawable.ic_account)
                                 },
                             contentDescription = screen.titleId?.let { stringResource(it) },

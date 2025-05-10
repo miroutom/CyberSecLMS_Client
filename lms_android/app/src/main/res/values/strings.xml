@@ -36,7 +36,7 @@
     <string name="onboarding_next_page_button">Далее</string>
 
     <string name="homescreen_title">Все курсы</string>
-    <string name="favorites_title">Мои курсы</string>
+    <string name="my_courses_title">Мои курсы</string>
     <string name="profile_title">Профиль</string>
 
     <string name="search_bar_label">Поиск</string>
@@ -52,6 +52,7 @@
     <string name="csrf_tasks_subtitle">Эмуляция действий</string>
 
     <string name="tasks_count">%d заданий</string>
+    <string name="course_progress" translatable="false">%d</string>
 
     <string name="difficulty_number_of_task" translatable="false">%s %d</string>
     <string name="easy_level">Лёгкий</string>
@@ -64,6 +65,10 @@
     <string name="confirm_button">Готово</string>
     <string name="cancel_button">Отмена</string>
     <string name="ok_button">Ок</string>
+    <string name="restart_course_button">Перепройти</string>
+    <string name="reload_button">Перезагрузить</string>
+    <string name="yes_button">Да</string>
+    <string name="no_button">Нет</string>
 
     <string name="welcome_text">Привет, %s</string>
     <string name="email_label" translatable="false">E-mail: %s</string>
@@ -83,4 +88,14 @@
     <string name="registration_error">Ошибка регистрации</string>
     <string name="otp_error">Ошибка OTP</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+
+    <string name="no_internet_error">Нет интернета</string>
+    <string name="server_error">Сервер упал, но обещал вернуться</string>
+    <string name="other_error">Извините, что-то пошло не так :(</string>
+
+    <string name="started_courses_tab_button">Начатые</string>
+    <string name="completed_courses_tab_button">Завершённые</string>
+
+    <string name="reset_progress_title">Сбросить прогресс по курсу</string>
+    <string name="reset_progress_body">Это действие нельзя отменить.\nХотите продолжить?</string>
 </resources>
