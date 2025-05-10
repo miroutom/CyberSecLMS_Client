@@ -148,7 +148,7 @@ jobs:
           target: "${{ secrets.SERVER_DIR }}"
           strip_components: 0
 
-      - name: Start backend services
+      - name: Start services
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -160,7 +160,7 @@ jobs:
             docker compose up -d db
             sleep 5
             docker compose run --rm migrate
-            docker compose up -d api-gateway backend-svc nginx discovery-server
+            docker compose up -d api-gateway backend-svc nginx frontend-svc discovery-server
 
       - name: Check service health
         uses: appleboy/ssh-action@v0.1.5
