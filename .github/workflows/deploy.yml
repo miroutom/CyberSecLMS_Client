@@ -86,7 +86,7 @@ jobs:
           port: 1337
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".env,docker-compose.yml,nginx/default.conf"
+          source: ".env,docker-compose.yml,nginx/nginx.conf"
           target: "${{ secrets.SERVER_DIR }}"
           strip_components: 0
 
