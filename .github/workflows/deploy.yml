@@ -101,6 +101,17 @@ jobs:
           target: "${{ secrets.SERVER_DIR }}/migrations"
           strip_components: 0
 
+      - name: Send frontend nginx config to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "frontend-svc/nginx.conf"
+          target: "${{ secrets.SERVER_DIR }}"
+          strip_components: 0
+
       - name: Prepare SSL certificates directory
         uses: appleboy/ssh-action@v0.1.5
         with:
