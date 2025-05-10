@@ -79,6 +79,20 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  migrate:
+    image: migrate/migrate
+    networks:
+      - cybersec
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/migrations
+    command:
+      - -path=/migrations
+      - -database=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(db:3306)/${MYSQL_DATABASE}?multiStatements=true
+      - up
+    restart: "no"
+
 networks:
   cybersec:
 
