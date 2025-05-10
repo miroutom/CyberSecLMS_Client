@@ -68,7 +68,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./cybersecurity_frontend/Dockerfile
+          file: ./frontend-svc/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-frontend:latest
 
