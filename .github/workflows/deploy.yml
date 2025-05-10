@@ -81,6 +81,17 @@ jobs:
           target: "${{ secrets.SERVER_DIR }}"
           strip_components: 0
 
+      - name: Send migrations to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: 1337
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "migrations/*"
+          target: "${{ secrets.SERVER_DIR }}/migrations"
+          strip_components: 0
+
       - name: Prepare SSL certificates directory
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -137,10 +148,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.SERVER_DIR }}
-            docker compose down
-            docker compose pull
-            docker compose up -d
-            docker compose ps
+            docker compose up -d db
+            sleep 5
+            docker compose run --rm migrate
+            docker compose up -d api-gateway backend-svc nginx discovery-server
 
       - name: Check service health
         uses: appleboy/ssh-action@v0.1.5
