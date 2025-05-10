@@ -45,6 +45,24 @@ services:
       - cybersec
     restart: always
 
+  frontend-svc:
+    image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
+    volumes:
+      - ./frontend-svc/nginx/certs:/etc/nginx/certs
+      - ./frontend-svc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend-svc/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend-svc/dist:/usr/share/nginx/html
+    ports:
+      - "3000:3000"
+    networks:
+      - cybersec
+    restart: always
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:3000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   nginx:
     image: nginx:stable-alpine
     ports:
@@ -54,16 +72,10 @@ services:
       - ./frontend-svc/nginx/certs:/etc/nginx/certs
       - ./frontend-svc/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - api-gateway
-      - backend-svc
-    networks:
-      - cybersec
-    restart: always
-
-  frontend-svc:
-    image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
-    ports:
-      - "3000:3000"
+      frontend-svc:
+        condition: service_healthy
+      api-gateway:
+        condition: service_started
     networks:
       - cybersec
     restart: always
