@@ -1,8 +1,8 @@
 package hse.diploma.cybersecplatform.mock
 
+import hse.diploma.cybersecplatform.domain.model.Difficulty
 import hse.diploma.cybersecplatform.domain.model.Task
 import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
-import hse.diploma.cybersecplatform.utils.Difficulty
 
 val mockTasksItems =
     listOf(

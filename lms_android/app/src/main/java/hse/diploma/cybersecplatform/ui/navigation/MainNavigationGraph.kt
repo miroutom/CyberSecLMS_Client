@@ -6,7 +6,7 @@ import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
 import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
-import hse.diploma.cybersecplatform.ui.screens.favorites.FavoritesScreen
+import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreen
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreen
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreen
@@ -26,8 +26,8 @@ fun MainNavigationGraph() {
             animatedComposable(Screen.HomeScreen.route) {
                 HomeScreen(mainNavController)
             }
-            animatedComposable(Screen.Favorites.route) {
-                FavoritesScreen(mainNavController)
+            animatedComposable(Screen.MyCourses.route) {
+                MyCoursesScreen(mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
                 ProfileScreen()

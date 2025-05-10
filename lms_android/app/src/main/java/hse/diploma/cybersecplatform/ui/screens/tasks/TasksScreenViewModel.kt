@@ -2,8 +2,8 @@ package hse.diploma.cybersecplatform.ui.screens.tasks
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import hse.diploma.cybersecplatform.domain.model.Difficulty
 import hse.diploma.cybersecplatform.mock.mockTasksItems
-import hse.diploma.cybersecplatform.utils.Difficulty
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

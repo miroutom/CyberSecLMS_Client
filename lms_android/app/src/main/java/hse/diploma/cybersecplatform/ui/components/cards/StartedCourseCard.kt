@@ -7,12 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,18 +26,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.components.OutlinedLinearProgressBar
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 
 @Composable
-fun VulnerabilityCard(
-    type: VulnerabilityType,
-    tasksCount: Int,
+fun StartedCourseCard(
+    course: Course,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val config = type.config
+    val config = course.vulnerabilityType.config
 
     ElevatedCard(
         onClick = onClick,
@@ -86,7 +86,7 @@ fun VulnerabilityCard(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(R.string.tasks_count, tasksCount),
+                text = stringResource(R.string.course_progress, course.progress) + '%',
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
@@ -94,14 +94,14 @@ fun VulnerabilityCard(
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(
-                color = colorResource(config.signatureColor),
-                thickness = 1.dp,
-                modifier =
-                    Modifier
-                        .width(81.dp)
-                        .height(1.dp),
-            )
+            Box(
+                modifier = modifier.padding(16.dp),
+            ) {
+                OutlinedLinearProgressBar(
+                    progress = course.progress.toFloat() / 100f,
+                    color = colorResource(config.signatureColor),
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -109,24 +109,11 @@ fun VulnerabilityCard(
 
 @Preview(showBackground = true)
 @Composable
-fun VulnerabilityCardPreview() {
+private fun StartedCourseCardPreview() {
     CyberSecPlatformTheme {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            VulnerabilityCard(
-                type = VulnerabilityType.XSS,
-                tasksCount = 10,
-                onClick = {},
-            )
-
-            VulnerabilityCard(
-                type = VulnerabilityType.CSRF,
-                tasksCount = 5,
-                onClick = {},
-            )
-
-            VulnerabilityCard(
-                type = VulnerabilityType.SQL,
-                tasksCount = 15,
+            StartedCourseCard(
+                course = Course(vulnerabilityType = VulnerabilityType.XSS, completedTasks = 3, tasksCount = 10),
                 onClick = {},
             )
         }

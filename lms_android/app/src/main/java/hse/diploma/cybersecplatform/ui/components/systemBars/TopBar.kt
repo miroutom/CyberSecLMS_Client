@@ -32,7 +32,7 @@ fun TopBar(navController: NavHostController) {
     val noBackStackRoutes =
         setOf(
             Screen.HomeScreen.route,
-            Screen.Favorites.route,
+            Screen.MyCourses.route,
             Screen.Profile.route,
         )
 
@@ -43,7 +43,7 @@ fun TopBar(navController: NavHostController) {
     val currentScreen =
         when (currentRoute) {
             Screen.HomeScreen.route -> Screen.HomeScreen
-            Screen.Favorites.route -> Screen.Favorites
+            Screen.MyCourses.route -> Screen.MyCourses
             Screen.Profile.route -> Screen.Profile
             Screen.TaskScreen.route -> Screen.TaskScreen
             else -> null

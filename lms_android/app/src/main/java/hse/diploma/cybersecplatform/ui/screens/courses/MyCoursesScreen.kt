@@ -1,6 +1,5 @@
-package hse.diploma.cybersecplatform.ui.screens.home
+package hse.diploma.cybersecplatform.ui.screens.courses
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,7 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,53 +37,75 @@ import com.google.accompanist.placeholder.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.ui.components.SearchBar
-import hse.diploma.cybersecplatform.ui.components.cards.BaseCourseCard
+import hse.diploma.cybersecplatform.domain.model.TabType
+import hse.diploma.cybersecplatform.ui.components.cards.CompletedCourseCard
+import hse.diploma.cybersecplatform.ui.components.cards.StartedCourseCard
+import hse.diploma.cybersecplatform.ui.components.dialogs.ConfirmResetProgressDialog
 import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
-import hse.diploma.cybersecplatform.ui.state.AllCoursesState
-import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
+import hse.diploma.cybersecplatform.ui.state.MyCoursesState
 
 @Composable
-fun HomeScreen(
+fun MyCoursesScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val allCoursesState by viewModel.allCoursesState.collectAsState()
+    val viewModel: MyCoursesScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+    val myCoursesState by viewModel.myCoursesState.collectAsState()
+    var selectedTab by remember { mutableStateOf(TabType.STARTED) }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var courseToRestart by remember { mutableStateOf<Course?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadCourses()
     }
 
-    Column(
-        modifier = modifier,
-    ) {
-        when (allCoursesState) {
-            is AllCoursesState.Loading -> CoursesContentShimmer()
-            is AllCoursesState.Success -> {
-                val coursesUiState = (allCoursesState as AllCoursesState.Success).uiState
+    when (myCoursesState) {
+        is MyCoursesState.Loading -> CoursesShimmer()
+        is MyCoursesState.Success -> {
+            val coursesUiState = (myCoursesState as MyCoursesState.Success).uiState
+            Column(modifier = modifier) {
+                CoursesTabs(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
 
-                SearchBar(
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = viewModel::onSearchQueryChange,
-                    enableFiltering = false,
-                    modifier = Modifier.background(Color.White),
+                when (selectedTab) {
+                    TabType.STARTED -> StartedCoursesScreen(coursesUiState.startedCourses, navController)
+                    TabType.COMPLETED ->
+                        CompletedCoursesScreen(
+                            courses = coursesUiState.completedCourses,
+                            onRestartRequest = { course ->
+                                courseToRestart = course
+                                showDialog = true
+                            },
+                            navController = navController,
+                        )
+                }
+            }
+
+            if (showDialog) {
+                ConfirmResetProgressDialog(
+                    onConfirm = {
+                        viewModel.onCompletedCourseRestart(courseToRestart!!)
+                        showDialog = false
+                        courseToRestart = null
+                    },
+                    onDismiss = {
+                        showDialog = false
+                        courseToRestart = null
+                    },
                 )
-                CoursesContent(coursesUiState.courses, navController)
             }
-            is AllCoursesState.Error -> {
-                val errorType = (allCoursesState as AllCoursesState.Error).errorType
-                ErrorScreen(errorType, onReload = { viewModel.loadCourses() })
-            }
+        }
+        is MyCoursesState.Error -> {
+            val errorType = (myCoursesState as MyCoursesState.Error).errorType
+            ErrorScreen(errorType, onReload = { viewModel.loadCourses() })
         }
     }
 }
 
 @Composable
-fun CoursesContent(
-    items: List<Course>,
+private fun StartedCoursesScreen(
+    courses: List<Course>,
     navController: NavHostController,
 ) {
     LazyVerticalGrid(
@@ -94,8 +118,8 @@ fun CoursesContent(
             Spacer(modifier = Modifier.height(4.dp))
         }
 
-        items(items) { item ->
-            BaseCourseCard(
+        items(courses) { item ->
+            StartedCourseCard(
                 course = item,
                 onClick = { navController.navigate(Screen.TaskScreen.createRoute(item.vulnerabilityType)) },
             )
@@ -108,12 +132,42 @@ fun CoursesContent(
 }
 
 @Composable
-private fun CoursesContentShimmer(
+private fun CompletedCoursesScreen(
+    courses: List<Course>,
+    onRestartRequest: (Course) -> Unit,
+    navController: NavHostController,
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+
+        items(courses) { item ->
+            CompletedCourseCard(
+                course = item,
+                onCardClick = { navController.navigate(Screen.TaskScreen.createRoute(item.vulnerabilityType)) },
+                onRestartClick = { onRestartRequest(item) },
+            )
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+}
+
+@Composable
+private fun CoursesShimmer(
     modifier: Modifier = Modifier,
     itemsCount: Int = 6,
 ) {
     val baseColor = colorResource(id = R.color.dialog_color)
-    val shimmerHighlight = colorResource(id = R.color.button_enabled)
+    val highlightColor = colorResource(id = R.color.button_enabled)
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -123,13 +177,13 @@ private fun CoursesContentShimmer(
         modifier = modifier.fillMaxWidth(),
     ) {
         items(itemsCount) {
-            CoursesCardShimmer(baseColor, shimmerHighlight)
+            ShimmerCourseCard(baseColor, highlightColor)
         }
     }
 }
 
 @Composable
-private fun CoursesCardShimmer(
+private fun ShimmerCourseCard(
     baseColor: Color,
     shimmerHighlight: Color,
 ) {
@@ -137,8 +191,8 @@ private fun CoursesCardShimmer(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(140.dp),
-        shape = RoundedCornerShape(24.dp),
+                .height(180.dp),
+        shape = RoundedCornerShape(32.dp),
         colors =
             CardDefaults.elevatedCardColors(
                 containerColor = baseColor,
@@ -152,24 +206,12 @@ private fun CoursesCardShimmer(
         ) {
             Box(
                 Modifier
-                    .size(36.dp)
+                    .fillMaxWidth()
+                    .height(90.dp)
+                    .clip(RoundedCornerShape(20.dp))
                     .placeholder(
                         visible = true,
-                        color = baseColor,
-                        highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
-                    ),
-            )
-            Spacer(Modifier.height(18.dp))
-            Box(
-                Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(16.dp)
-                    .placeholder(
-                        visible = true,
-                        color = baseColor,
+                        color = shimmerHighlight,
                         highlight =
                             PlaceholderHighlight.shimmer(
                                 highlightColor = shimmerHighlight,
@@ -179,11 +221,25 @@ private fun CoursesCardShimmer(
             Spacer(Modifier.height(12.dp))
             Box(
                 Modifier
-                    .fillMaxWidth(0.5f)
-                    .height(12.dp)
+                    .fillMaxWidth(0.6f)
+                    .height(20.dp)
                     .placeholder(
                         visible = true,
-                        color = baseColor,
+                        color = shimmerHighlight,
+                        highlight =
+                            PlaceholderHighlight.shimmer(
+                                highlightColor = shimmerHighlight,
+                            ),
+                    ),
+            )
+            Spacer(Modifier.height(10.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(14.dp)
+                    .placeholder(
+                        visible = true,
+                        color = shimmerHighlight,
                         highlight =
                             PlaceholderHighlight.shimmer(
                                 highlightColor = shimmerHighlight,
@@ -194,10 +250,8 @@ private fun CoursesCardShimmer(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun HomeScreenPreview() {
-    CyberSecPlatformTheme {
-        HomeScreen(navController = rememberNavController())
-    }
+private fun MyCoursesScreenPreview() {
+    MyCoursesScreen(navController = rememberNavController())
 }

@@ -41,11 +41,11 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.ProfileState
-import hse.diploma.cybersecplatform.data.model.ProfileUiState
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
+import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
+import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
@@ -65,23 +65,16 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             ProfileShimmer(modifier)
         }
         is ProfileState.Success -> {
-            val profile = (profileState as ProfileState.Success).profile
+            val uiState = (profileState as ProfileState.Success).uiState
             ProfileContent(
-                profile = profile,
+                profile = uiState,
                 modifier = modifier,
                 onLogoutClick = { authStateViewModel.logout() },
             )
         }
         is ProfileState.Error -> {
-            val message = (profileState as ProfileState.Error).message
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("Error: $message")
-            }
+            val errorType = (profileState as ProfileState.Error).errorType
+            ErrorScreen(errorType, onReload = { viewModel.loadProfile() })
         }
     }
 }

@@ -10,6 +10,7 @@ import hse.diploma.cybersecplatform.di.vm.ViewModelKey
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenViewModel
+import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenViewModel
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreenViewModel
@@ -54,4 +55,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ProfileScreenViewModel::class)
     abstract fun provideProfileScreenViewModel(viewModel: ProfileScreenViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyCoursesScreenViewModel::class)
+    abstract fun provideMyCoursesScreenViewModel(viewModel: MyCoursesScreenViewModel): ViewModel
 }

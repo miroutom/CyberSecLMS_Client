@@ -34,7 +34,7 @@
     <string name="onboarding_next_page_button">Next</string>
 
     <string name="homescreen_title">All courses</string>
-    <string name="favorites_title">My courses</string>
+    <string name="my_courses_title">My courses</string>
     <string name="profile_title">Profile</string>
     <string name="search_bar_label">Search</string>
 
@@ -54,7 +54,10 @@
     <string name="confirm_button">Confirm</string>
     <string name="cancel_button">Cancel</string>
     <string name="ok_button">Ok</string>
+    <string name="reload_button">Reload</string>
 
+    <string name="restart_course_button">Restart</string>
+    <string name="no_button">No</string>
     <string name="welcome_text">Hello, %s</string>
 
     <string name="profile_statistics_section">Statistics</string>
@@ -72,4 +75,14 @@
     <string name="registration_error">"Registration error"</string>"
     <string name="otp_error">"OTP error"</string>
     <string name="unknown_error">"Unknown error"</string>
+
+    <string name="no_internet_error">No internet connection</string>
+    <string name="server_error">Server is coming back soon</string>
+    <string name="other_error">We\'re sorry, something went wrong :(</string>
+
+    <string name="started_courses_tab_button">Started</string>
+    <string name="completed_courses_tab_button">completed</string>
+    <string name="yes_button">Yes</string>
+    <string name="reset_progress_title">Reset course progress</string>
+    <string name="reset_progress_body">This action can\'t be canceled.\nDo you want to continue?</string>
 </resources>
