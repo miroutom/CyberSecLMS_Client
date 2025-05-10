@@ -60,8 +60,6 @@ services:
 
   frontend-svc:
     image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
-    ports:
-      - "80:80"
     networks:
       - cybersec
     depends_on:
