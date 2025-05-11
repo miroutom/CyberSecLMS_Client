@@ -6,8 +6,10 @@ on:
     paths:
       - 'lms_android/**'
 
-  pull_request_target:
+  pull_request:
     branches: [main]
+    paths:
+      - 'lms_android/**'
 
 jobs:
   check-paths:
@@ -36,8 +38,6 @@ jobs:
           java-version: '17'
 
       - name: Pull Request Check (ktlint, lint)
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
         run: ./gradlew pullRequestCheck
 
   build-debug-apk:
@@ -53,15 +53,7 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Create local.properties with BASE_URL
-        run: |
-          echo "BASE_URL=${{ secrets.BASE_URL }}" > local.properties
-          echo "Content of local.properties:"
-          cat local.properties
-
       - name: Build debug APK
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
