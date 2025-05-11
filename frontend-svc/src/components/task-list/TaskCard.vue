@@ -87,6 +87,7 @@ export default {
   font-size: 32px;
   line-height: 39px;
   margin-bottom: 10px;
+  color: #3764ed;
 }
 
 .task-description {
@@ -94,6 +95,7 @@ export default {
   font-weight: 400;
   font-size: 20px;
   line-height: 24px;
+  color: #3764ed;
 }
 
 .chevron-link {
