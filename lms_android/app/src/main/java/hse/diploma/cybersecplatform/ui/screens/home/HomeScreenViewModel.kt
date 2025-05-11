@@ -9,6 +9,7 @@ import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.state.AllCoursesState
 import hse.diploma.cybersecplatform.ui.state.CoursesUiState
+import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,12 +43,13 @@ class HomeScreenViewModel @Inject constructor(
                     )
             } else {
                 _allCoursesState.value =
-                    AllCoursesState.Error(result.exceptionOrNull()?.toErrorType() ?: ErrorType.Other)
+                    AllCoursesState.Error(result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other)
             }
         }
     }
 
     fun onSearchQueryChange(newSearchQuery: TextFieldValue) {
+        logD(TAG, "onSearchQueryChange query = $newSearchQuery")
         _searchQuery.value = newSearchQuery
         val currentState = _allCoursesState.value
         if (currentState is AllCoursesState.Success) {

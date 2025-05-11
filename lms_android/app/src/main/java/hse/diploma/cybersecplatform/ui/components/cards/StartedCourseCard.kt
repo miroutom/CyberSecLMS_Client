@@ -93,16 +93,20 @@ fun StartedCourseCard(
                 color = colorResource(config.signatureColor),
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(8.dp))
             Box(
-                modifier = modifier.padding(16.dp),
+                modifier =
+                    modifier.padding(
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 16.dp,
+                        start = 16.dp,
+                    ),
             ) {
                 OutlinedLinearProgressBar(
                     progress = course.progress.toFloat() / 100f,
                     color = colorResource(config.signatureColor),
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

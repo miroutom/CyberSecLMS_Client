@@ -40,17 +40,14 @@ val mockCourses =
     listOf(
         Course(
             vulnerabilityType = VulnerabilityType.XSS,
-            isStarted = false,
             tasksCount = 10,
         ),
         Course(
             vulnerabilityType = VulnerabilityType.SQL,
-            isStarted = false,
             tasksCount = 10,
         ),
         Course(
             vulnerabilityType = VulnerabilityType.CSRF,
-            isStarted = false,
             tasksCount = 10,
         ),
         Course(

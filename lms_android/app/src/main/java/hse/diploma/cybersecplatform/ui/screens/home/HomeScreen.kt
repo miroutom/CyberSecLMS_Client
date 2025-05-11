@@ -60,6 +60,7 @@ fun HomeScreen(
     ) {
         when (allCoursesState) {
             is AllCoursesState.Loading -> CoursesContentShimmer()
+
             is AllCoursesState.Success -> {
                 val coursesUiState = (allCoursesState as AllCoursesState.Success).uiState
 
@@ -69,8 +70,12 @@ fun HomeScreen(
                     enableFiltering = false,
                     modifier = Modifier.background(Color.White),
                 )
-                CoursesContent(coursesUiState.courses, navController)
+                val coursesToShow = coursesUiState.filteredCourses.ifEmpty {
+                    coursesUiState.courses
+                }
+                CoursesContent(coursesToShow, navController)
             }
+
             is AllCoursesState.Error -> {
                 val errorType = (allCoursesState as AllCoursesState.Error).errorType
                 ErrorScreen(errorType, onReload = { viewModel.loadCourses() })
