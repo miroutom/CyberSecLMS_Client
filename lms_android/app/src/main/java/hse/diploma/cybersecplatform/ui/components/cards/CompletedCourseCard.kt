@@ -85,16 +85,20 @@ fun CompletedCourseCard(
                 color = Color.Black,
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(8.dp))
             Box(
-                modifier = modifier.padding(16.dp),
+                modifier =
+                    modifier.padding(
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 16.dp,
+                        start = 16.dp,
+                    ),
             ) {
                 RestartCourseButton(
                     color = colorResource(config.signatureColor),
                     onClick = onRestartClick,
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

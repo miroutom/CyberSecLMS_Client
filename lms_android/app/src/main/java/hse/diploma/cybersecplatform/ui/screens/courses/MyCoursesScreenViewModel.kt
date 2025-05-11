@@ -36,7 +36,7 @@ class MyCoursesScreenViewModel @Inject constructor(
                     )
             } else {
                 _myCoursesState.value =
-                    MyCoursesState.Error(result.exceptionOrNull()?.toErrorType() ?: ErrorType.Other)
+                    MyCoursesState.Error(result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other)
             }
         }
     }
@@ -57,5 +57,9 @@ class MyCoursesScreenViewModel @Inject constructor(
                 )
             _myCoursesState.value = MyCoursesState.Success(newUiState)
         }
+    }
+
+    companion object {
+        private const val TAG = "MyCoursesScreenViewModel"
     }
 }

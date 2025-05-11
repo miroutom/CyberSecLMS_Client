@@ -81,7 +81,7 @@
     <string name="other_error">We\'re sorry, something went wrong :(</string>
 
     <string name="started_courses_tab_button">Started</string>
-    <string name="completed_courses_tab_button">completed</string>
+    <string name="completed_courses_tab_button">Completed</string>
     <string name="yes_button">Yes</string>
     <string name="reset_progress_title">Reset course progress</string>
     <string name="reset_progress_body">This action can\'t be canceled.\nDo you want to continue?</string>

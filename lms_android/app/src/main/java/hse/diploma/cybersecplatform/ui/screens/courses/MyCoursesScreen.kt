@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,13 +38,16 @@ import com.google.accompanist.placeholder.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.domain.model.TabType
+import hse.diploma.cybersecplatform.ui.components.buttons.TabButton
 import hse.diploma.cybersecplatform.ui.components.cards.CompletedCourseCard
 import hse.diploma.cybersecplatform.ui.components.cards.StartedCourseCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.ConfirmResetProgressDialog
 import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.MyCoursesState
+import hse.diploma.cybersecplatform.utils.logD
+
+private const val TAG = "MyCoursesScreen"
 
 @Composable
 fun MyCoursesScreen(
@@ -52,10 +56,14 @@ fun MyCoursesScreen(
 ) {
     val viewModel: MyCoursesScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
     val myCoursesState by viewModel.myCoursesState.collectAsState()
-    var selectedTab by remember { mutableStateOf(TabType.STARTED) }
+    var isStartedSelected by remember { mutableStateOf(true) }
 
     var showDialog by remember { mutableStateOf(false) }
     var courseToRestart by remember { mutableStateOf<Course?>(null) }
+
+    LaunchedEffect(isStartedSelected) {
+        logD(TAG, "Tab changed: isStartedSelected = $isStartedSelected")
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadCourses()
@@ -66,19 +74,39 @@ fun MyCoursesScreen(
         is MyCoursesState.Success -> {
             val coursesUiState = (myCoursesState as MyCoursesState.Success).uiState
             Column(modifier = modifier) {
-                CoursesTabs(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
-
-                when (selectedTab) {
-                    TabType.STARTED -> StartedCoursesScreen(coursesUiState.startedCourses, navController)
-                    TabType.COMPLETED ->
-                        CompletedCoursesScreen(
-                            courses = coursesUiState.completedCourses,
-                            onRestartRequest = { course ->
-                                courseToRestart = course
-                                showDialog = true
-                            },
-                            navController = navController,
-                        )
+                Row {
+                    TabButton(
+                        textId = R.string.started_courses_tab_button,
+                        selected = isStartedSelected,
+                        onClick = {
+                            logD(TAG, "onStartedClick()")
+                            isStartedSelected = true
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    TabButton(
+                        textId = R.string.completed_courses_tab_button,
+                        selected = !isStartedSelected,
+                        onClick = {
+                            logD(TAG, "onCompletedClick()")
+                            isStartedSelected = false
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                if (isStartedSelected) {
+                    StartedCoursesScreen(coursesUiState.startedCourses, navController)
+                } else {
+                    CompletedCoursesScreen(
+                        courses = coursesUiState.completedCourses,
+                        onRestartRequest = { course ->
+                            courseToRestart = course
+                            showDialog = true
+                        },
+                        navController = navController,
+                    )
                 }
             }
 

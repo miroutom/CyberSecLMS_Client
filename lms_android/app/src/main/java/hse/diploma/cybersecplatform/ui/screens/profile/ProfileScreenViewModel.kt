@@ -32,9 +32,13 @@ class ProfileScreenViewModel @Inject constructor(
                         ),
                     )
             } else {
-                _profileState.value = ProfileState.Error(result.exceptionOrNull()?.toErrorType() ?: ErrorType.Other)
+                _profileState.value = ProfileState.Error(result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other)
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "ProfileScreenViewModel"
     }
 }
 

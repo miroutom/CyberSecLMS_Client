@@ -12,7 +12,7 @@ fun logD(
 fun logE(
     tag: String,
     message: String,
-    error: Exception,
+    error: Throwable,
 ) {
     Log.e(tag, message, error)
 }

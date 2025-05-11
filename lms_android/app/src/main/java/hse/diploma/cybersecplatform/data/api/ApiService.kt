@@ -7,9 +7,6 @@ import hse.diploma.cybersecplatform.data.model.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
-import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.mock.mockAllCourses
-import hse.diploma.cybersecplatform.mock.mockCourses
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -35,8 +32,10 @@ interface ApiService {
     ): Response<LoginResponse>
 
     // TODO: replace with real api
-    suspend fun getMyCourses(): Response<List<Course>> = Response.success(mockCourses)
+//    @GET("mock/my-courses")
+//    suspend fun getMyCourses(): Response<List<Course>> = Response.success(mockCourses)
 
     // TODO: replace with real api
-    suspend fun getAllCourses(): Response<List<Course>> = Response.success(mockAllCourses)
+//    @GET("mock/all-courses")
+//    suspend fun getAllCourses(): Response<List<Course>> = Response.success(mockAllCourses)
 }

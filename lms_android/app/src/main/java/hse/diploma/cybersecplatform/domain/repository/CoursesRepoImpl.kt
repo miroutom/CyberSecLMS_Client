@@ -2,6 +2,9 @@ package hse.diploma.cybersecplatform.domain.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.domain.model.Course
+import hse.diploma.cybersecplatform.mock.mockAllCourses
+import hse.diploma.cybersecplatform.mock.mockCourses
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,7 +14,7 @@ class CoursesRepoImpl @Inject constructor(
 ) : CoursesRepo {
     override suspend fun getAllCourses(): Result<List<Course>> {
         return try {
-            val response = apiService.getAllCourses()
+            val response = Response.success(mockAllCourses)
             if (response.isSuccessful) {
                 val courses = response.body()
                 if (courses != null) {
@@ -29,7 +32,7 @@ class CoursesRepoImpl @Inject constructor(
 
     override suspend fun getMyCourses(): Result<List<Course>> {
         return try {
-            val response = apiService.getMyCourses()
+            val response = Response.success(mockCourses)
             if (response.isSuccessful) {
                 val courses = response.body()
                 if (courses != null) {
