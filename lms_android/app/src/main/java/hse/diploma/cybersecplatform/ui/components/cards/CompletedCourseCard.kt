@@ -86,12 +86,13 @@ fun CompletedCourseCard(
                 textAlign = TextAlign.Center,
             )
             Box(
-                modifier = modifier.padding(
-                    top = 4.dp,
-                    end = 16.dp,
-                    bottom = 16.dp,
-                    start = 16.dp,
-                ),
+                modifier =
+                    modifier.padding(
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 16.dp,
+                        start = 16.dp,
+                    ),
             ) {
                 RestartCourseButton(
                     color = colorResource(config.signatureColor),

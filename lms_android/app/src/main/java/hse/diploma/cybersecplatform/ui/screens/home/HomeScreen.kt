@@ -70,9 +70,10 @@ fun HomeScreen(
                     enableFiltering = false,
                     modifier = Modifier.background(Color.White),
                 )
-                val coursesToShow = coursesUiState.filteredCourses.ifEmpty {
-                    coursesUiState.courses
-                }
+                val coursesToShow =
+                    coursesUiState.filteredCourses.ifEmpty {
+                        coursesUiState.courses
+                    }
                 CoursesContent(coursesToShow, navController)
             }
 
