@@ -4,6 +4,8 @@
 *.key filter=git-crypt diff=git-crypt
 *.pem filter=git-crypt diff=git-crypt
 
+local.properties filter=git-crypt diff=git-crypt
+
 config/secrets/** filter=git-crypt diff=git-crypt
 nginx/certs/** filter=git-crypt diff=git-crypt
 
