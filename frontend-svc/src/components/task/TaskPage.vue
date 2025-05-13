@@ -1,40 +1,46 @@
 <template>
-  <div class="task-page-container">
-    <div class="navigation">
-      <button @click="previousTask" :disabled="currentTaskIndex === 0">
-        Предыдущее
-      </button>
-      <span>{{ currentTask.title }}</span>
-      <button
-        @click="nextTask"
-        :disabled="currentTaskIndex === tasks.length - 1"
-      >
-        Следующее
-      </button>
-    </div>
-    <div class="task-description">
-      <div v-html="currentTask.description"></div>
-    </div>
-    <div class="task-content">
-      <div class="app-frame">
-        <AppFrame :taskPath="currentTask.path" @code-updated="updateCode" />
+  <div class="app-layout">
+    <TheHeader />
+    <TheSideBar />
+    <main class="task-page-container">
+      <div class="navigation">
+        <button @click="previousTask" :disabled="currentTaskIndex === 0">
+          Предыдущее
+        </button>
+        <span>{{ currentTask.title }}</span>
+        <button
+          @click="nextTask"
+          :disabled="currentTaskIndex === tasks.length - 1"
+        >
+          Следующее
+        </button>
       </div>
-      <div class="code-editor">
-        <CodeEditor
-          v-model="currentTask.code"
-          :language="currentTask.language"
-        />
+      <div class="task-description">
+        <div v-html="currentTask.description"></div>
       </div>
-    </div>
+      <div class="task-content">
+        <div class="app-frame">
+          <AppFrame :taskPath="currentTask.path" @code-updated="updateCode" />
+        </div>
+        <div class="code-editor">
+          <CodeEditor
+            v-model="currentTask.code"
+            :language="currentTask.language"
+          />
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script>
+import TheHeader from "../common/TheHeader.vue";
+import TheSideBar from "../common/TheSideBar.vue";
 import AppFrame from "./AppFrame.vue";
 import CodeEditor from "./CodeEditor.vue";
 
 export default {
-  components: { AppFrame, CodeEditor },
+  components: { TheHeader, TheSideBar, AppFrame, CodeEditor },
   data() {
     return {
       tasks: [
@@ -80,13 +86,6 @@ export default {
 </script>
 
 <style scoped>
-body {
-  font-family: sans-serif;
-  background-color: #d13c3c;
-  color: #333;
-  margin: 0;
-}
-
 .task-page-container {
   display: flex;
   flex-direction: column;

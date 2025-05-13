@@ -5,7 +5,7 @@
         <img src="../../assets/icons/logo.png" alt="logo" class="logo" />
       </router-link>
       <div class="nav-links">
-        <router-link to="/" class="sidebar-item">
+        <router-link to="/" class="sidebar-item" active-class="active">
           <svg
             width="40"
             height="40"
@@ -31,7 +31,11 @@
           Все курсы
         </router-link>
 
-        <router-link to="/my_courses" class="sidebar-item">
+        <router-link
+          to="/my_courses"
+          class="sidebar-item"
+          active-class="active"
+        >
           <svg
             width="40"
             height="40"
@@ -51,7 +55,7 @@
           Мои курсы
         </router-link>
 
-        <router-link to="/profile" class="sidebar-item">
+        <router-link to="/profile" class="sidebar-item" active-class="active">
           <svg
             width="40"
             height="40"
@@ -96,38 +100,46 @@ export default {
 .sidebar {
   width: 10%;
   background-color: #f8f9fa;
-  padding: 20px;
+  padding: 1.25rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   position: fixed;
   top: 0;
 }
 
 .logo {
-  width: 150px;
+  width: 100%;
+  margin-bottom: 20rem;
 }
 
 .nav-links {
-  margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-item {
-  width: 90%;
-  font-family: "Arial", sans-serif;
+  font-family: "Montserrat";
+  font-weight: 600;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 0.625rem;
   text-decoration: none;
   color: #979797;
-  margin-bottom: 5px;
-  border-radius: 20px;
+  margin-bottom: 0.625rem;
+  border-radius: 40px;
+  white-space: nowrap;
 }
 .sidebar-item svg {
-  margin-right: 10px;
+  margin-right: 0.625rem;
+  width: 3rem;
+  height: 3rem;
 }
 .sidebar-item:hover {
+  background-color: #007bff;
+  color: white;
+}
+.sidebar-item.active {
   background-color: #007bff;
   color: white;
 }
