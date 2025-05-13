@@ -1,10 +1,10 @@
 <template>
   <div class="settings-popup" v-if="isVisible">
     <div class="popup-content">
-      <h2 class="popup-title">Настройки</h2>
+      <h2 class="popup-title">Мой Профиль</h2>
       <form @submit.prevent="saveSettings">
         <div class="form-group">
-          <label for="photo">Фото профиля:</label>
+          <label for="photo">Изменить фото:</label>
           <input type="file" id="photo" @change="handlePhotoUpload" />
           <img
             v-if="profilePhoto"
@@ -12,6 +12,10 @@
             alt="Фото профиля"
             class="profile-photo"
           />
+        </div>
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" v-model="username" />
         </div>
         <div class="form-group">
           <label for="firstName">Имя:</label>
@@ -30,8 +34,22 @@
           <input type="text" id="university" v-model="university" />
         </div>
         <div class="form-group">
-          <label for="course">Курс:</label>
-          <input type="text" id="course" v-model="course" />
+          <label for="faculty">Факультет:</label>
+          <input type="text" id="faculty" v-model="faculty" />
+        </div>
+        <div class="form-group">
+          <label for="theme">Тема:</label>
+          <select id="theme" v-model="theme">
+            <option value="light">Светлая</option>
+            <option value="dark">Темная</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="language">Язык:</label>
+          <select id="language" v-model="language">
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+          </select>
         </div>
         <div class="buttons">
           <button type="submit" class="save-button">Сохранить</button>
@@ -56,11 +74,14 @@ export default {
   data() {
     return {
       profilePhoto: null,
+      username: "",
       firstName: "",
       lastName: "",
       email: "",
       university: "",
-      course: "",
+      faculty: "",
+      theme: "light",
+      language: "ru",
     };
   },
   methods: {
@@ -97,7 +118,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* */
+  z-index: 1000;
 }
 
 .popup-content {
@@ -105,11 +126,14 @@ export default {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  max-width: 500px; /* */
+  max-width: 700px;
+  max-height: 900px;
+  width: 90%;
 }
 
 .popup-title {
   margin-bottom: 20px;
+  font-size: 24px;
 }
 
 .form-group {
@@ -123,8 +147,8 @@ label {
 
 input[type="text"],
 input[type="email"],
-input[type="file"] {
-  /* */
+input[type="file"],
+select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -140,7 +164,7 @@ input[type="file"] {
 
 .buttons {
   display: flex;
-  justify-content: flex-end; /* */
+  justify-content: flex-end;
   margin-top: 20px;
 }
 
@@ -153,9 +177,9 @@ input[type="file"] {
 }
 
 .save-button {
-  background-color: #3764ed; /* */
+  background-color: #3764ed;
   color: white;
-  margin-left: 10px; /* */
+  margin-left: 10px;
 }
 
 .cancel-button {
