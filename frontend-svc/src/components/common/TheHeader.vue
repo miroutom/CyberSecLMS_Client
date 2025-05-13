@@ -4,7 +4,7 @@
       <span>{{ activeTabTitle }}</span>
     </div>
     <div class="user-info">
-      <span>User Name</span>
+      <span class="user-name">User Name</span>
       <img
         src="../../assets/icons/user-icon.png"
         alt="User Icon"
@@ -27,19 +27,14 @@
             stroke-linejoin="round"
           />
         </svg>
-        <div v-if="isOpen" class="dropdown-content">
-          <a href="#">Настройки</a>
-          <a href="#">Выход</a>
+        <div v-if="isOpen" class="dropdown-popup">
+          <div class="dropdown-popup-content">
+            <router-link to="/auth" class="dropdown-link">Выход</router-link>
+          </div>
         </div>
       </div>
     </div>
   </header>
-  <div v-if="isOpen" class="dropdown-popup">
-    <div class="dropdown-popup-content">
-      <a href="#">Настройки</a>
-      <a href="#">Выход</a>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -80,23 +75,23 @@ export default {
 
 <style scoped>
 .header {
-  width: 85%;
-  min-height: 8vh;
-  margin-left: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #f2f2ff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 0 20px;
+  width: 100%;
+  min-height: 10vh;
+  box-sizing: border-box;
 }
 
 .header-title {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-grow: 1;
   text-align: center;
+  flex-grow: 1;
 }
 
 .header-title span {
@@ -110,15 +105,24 @@ export default {
 }
 
 .user-info {
-  margin-left: auto;
   display: flex;
   align-items: center;
   margin-right: 10px;
 }
 
+.user-name {
+  margin-right: 10px;
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: #8a8a92;
+}
+
 .user-icon {
-  width: 30%;
-  aspect-ratio: 1/1;
+  width: 8vh;
+  height: 8vh;
   border-radius: 50%;
   margin-right: 10px;
 }
@@ -128,34 +132,35 @@ export default {
   cursor: pointer;
 }
 
-.dropdown-content {
-  display: none;
-}
-
 .dropdown-popup {
   position: absolute;
-  top: 8%;
-  right: 2%;
-  width: 200px;
+  top: 100%;
+  right: 0;
   background-color: #fff;
-  border-radius: 20px;
+  border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  width: 10vw;
 }
 
 .dropdown-popup-content {
   padding: 10px;
+  width: 80%;
 }
 
-.dropdown-popup-content a {
+.dropdown-link {
   display: block;
   padding: 8px;
   text-decoration: none;
-  color: black;
+  color: white;
+  border-radius: 5px;
+  background-color: rgb(220, 4, 4);
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
 }
 
-.dropdown-popup-content a:hover {
-  background-color: #f2f2ff;
-  border-radius: 10px;
+.dropdown-link:hover {
+  background-color: rgb(192, 1, 1);
 }
 </style>

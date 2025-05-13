@@ -1,7 +1,9 @@
 <template>
   <div class="sidebar-wrapper">
     <div class="sidebar">
-      <img src="../../assets/icons/logo.png" alt="logo" class="logo" />
+      <router-link to="/">
+        <img src="../../assets/icons/logo.png" alt="logo" class="logo" />
+      </router-link>
       <div class="nav-links">
         <router-link to="/" class="sidebar-item">
           <svg
@@ -120,6 +122,10 @@ export default {
   justify-content: center;
   position: fixed;
   top: 0;
+}
+
+.logo {
+  width: 150px;
 }
 
 .nav-links {
