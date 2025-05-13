@@ -34,7 +34,7 @@ func main() {
 
 	dsn := os.Getenv("DATABASE_DSN")
 	if dsn == "" {
-		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(localhost:3306)/lms_db?parseTime=true"
+		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(db:3306)/lms_db?parseTime=true"
 	}
 
 	var useMockData bool = false
@@ -85,7 +85,7 @@ func main() {
 		api.GET("/courses", handlers.GetCourses)
 		api.GET("/courses/:id", handlers.GetCourseByID)
 		api.GET("/progress/:user_id", handlers.GetUserProgress)
-		api.POST("/progress/:user_id/assignments/:assignment_id/complete", handlers.CompleteAssignment)
+		api.POST("/progress/:user_id/tasks/:task_id/complete", handlers.CompleteTask)
 
 		api.GET("/profile", handlers.GetUserProfile)
 		api.PUT("/profile", handlers.UpdateUserProfile)

@@ -89,19 +89,23 @@ type Enable2FAResponse struct {
 }
 
 type Course struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	ID                int    `json:"id"`
+	VulnerabilityType string `json:"vulnerabilityType"`
+	TasksCount        int    `json:"tasksCount"`
+	Description       string `json:"description"`
+	Tasks             []Task `json:"tasks"`
 }
 
-type Assignment struct {
+type Task struct {
 	ID          int    `json:"id"`
 	CourseID    int    `json:"courseId"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Difficulty  string `json:"difficulty"` // например: "easy", "medium", "hard"
+	Order       int    `json:"order"`      // порядковый номер задания в курсе
 }
 
 type UserProgress struct {
 	UserID    int          `json:"userId"`
-	Completed map[int]bool `json:"completed"`
+	Completed map[int]bool `json:"completed"` // ключ - ID задания
 }
