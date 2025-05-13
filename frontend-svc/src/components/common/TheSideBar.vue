@@ -51,25 +51,6 @@
           Мои курсы
         </router-link>
 
-        <router-link to="/statistics" class="sidebar-item">
-          <svg
-            width="40"
-            height="40"
-            class="icon"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M37.1663 20H30.4997L25.4997 35L15.4997 5L10.4997 20H3.83301"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Статистика</router-link
-        >
         <router-link to="/profile" class="sidebar-item">
           <svg
             width="40"
