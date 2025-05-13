@@ -34,7 +34,7 @@ func main() {
 
 	dsn := os.Getenv("DATABASE_DSN")
 	if dsn == "" {
-		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(localhost:3306)/lms_db?parseTime=true"
+		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(db:3306)/lms_db?parseTime=true"
 	}
 
 	var useMockData bool = false
