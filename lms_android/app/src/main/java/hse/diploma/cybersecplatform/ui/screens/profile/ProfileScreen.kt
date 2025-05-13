@@ -110,11 +110,6 @@ private fun ProfileContent(
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = stringResource(R.string.welcome_text, profile.fullName),
@@ -202,11 +197,6 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "",

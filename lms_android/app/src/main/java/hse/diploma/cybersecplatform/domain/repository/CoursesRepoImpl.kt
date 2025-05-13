@@ -14,6 +14,7 @@ class CoursesRepoImpl @Inject constructor(
 ) : CoursesRepo {
     override suspend fun getAllCourses(): Result<List<Course>> {
         return try {
+            // TODO: replace with api service
             val response = Response.success(mockAllCourses)
             if (response.isSuccessful) {
                 val courses = response.body()
@@ -32,6 +33,7 @@ class CoursesRepoImpl @Inject constructor(
 
     override suspend fun getMyCourses(): Result<List<Course>> {
         return try {
+            // TODO: replace with api service
             val response = Response.success(mockCourses)
             if (response.isSuccessful) {
                 val courses = response.body()

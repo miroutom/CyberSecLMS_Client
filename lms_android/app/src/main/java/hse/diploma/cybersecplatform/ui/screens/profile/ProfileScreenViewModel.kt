@@ -27,6 +27,7 @@ class ProfileScreenViewModel @Inject constructor(
                 _profileState.value =
                     ProfileState.Success(
                         ProfileUiState(
+                            username = user.username,
                             fullName = user.fullName,
                             email = user.email,
                         ),
@@ -43,6 +44,7 @@ class ProfileScreenViewModel @Inject constructor(
 }
 
 data class ProfileUiState(
+    val username: String,
     val fullName: String,
     val email: String,
 )

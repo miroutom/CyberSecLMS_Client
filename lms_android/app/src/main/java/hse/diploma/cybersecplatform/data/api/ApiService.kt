@@ -32,10 +32,18 @@ interface ApiService {
     ): Response<LoginResponse>
 
     // TODO: replace with real api
-//    @GET("mock/my-courses")
-//    suspend fun getMyCourses(): Response<List<Course>> = Response.success(mockCourses)
+//    @GET("api/my-courses")
+//    suspend fun getMyCourses(): Response<List<Course>>
 
     // TODO: replace with real api
-//    @GET("mock/all-courses")
-//    suspend fun getAllCourses(): Response<List<Course>> = Response.success(mockAllCourses)
+//    @GET("api/all-courses")
+//    suspend fun getAllCourses(): Response<List<Course>>
+
+    // TODO: replace with real api
+//    @POST("api/profile")
+//    suspend fun updateProfile(@Body user: UserData): Response<Unit>
+
+    // TODO: replace with real api
+//    @POST("api/change_password")
+//    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
 }
