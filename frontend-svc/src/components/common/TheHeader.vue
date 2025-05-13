@@ -21,7 +21,7 @@
         >
           <path
             d="M6 9L12 15L18 9"
-            stroke="black"
+            stroke="#8a8a92"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -80,8 +80,9 @@ export default {
   align-items: center;
   background-color: #f2f2ff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 0 20px;
-  width: 100%;
+  padding: 0 2% 0 2%;
+  width: 90%;
+  margin-left: auto;
   min-height: 10vh;
   box-sizing: border-box;
 }
@@ -107,24 +108,25 @@ export default {
 .user-info {
   display: flex;
   align-items: center;
-  margin-right: 10px;
+  white-space: nowrap;
 }
 
 .user-name {
-  margin-right: 10px;
   font-family: "Montserrat";
   font-style: normal;
   font-weight: 600;
   font-size: 1rem;
   line-height: 1.2;
   color: #8a8a92;
+  margin-right: 5%;
+  white-space: nowrap;
 }
 
 .user-icon {
   width: 8vh;
   height: 8vh;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 5%;
 }
 
 .dropdown {
@@ -134,10 +136,10 @@ export default {
 
 .dropdown-popup {
   position: absolute;
-  top: 100%;
+  top: 150%;
   right: 0;
   background-color: #fff;
-  border-radius: 5px;
+  border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   width: 10vw;
@@ -145,12 +147,11 @@ export default {
 
 .dropdown-popup-content {
   padding: 10px;
-  width: 80%;
 }
 
 .dropdown-link {
   display: block;
-  padding: 8px;
+  padding: 8px 0 8px 0;
   text-decoration: none;
   color: white;
   border-radius: 5px;
