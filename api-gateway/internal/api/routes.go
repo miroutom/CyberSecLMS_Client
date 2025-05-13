@@ -26,7 +26,7 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 		api.Any("/courses/:id", proxyHandler(config.CourseService.URL))
 
 		api.Any("/progress/:user_id", proxyHandler(config.CourseService.URL))
-		api.Any("/progress/:user_id/assignments/:assignment_id/complete", proxyHandler(config.CourseService.URL))
+		api.Any("/progress/:user_id/tasks/:task_id/complete", proxyHandler(config.CourseService.URL))
 
 		api.Any("/profile", proxyHandler(config.AuthService.URL))
 
