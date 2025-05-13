@@ -10,74 +10,165 @@ import (
 	"time"
 )
 
-// GetCourses возвращает список всех курсов из базы данных
+var (
+	ErrCourseNotFound = errors.New("course not found")
+	ErrTaskNotFound   = errors.New("task not found")
+)
+
 func (s *DBStorage) GetCourses() ([]models.Course, error) {
-	stmt, err := s.DB.Prepare("SELECT id, title, description FROM courses")
+	stmt, err := s.DB.Prepare(`
+		SELECT c.id, c.vulnerability_type, 
+			   COUNT(t.id) as tasks_count, c.description
+		FROM courses c
+		LEFT JOIN tasks t ON c.id = t.course_id
+		GROUP BY c.id
+	`)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("execute query: %w", err)
 	}
 	defer rows.Close()
 
 	var courses []models.Course
 	for rows.Next() {
 		var course models.Course
-		if err := rows.Scan(&course.ID, &course.Title, &course.Description); err != nil {
-			return nil, err
+		if err := rows.Scan(
+			&course.ID,
+			&course.VulnerabilityType,
+			&course.TasksCount,
+			&course.Description,
+		); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
 		}
 		courses = append(courses, course)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate rows: %w", err)
 	}
 
 	return courses, nil
 }
 
-// GetCourseByID возвращает курс по ID из базы данных
 func (s *DBStorage) GetCourseByID(id int) (models.Course, error) {
-	stmt, err := s.DB.Prepare("SELECT id, title, description FROM courses WHERE id = ?")
+	tx, err := s.DB.Begin()
 	if err != nil {
-		return models.Course{}, err
+		return models.Course{}, fmt.Errorf("begin transaction: %w", err)
 	}
-	defer stmt.Close()
+
+	var txErr error
+	defer func() {
+		if txErr != nil {
+			_ = tx.Rollback()
+		} else {
+			_ = tx.Commit()
+		}
+	}()
+
+	courseStmt, err := tx.Prepare(`
+		SELECT c.id, c.vulnerability_type, 
+			   COUNT(t.id) as tasks_count, c.description
+		FROM courses c
+		LEFT JOIN tasks t ON c.id = t.course_id
+		WHERE c.id = ?
+		GROUP BY c.id
+	`)
+	if err != nil {
+		txErr = err
+		return models.Course{}, fmt.Errorf("prepare course statement: %w", err)
+	}
+	defer courseStmt.Close()
 
 	var course models.Course
-	err = stmt.QueryRow(id).Scan(&course.ID, &course.Title, &course.Description)
+	err = courseStmt.QueryRow(id).Scan(
+		&course.ID,
+		&course.VulnerabilityType,
+		&course.TasksCount,
+		&course.Description,
+	)
 
 	if err != nil {
+		txErr = err
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Course{}, errors.New("course not found")
+			return models.Course{}, ErrCourseNotFound
 		}
-		return models.Course{}, err
+		return models.Course{}, fmt.Errorf("query course: %w", err)
 	}
 
+	tasksStmt, err := tx.Prepare(`
+		SELECT id, course_id, title, description, difficulty, task_order
+		FROM tasks
+		WHERE course_id = ?
+		ORDER BY task_order
+	`)
+	if err != nil {
+		txErr = err
+		return models.Course{}, fmt.Errorf("prepare tasks statement: %w", err)
+	}
+	defer tasksStmt.Close()
+
+	tasksRows, err := tasksStmt.Query(id)
+	if err != nil {
+		txErr = err
+		return models.Course{}, fmt.Errorf("query tasks: %w", err)
+	}
+	defer tasksRows.Close()
+
+	var tasks []models.Task
+	for tasksRows.Next() {
+		var task models.Task
+		if err := tasksRows.Scan(
+			&task.ID,
+			&task.CourseID,
+			&task.Title,
+			&task.Description,
+			&task.Difficulty,
+			&task.Order,
+		); err != nil {
+			txErr = err
+			return models.Course{}, fmt.Errorf("scan task: %w", err)
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err := tasksRows.Err(); err != nil {
+		txErr = err
+		return models.Course{}, fmt.Errorf("iterate tasks: %w", err)
+	}
+
+	course.Tasks = tasks
 	return course, nil
 }
 
-// GetUserProgress возвращает прогресс пользователя из базы данных
 func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
-	stmt, err := s.DB.Prepare("SELECT assignment_id FROM user_progress WHERE user_id = ?")
+	stmt, err := s.DB.Prepare("SELECT task_id FROM user_progress WHERE user_id = ?")
 	if err != nil {
-		return models.UserProgress{}, err
+		return models.UserProgress{}, fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(userID)
 	if err != nil {
-		return models.UserProgress{}, err
+		return models.UserProgress{}, fmt.Errorf("execute query: %w", err)
 	}
 	defer rows.Close()
 
 	completed := make(map[int]bool)
 	for rows.Next() {
-		var assignmentID int
-		if err := rows.Scan(&assignmentID); err != nil {
-			return models.UserProgress{}, err
+		var taskID int
+		if err := rows.Scan(&taskID); err != nil {
+			return models.UserProgress{}, fmt.Errorf("scan row: %w", err)
 		}
-		completed[assignmentID] = true
+		completed[taskID] = true
+	}
+
+	if err := rows.Err(); err != nil {
+		return models.UserProgress{}, fmt.Errorf("iterate rows: %w", err)
 	}
 
 	return models.UserProgress{
@@ -86,18 +177,30 @@ func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 	}, nil
 }
 
-// CompleteAssignment отмечает задание как выполненное в базе данных
-func (s *DBStorage) CompleteAssignment(userID, assignmentID int) error {
-	stmt, err := s.DB.Prepare(
-		"INSERT INTO user_progress (user_id, assignment_id) VALUES (?, ?) " +
-			"ON DUPLICATE KEY UPDATE assignment_id = VALUES(assignment_id)")
+func (s *DBStorage) CompleteTask(userID, taskID int) error {
+	var exists bool
+	err := s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)", taskID).Scan(&exists)
 	if err != nil {
-		return err
+		return fmt.Errorf("check task existence: %w", err)
+	}
+
+	if !exists {
+		return ErrTaskNotFound
+	}
+
+	stmt, err := s.DB.Prepare(
+		"INSERT INTO user_progress (user_id, task_id) VALUES (?, ?) " +
+			"ON DUPLICATE KEY UPDATE task_id = VALUES(task_id)")
+	if err != nil {
+		return fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID, assignmentID)
-	return err
+	if _, err := stmt.Exec(userID, taskID); err != nil {
+		return fmt.Errorf("execute statement: %w", err)
+	}
+
+	return nil
 }
 
 // CreateUser создает нового пользователя в базе данных
@@ -119,7 +222,6 @@ func (s *DBStorage) CreateUser(user models.User) error {
 		return errors.New("username or email already exists")
 	}
 
-	// Вставляем нового пользователя
 	insertStmt, err := s.DB.Prepare(
 		"INSERT INTO users (username, password_hash, email, full_name, totp_secret, is_2fa_enabled, is_active) " +
 			"VALUES (?, ?, ?, ?, ?, ?, ?)")
