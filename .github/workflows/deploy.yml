@@ -149,6 +149,7 @@ jobs:
             docker compose up -d db
             sleep 5
             docker compose run --rm migrate
+            docker compose pull
             docker compose up -d api-gateway backend-svc nginx frontend-svc discovery-server
 
       - name: Check service health
