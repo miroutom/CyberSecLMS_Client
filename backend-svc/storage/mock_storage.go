@@ -11,21 +11,57 @@ import (
 // Моковые данные для тестирования
 var (
 	mockCourses = []models.Course{
-		{ID: 1, Title: "Go Basics", Description: "Learn the basics of Go programming."},
-		{ID: 2, Title: "Advanced Go", Description: "Deep dive into Go."},
-		{ID: 3, Title: "Web Development with Go", Description: "Build web applications using Go."},
+		{
+			ID:                1,
+			VulnerabilityType: "SQL Injection",
+			TasksCount:        2,
+			Description:       "Learn about SQL injection vulnerabilities",
+			Tasks: []models.Task{
+				{ID: 1, CourseID: 1, Title: "Basics of SQL Injection", Description: "Understanding the fundamentals", Difficulty: "easy", Order: 1},
+				{ID: 2, CourseID: 1, Title: "Advanced SQL Injection", Description: "More complex techniques", Difficulty: "medium", Order: 2},
+			},
+		},
+		{
+			ID:                2,
+			VulnerabilityType: "XSS",
+			TasksCount:        1,
+			Description:       "Cross-site scripting attacks and prevention",
+			Tasks: []models.Task{
+				{ID: 3, CourseID: 2, Title: "XSS in Web Applications", Description: "Exploiting front-end vulnerabilities", Difficulty: "medium", Order: 1},
+			},
+		},
+		{
+			ID:                3,
+			VulnerabilityType: "CSRF",
+			TasksCount:        1,
+			Description:       "Cross-site request forgery attacks",
+			Tasks: []models.Task{
+				{ID: 4, CourseID: 3, Title: "Understanding CSRF", Description: "Forging requests across sites", Difficulty: "hard", Order: 1},
+			},
+		},
 	}
 
-	mockAssignments = []models.Assignment{
-		{ID: 1, CourseID: 1, Title: "Introduction to Go", Description: "Learn about Go's history and features."},
-		{ID: 2, CourseID: 1, Title: "Variables and Types", Description: "Understand Go's type system."},
-		{ID: 3, CourseID: 2, Title: "Concurrency", Description: "Master goroutines and channels."},
-		{ID: 4, CourseID: 3, Title: "Building a REST API", Description: "Create a REST API with Gin."},
+	mockTasks = []models.Task{
+		{ID: 1, CourseID: 1, Title: "Basics of SQL Injection", Description: "Understanding the fundamentals", Difficulty: "easy", Order: 1},
+		{ID: 2, CourseID: 1, Title: "Advanced SQL Injection", Description: "More complex techniques", Difficulty: "medium", Order: 2},
+		{ID: 3, CourseID: 2, Title: "XSS in Web Applications", Description: "Exploiting front-end vulnerabilities", Difficulty: "medium", Order: 1},
+		{ID: 4, CourseID: 3, Title: "Understanding CSRF", Description: "Forging requests across sites", Difficulty: "hard", Order: 1},
 	}
 
 	mockUserProgress = map[int]models.UserProgress{
-		1: {UserID: 1, Completed: map[int]bool{1: true, 2: true}},
-		2: {UserID: 2, Completed: map[int]bool{1: true}},
+		1: {
+			UserID: 1,
+			Completed: map[int]bool{
+				1: true, // Пользователь 1 выполнил задание 1
+			},
+		},
+		2: {
+			UserID: 2,
+			Completed: map[int]bool{
+				1: true, // Пользователь 2 выполнил задание 1
+				2: true, // Пользователь 2 выполнил задание 2
+			},
+		},
 	}
 
 	mockUsers = map[int]models.User{
@@ -55,26 +91,33 @@ var (
 	}
 )
 
-// GetCourses возвращает список всех курсов
 func (s *MockStorage) GetCourses() ([]models.Course, error) {
-	return mockCourses, nil
+	coursesWithoutTasks := make([]models.Course, len(mockCourses))
+
+	for i, course := range mockCourses {
+		coursesWithoutTasks[i] = models.Course{
+			ID:                course.ID,
+			VulnerabilityType: course.VulnerabilityType,
+			TasksCount:        course.TasksCount,
+			Description:       course.Description,
+		}
+	}
+
+	return coursesWithoutTasks, nil
 }
 
-// GetCourseByID возвращает курс по ID
 func (s *MockStorage) GetCourseByID(id int) (models.Course, error) {
 	for _, course := range mockCourses {
 		if course.ID == id {
 			return course, nil
 		}
 	}
-	return models.Course{}, errors.New("course not found")
+	return models.Course{}, ErrCourseNotFound
 }
 
-// GetUserProgress возвращает прогресс пользователя
 func (s *MockStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 	progress, exists := mockUserProgress[userID]
 	if !exists {
-		// Если прогресса нет, создаем пустой
 		return models.UserProgress{
 			UserID:    userID,
 			Completed: make(map[int]bool),
@@ -83,22 +126,19 @@ func (s *MockStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 	return progress, nil
 }
 
-// CompleteAssignment отмечает задание как выполненное
-func (s *MockStorage) CompleteAssignment(userID, assignmentID int) error {
-	// Проверяем, что задание существует
-	var assignmentExists bool
-	for _, a := range mockAssignments {
-		if a.ID == assignmentID {
-			assignmentExists = true
+func (s *MockStorage) CompleteTask(userID, taskID int) error {
+	var taskExists bool
+	for _, t := range mockTasks {
+		if t.ID == taskID {
+			taskExists = true
 			break
 		}
 	}
 
-	if !assignmentExists {
-		return errors.New("assignment not found")
+	if !taskExists {
+		return ErrTaskNotFound
 	}
 
-	// Получаем или создаем прогресс пользователя
 	progress, exists := mockUserProgress[userID]
 	if !exists {
 		progress = models.UserProgress{
@@ -107,8 +147,7 @@ func (s *MockStorage) CompleteAssignment(userID, assignmentID int) error {
 		}
 	}
 
-	// Отмечаем задание как выполненное
-	progress.Completed[assignmentID] = true
+	progress.Completed[taskID] = true
 	mockUserProgress[userID] = progress
 
 	return nil
