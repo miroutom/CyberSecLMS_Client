@@ -82,26 +82,5 @@ export default {
 </script>
 
 <style scoped>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-family: "Arial", sans-serif;
-}
-
-.content-wrapper {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 20px;
-}
-
-.all-tasks {
-  flex-grow: 1;
-  padding: 20px;
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 50px;
-}
+@import "../../assets/styles/courses.css";
 </style>
