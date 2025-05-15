@@ -2,7 +2,7 @@
   <div class="registration-page">
     <div class="auth-container">
       <div class="logo_container">
-        <img src="../../assets/icons/logo.png" alt="logo" />
+        <img src="@/assets/icons/logo.png" alt="logo" />
       </div>
       <form @submit.prevent="login">
         <div class="input-group">
@@ -26,7 +26,7 @@
           <label for="password">Пароль:</label>
         </div>
         <div class="button-group">
-          <button type="submit">Войти</button>
+          <button type="submit" class="login-button">Войти</button>
         </div>
         <div v-if="error" class="error">{{ error }}</div>
       </form>
@@ -79,5 +79,5 @@ export default {
 </script>
 
 <style scoped>
-@import "../../assets/styles/enter.css";
+@import "@/assets/styles/enter.css";
 </style>

@@ -125,5 +125,8 @@ export default {
 
 .card-link {
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
