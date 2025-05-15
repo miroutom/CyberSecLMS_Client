@@ -4,7 +4,7 @@
     <div class="content-wrapper">
       <TheSideBar />
       <main class="all-tasks">
-        <CourseCard
+        <MyCourseCard
           v-for="vulnerability in vulnerabilities"
           :key="vulnerability.name"
           :title="vulnerability.name"
@@ -13,7 +13,7 @@
           :gradient="vulnerability.gradient"
           :title-color="vulnerability.titleColor"
           :accent-color="vulnerability.accentColor"
-          :task-count="vulnerability.taskCount"
+          :progress="vulnerability.progress"
         />
       </main>
     </div>
@@ -21,15 +21,15 @@
 </template>
 
 <script>
-import TheHeader from "../common/TheHeader.vue";
-import TheSideBar from "../common/TheSideBar.vue";
-import CourseCard from "./CourseCard.vue";
+import TheHeader from "@/components/common/TheHeader.vue";
+import TheSideBar from "@/components/common/TheSideBar.vue";
+import MyCourseCard from "@/components/my_courses/MyCourseCard.vue";
 
 export default {
   components: {
     TheHeader,
     TheSideBar,
-    CourseCard,
+    MyCourseCard,
   },
   name: "AllTasks",
   data() {
@@ -42,7 +42,7 @@ export default {
             "linear-gradient(90deg, #3764ED 0%, #2C4FBC 50%, #1F3987 100%)",
           description:
             "XSS уязвимости - внедрение вредоносных скриптов на веб-страницы.",
-          taskCount: 10,
+          progress: 50,
           accentColor: "#3764ED",
         },
         {
@@ -51,7 +51,7 @@ export default {
           titleColor:
             "linear-gradient(90deg, #04916E 0%, #046E4C 50%, #004A2E 100%)",
           description: "CSRF уязвимости - подделка межсайтовых запросов.",
-          taskCount: 15,
+          progress: 15,
           accentColor: "#3AE8C5",
         },
         {
@@ -61,7 +61,7 @@ export default {
             "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
           description:
             "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
-          taskCount: 12,
+          progress: 40,
           accentColor: "#F9A866",
         },
         {
@@ -71,7 +71,7 @@ export default {
             "linear-gradient(90deg, #3764ED 0%, #2C4FBC 50%, #1F3987 100%)",
           description:
             "XSS уязвимости - внедрение вредоносных скриптов на веб-страницы.",
-          taskCount: 10,
+          progress: 50,
           accentColor: "#3764ED",
         },
         // ... other vulnerabilities
@@ -82,5 +82,5 @@ export default {
 </script>
 
 <style scoped>
-@import "../../assets/styles/courses.css";
+@import "@/assets/styles/courses.css";
 </style>

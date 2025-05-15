@@ -2,7 +2,7 @@
   <div class="main-container">
     <TheHeader />
     <div class="content-wrapper">
-      <TheSideBar />
+      <aside class="sidebar"><TheSideBar /></aside>
       <div class="vulnerability-tasks">
         <div class="task-cards-container">
           <TaskCard
@@ -17,10 +17,10 @@
 </template>
 
 <script>
-import tasksData from "../tasks.js"; // importing tasks data
-import TheHeader from "../common/TheHeader.vue";
-import TheSideBar from "../common/TheSideBar.vue";
-import TaskCard from "./TaskCard.vue";
+import tasksData from "@/tasks.js";
+import TheHeader from "@/components/common/TheHeader.vue";
+import TheSideBar from "@/components/common/TheSideBar.vue";
+import TaskCard from "@/components/task-list/TaskCard.vue";
 
 export default {
   components: {

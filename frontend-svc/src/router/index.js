@@ -1,13 +1,19 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import TaskPage from "@/components/task/TaskPage.vue";
-import AllTasks from "@/components/all_courses/AllTasks.vue";
-import LoginPage from "@/components/login/LoginPage.vue";
-import AuthorizationPage from "@/components/login/AuthorizationPage.vue";
-import MyCourses from "@/components/my_courses/MyCourses.vue";
-import TaskList from "@/components/task-list/TaskList.vue";
-import ProfilePage from "@/components/profile/ProfilePage.vue";
+import TaskPage from "@/views/TaskPage.vue";
+import AllTasks from "@/views/AllTasks.vue";
+import LoginPage from "@/views/LoginPage.vue";
+import AuthorizationPage from "@/views/AuthorizationPage.vue";
+import MyCourses from "@/views/MyCourses.vue";
+import TaskList from "@/views/TaskList.vue";
+import ProfilePage from "@/views/ProfilePage.vue";
+import TestComponent from "@/views/TestComponent.vue";
 
 const routes = [
+  {
+    path: "/test",
+    name: "TestComponent",
+    component: TestComponent,
+  },
   {
     path: "/login",
     name: "LoginPage",

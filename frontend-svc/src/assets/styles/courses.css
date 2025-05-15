@@ -1,24 +1,45 @@
-/*styles for all courses and my courses*/
+/* styles for all courses and my courses */
 
 .main-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: "Arial", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .content-wrapper {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 200px 1fr; /* Сайдбар 200px, остальное - карточки */
   gap: 20px;
+  padding: 20px;
+}
+
+.sidebar { /* Добавляем стили для сайдбара */
+  grid-column: 1 / 2; /* Занимает первую колонку */
 }
 
 .all-tasks {
-  flex-grow: 1;
-  padding: 20px;
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 50px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 колонки на больших экранах */
+  gap: 20px;
+  grid-column: 2 / 3; /* Занимает вторую колонку */
+}
+
+@media (max-width: 991px) {
+  .all-tasks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .content-wrapper {
+    grid-template-columns: 1fr; /* Одна колонка на мобильных */
+  }
+  .sidebar {
+    grid-column: 1; /* Теперь занимает всю ширину*/
+  }
+  .all-tasks {
+    grid-column: 1; /* Теперь занимает всю ширину*/
+
+  }
 }
