@@ -16,6 +16,8 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 		public.Any("/register", proxyHandler(config.AuthService.URL))
 		public.Any("/login", proxyHandler(config.AuthService.URL))
 		public.Any("/verify-otp", proxyHandler(config.AuthService.URL))
+		public.Any("/forgot-password", proxyHandler(config.AuthService.URL))
+		public.Any("/reset-password", proxyHandler(config.AuthService.URL))
 		public.Any("/health", proxyHandler(config.AuthService.URL))
 	}
 
@@ -33,6 +35,8 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 		account := api.Group("/account")
 		{
 			account.Any("/2fa/enable", proxyHandler(config.AuthService.URL))
+			account.Any("/profile/image", proxyHandler(config.AuthService.URL))
+			account.Any("/change-password", proxyHandler(config.AuthService.URL))
 		}
 
 		admin := api.Group("/admin")
@@ -48,4 +52,6 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 			admin.Any("/users/:id/demote", proxyHandler(config.AuthService.URL))
 		}
 	}
+
+	router.Static("/uploads", "./uploads")
 }

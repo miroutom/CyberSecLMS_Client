@@ -114,6 +114,8 @@ func main() {
 		}
 	}
 
+	r.Static("/uploads", "./uploads")
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8081"
