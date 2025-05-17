@@ -41,6 +41,22 @@ type UpdateStatusRequest struct {
 	IsActive bool `json:"isActive" binding:"required"`
 }
 
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"currentPassword" binding:"required,min=6"`
+	NewPassword     string `json:"newPassword" binding:"required,min=6"`
+}
+
+type ForgotPasswordRequest struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+}
+
+type ResetPasswordRequest struct {
+	TempToken   string `json:"tempToken" binding:"required"`
+	Code        string `json:"code" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required,min=6"`
+}
+
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`

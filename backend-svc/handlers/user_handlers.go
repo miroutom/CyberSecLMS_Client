@@ -3,8 +3,11 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"io"
+	"lmsmodule/backend-svc/mail"
 	"lmsmodule/backend-svc/models"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -44,7 +47,7 @@ func GetUserProfile(c *gin.Context) {
 
 // UpdateUserProfile обновляет профиль пользователя
 // @Summary Update user profile
-// @Description Update current user's profile information
+// @Description Update current user's profile information (email, full name)
 // @Tags Profile
 // @Accept json
 // @Produce json
@@ -67,6 +70,8 @@ func UpdateUserProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request data"})
 		return
 	}
+
+	req.Password = ""
 
 	err := Store.UpdateUserProfile(userID.(int), req)
 	if err != nil {
@@ -150,6 +155,210 @@ func UpdateProfileImageHandler(c *gin.Context) {
 		"message":  "Profile image updated successfully",
 		"imageUrl": imageURL,
 	})
+}
+
+// ChangePassword меняет пароль при авторизированном запросе при соотвествии старого пароля
+// @Summary Change password
+// @Description Change user password (requires current password)
+// @Tags Profile
+// @Accept json
+// @Produce json
+// @Param request body models.ChangePasswordRequest true "Password change data"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Security BearerAuth
+// @Router /account/change-password [post]
+func ChangePassword(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+
+	var req models.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request data"})
+		return
+	}
+
+	user, err := Store.GetUserByID(userID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve user data"})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.CurrentPassword)); err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Current password is incorrect"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash password"})
+		return
+	}
+
+	updateReq := models.UpdateProfileRequest{
+		Password: string(hashedPassword),
+	}
+
+	err = Store.UpdateUserProfile(userID.(int), updateReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to update password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
+}
+
+// ForgotPassword отправляет одноразовый код для смены пароля
+// @Summary Request password reset
+// @Description Sends a password reset code to the user's email
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.ForgotPasswordRequest true "Email for password reset"
+// @Success 200 {object} models.TempTokenResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /forgot-password [post]
+func ForgotPassword(c *gin.Context) {
+	var req models.ForgotPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	var user models.User
+	var err error
+
+	if req.Email != "" {
+		users, err := Store.SearchUsers(req.Email)
+		if err != nil || len(users) == 0 {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+			return
+		}
+
+		userFound := false
+		for _, u := range users {
+			if u.Email == req.Email {
+				user = u
+				userFound = true
+				break
+			}
+		}
+
+		if !userFound {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+			return
+		}
+	} else if req.Username != "" {
+		user, err = Store.GetUserByUsername(req.Username)
+		if err != nil {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+			return
+		}
+	} else {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Email or username is required"})
+		return
+	}
+
+	code := generateResetCode(6)
+
+	err = Store.SaveOTPCode(user.ID, code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to save reset code"})
+		return
+	}
+
+	err = mail.SendOTPEmail(user.Email, code)
+	if err != nil {
+		fmt.Printf("Error sending reset code email: %v\n", err)
+	}
+
+	tempToken, err := createTempToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.TempTokenResponse{
+		TempToken: tempToken,
+		Message:   "Password reset code sent to your email",
+	})
+}
+
+// ResetPassword проверяет код и меняет пароль
+// @Summary Reset password with code
+// @Description Reset password using the code sent to email
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.ResetPasswordRequest true "Reset password data"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /reset-password [post]
+func ResetPassword(c *gin.Context) {
+	var req models.ResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	userID, err := validateTempToken(req.TempToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid token"})
+		return
+	}
+
+	valid, err := Store.VerifyOTPCode(userID, req.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to verify code"})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid or expired code"})
+		return
+	}
+
+	err = Store.ClearOTPCode(userID)
+	if err != nil {
+		fmt.Printf("Error clearing OTP code: %v\n", err)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to hash password"})
+		return
+	}
+
+	updateReq := models.UpdateProfileRequest{
+		Password: string(hashedPassword),
+	}
+
+	err = Store.UpdateUserProfile(userID, updateReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to update password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Password has been reset successfully"})
+}
+
+func generateResetCode(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	digits := "0123456789"
+	code := make([]byte, length)
+	for i := 0; i < length; i++ {
+		code[i] = digits[rand.Intn(len(digits))]
+	}
+	return string(code)
 }
 
 // GetUserByID возвращает информацию о пользователе по ID (для админов)
