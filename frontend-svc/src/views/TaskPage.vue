@@ -1,40 +1,48 @@
 <template>
-  <div class="task-page-container">
-    <div class="navigation">
-      <button @click="previousTask" :disabled="currentTaskIndex === 0">
-        Предыдущее
-      </button>
-      <span>{{ currentTask.title }}</span>
-      <button
-        @click="nextTask"
-        :disabled="currentTaskIndex === tasks.length - 1"
-      >
-        Следующее
-      </button>
-    </div>
-    <div class="task-description">
-      <div v-html="currentTask.description"></div>
-    </div>
-    <div class="task-content">
-      <div class="app-frame">
-        <AppFrame :taskPath="currentTask.path" @code-updated="updateCode" />
-      </div>
-      <div class="code-editor">
-        <CodeEditor
-          v-model="currentTask.code"
-          :language="currentTask.language"
-        />
-      </div>
+  <div class="app-layout">
+    <TheHeader />
+    <div class="content-wrapper">
+      <aside class="sidebar"><TheSideBar /></aside>
+      <main class="task-page-container">
+        <div class="navigation">
+          <button @click="previousTask" :disabled="currentTaskIndex === 0">
+            Предыдущее
+          </button>
+          <span>{{ currentTask.title }}</span>
+          <button
+            @click="nextTask"
+            :disabled="currentTaskIndex === tasks.length - 1"
+          >
+            Следующее
+          </button>
+        </div>
+        <div class="task-description">
+          <div v-html="currentTask.description"></div>
+        </div>
+        <div class="task-content">
+          <div class="app-frame">
+            <AppFrame :taskPath="currentTask.path" @code-updated="updateCode" />
+          </div>
+          <div class="code-editor">
+            <CodeEditor
+              v-model="currentTask.code"
+              :language="currentTask.language"
+            />
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 </template>
 
 <script>
-import AppFrame from "./AppFrame.vue";
-import CodeEditor from "./CodeEditor.vue";
+import TheHeader from "@/components/common/TheHeader.vue";
+import TheSideBar from "@/components/common/TheSideBar.vue";
+import AppFrame from "@/components/task/AppFrame.vue";
+import CodeEditor from "@/components/task/CodeEditor.vue";
 
 export default {
-  components: { AppFrame, CodeEditor },
+  components: { TheHeader, TheSideBar, AppFrame, CodeEditor },
   data() {
     return {
       tasks: [
@@ -80,11 +88,25 @@ export default {
 </script>
 
 <style scoped>
-body {
-  font-family: sans-serif;
-  background-color: #d13c3c;
-  color: #333;
+.app-layout {
+  display: grid;
+  grid-template-rows: auto 1fr; /* Хедер, затем контент */
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  /* Убираем потенциальные margin и padding по умолчанию */
   margin: 0;
+  padding: 0;
+}
+
+.content-wrapper {
+  display: grid;
+  grid-template-columns: 200px 1fr; /* Сайдбар и основной контент */
+  gap: 20px;
+  padding: 20px;
+  /* Занимаем все доступное пространство */
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box; /* Чтобы padding не увеличивал размер */
 }
 
 .task-page-container {
@@ -107,6 +129,7 @@ body {
 }
 
 .navigation button {
+  width: 25%;
   background-color: #3764ed;
   color: white;
   border: none;

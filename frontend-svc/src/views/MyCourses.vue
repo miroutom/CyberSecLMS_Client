@@ -21,9 +21,9 @@
 </template>
 
 <script>
-import TheHeader from "../common/TheHeader.vue";
-import TheSideBar from "../common/TheSideBar.vue";
-import MyCourseCard from "./MyCourseCard.vue";
+import TheHeader from "@/components/common/TheHeader.vue";
+import TheSideBar from "@/components/common/TheSideBar.vue";
+import MyCourseCard from "@/components/my_courses/MyCourseCard.vue";
 
 export default {
   components: {
@@ -82,25 +82,5 @@ export default {
 </script>
 
 <style scoped>
-.main-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-family: "Arial", sans-serif;
-}
-.content-wrapper {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 20px;
-}
-
-.all-tasks {
-  flex-grow: 1;
-  padding: 20px;
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 50px;
-}
+@import "@/assets/styles/courses.css";
 </style>

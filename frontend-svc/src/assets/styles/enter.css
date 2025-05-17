@@ -1,45 +1,25 @@
-<template>
-  <div class="registration-page">
-    <div class="registration-container">
-      <div class="logo_container">
-        <img src="../../assets/icons/logo.png" alt="logo" />
-      </div>
-      <form @submit.prevent>
-        <div class="input-group">
-          <input type="text" id="username" required placeholder=" " />
-          <label for="username">Номер телефона/email:</label>
-        </div>
-        <div class="input-group">
-          <input type="password" id="password" required placeholder=" " />
-          <label for="password">Пароль:</label>
-        </div>
-        <div class="button-group">
-          <button type="submit">Зарегистрироваться</button>
-          <router-link to="/auth">Уже есть аккаунт? Войти</router-link>
-        </div>
-      </form>
-    </div>
-  </div>
-</template>
+/*styles for login and authorization*/
 
-<style scoped>
 .registration-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  font-family: sans-serif;
-  background-image: url("../../assets/login_background.png");
-  background-size: cover;
+  background-image: url("@/assets/login_background.png");
   background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
-.registration-container {
+.auth-container, .registration-container{
   background-color: #fff;
-  padding: 30px;
+  padding: 2rem;
   border-radius: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 350px;
+  width: 100%;
+  max-width: 350px;
+  box-sizing: border-box;
 }
 
 .logo_container {
@@ -87,7 +67,7 @@ input:not(:placeholder-shown) + label {
   margin-top: 20px;
 }
 
-button {
+.login-button {
   background-color: #3764ed;
   color: #fff;
   padding: 10px 15px;
@@ -102,14 +82,18 @@ button:hover {
   background-color: #0056b3;
 }
 
-a {
+a.login-link {
   text-decoration: none;
   color: #3764ed;
   margin-top: 10px;
   font-size: 0.9em;
 }
 
-a:hover {
+a.login-link:hover {
   text-decoration: underline;
 }
-</style>
+
+.error {
+  color: red;
+  margin-top: 10px;
+}

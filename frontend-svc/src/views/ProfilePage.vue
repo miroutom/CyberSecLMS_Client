@@ -2,7 +2,7 @@
   <div class="profile-page">
     <TheHeader />
     <div class="content-wrapper">
-      <TheSideBar />
+      <aside class="sidebar"><TheSideBar /></aside>
       <main class="profile-content">
         <section class="user-info">
           <div class="welcome-message">
@@ -17,12 +17,12 @@
                 "
                 class="settings-button"
               >
-                <img src="../../assets/icons/settings.svg" alt="Настройки" />
+                <img src="@/assets/icons/settings.svg" alt="Настройки" />
                 Настройки
               </button>
             </div>
             <img
-              src="../../assets/icons/welcome-image.png "
+              src="@/assets/icons/welcome-image.png "
               alt=""
               class="welcome-image"
             />
@@ -56,10 +56,10 @@
 </template>
 
 <script>
-import TheHeader from "../common/TheHeader.vue";
-import TheSideBar from "../common/TheSideBar.vue";
-import MaterialsCard from "./MaterialsCard.vue";
-import SettingsPopup from "./SettingsPopup.vue";
+import TheHeader from "@/components/common/TheHeader.vue";
+import TheSideBar from "@/components/common/TheSideBar.vue";
+import MaterialsCard from "@/components/profile/MaterialsCard.vue";
+import SettingsPopup from "@/components/profile/SettingsPopup.vue";
 
 export default {
   components: {
@@ -83,16 +83,16 @@ export default {
 
 <style scoped>
 .profile-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
 }
 
 .content-wrapper {
-  display: flex;
-  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 1fr; /* Сайдбар и контент */
   gap: 20px;
-  padding: 20px 20px 20px 0;
+  padding: 20px;
 }
 
 .profile-content {
@@ -105,10 +105,9 @@ export default {
 }
 
 .welcome-message {
-  width: 85%;
   margin-left: auto;
   margin-bottom: 20px;
-  margin-top: 70px;
+  margin-top: 50px;
   background-color: #f2f2ff;
   border-radius: 20px;
   padding: 0px 20px 0px 20px;
@@ -171,6 +170,12 @@ export default {
   margin-left: auto;
 }
 
+h3 {
+  font-weight: 700;
+  font-size: 24px;
+  color: #3764ed;
+}
+
 .cards-row {
   display: flex;
   gap: 20px;
@@ -179,11 +184,15 @@ export default {
   /* link styles */
 }
 .user-stats {
-  background-color: red;
+  background-color: rgb(226, 225, 225);
   width: 450px;
   height: 400px;
   border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 .stat {
   display: flex;
   justify-content: space-between;

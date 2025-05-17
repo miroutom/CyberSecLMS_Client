@@ -56,6 +56,7 @@ export default {
   text-decoration: none;
   color: inherit;
   position: relative;
+  transition: transform 0.3s ease;
 }
 
 .article-card__content {
@@ -104,5 +105,11 @@ export default {
 .article-card__read-more svg {
   margin-left: 10px;
   color: #3ae8c5;
+}
+
+.article-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
 }
 </style>

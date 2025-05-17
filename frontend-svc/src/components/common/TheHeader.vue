@@ -6,7 +6,7 @@
     <div class="user-info">
       <span class="user-name">User Name</span>
       <img
-        src="../../assets/icons/user-icon.png"
+        src="../../assets/login_background.png"
         alt="User Icon"
         class="user-icon"
       />
@@ -21,7 +21,7 @@
         >
           <path
             d="M6 9L12 15L18 9"
-            stroke="black"
+            stroke="#8a8a92"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -29,7 +29,9 @@
         </svg>
         <div v-if="isOpen" class="dropdown-popup">
           <div class="dropdown-popup-content">
-            <router-link to="/auth" class="dropdown-link">Выход</router-link>
+            <router-link to="/auth" class="dropdown-link">
+              <button class="logout-button">Выход</button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -78,20 +80,21 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  padding: 1rem 2rem;
   background-color: #f2f2ff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 0 20px;
-  width: 100%;
-  min-height: 10vh;
   box-sizing: border-box;
 }
 
 .header-title {
+  margin: 0 auto;
+}
+
+.user-info {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  flex-grow: 1;
+  white-space: nowrap;
 }
 
 .header-title span {
@@ -100,30 +103,25 @@ export default {
   font-weight: 600;
   font-size: 1.5rem;
   line-height: 1.2;
-  text-align: center;
   color: #3764ed;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-}
-
 .user-name {
-  margin-right: 10px;
   font-family: "Montserrat";
   font-style: normal;
   font-weight: 600;
   font-size: 1rem;
   line-height: 1.2;
   color: #8a8a92;
+  white-space: nowrap;
 }
 
 .user-icon {
-  width: 8vh;
-  height: 8vh;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
+  object-fit: cover;
+  margin-left: 10px;
   margin-right: 10px;
 }
 
@@ -134,33 +132,30 @@ export default {
 
 .dropdown-popup {
   position: absolute;
-  top: 100%;
+  top: 200%;
   right: 0;
   background-color: #fff;
-  border-radius: 5px;
+  border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  width: 10vw;
-}
-
-.dropdown-popup-content {
+  width: auto;
+  height: auto;
+  min-width: 150px;
   padding: 10px;
-  width: 80%;
 }
 
-.dropdown-link {
-  display: block;
-  padding: 8px;
-  text-decoration: none;
+.logout-button {
+  background-color: #dc0404;
   color: white;
+  padding: 10px 20px;
+  border: none;
   border-radius: 5px;
-  background-color: rgb(220, 4, 4);
-  font-weight: bold;
+  cursor: pointer;
   width: 100%;
-  text-align: center;
+  font-weight: bold;
 }
 
-.dropdown-link:hover {
-  background-color: rgb(192, 1, 1);
+.logout-button:hover {
+  background-color: #c00101;
 }
 </style>
