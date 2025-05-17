@@ -93,6 +93,7 @@ func main() {
 		account := api.Group("/account")
 		{
 			account.POST("/2fa/enable", handlers.Enable2FAHandler)
+			account.POST("/profile/image", handlers.UpdateProfileImageHandler)
 		}
 
 		admin := api.Group("/admin")

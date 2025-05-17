@@ -16,11 +16,12 @@ type Storage interface {
 	GetUserByUsername(username string) (models.User, error)
 	GetUserByID(id int) (models.User, error)
 	UpdateUserLastLogin(userID int) error
-	Enable2FA(userID int) error
-	IsAdmin(userID int) (bool, error)
-
-	GetAllUsers() ([]models.User, error)
 	UpdateUserProfile(userID int, data models.UpdateProfileRequest) error
+	Enable2FA(userID int) error
+	UpdateUserProfileImage(userID int, imageURL string) error
+
+	IsAdmin(userID int) (bool, error)
+	GetAllUsers() ([]models.User, error)
 	GetUsersByRole(isAdmin bool) ([]models.User, error)
 	SearchUsers(query string) ([]models.User, error)
 	UpdateUserStatus(userID int, isActive bool) error
