@@ -352,11 +352,10 @@ func ResetPassword(c *gin.Context) {
 }
 
 func generateResetCode(length int) string {
-	rand.Seed(time.Now().UnixNano())
 	digits := "0123456789"
 	code := make([]byte, length)
 	for i := 0; i < length; i++ {
-		code[i] = digits[rand.Intn(len(digits))]
+		code[i] = digits[rand.Int()%len(digits)]
 	}
 	return string(code)
 }
