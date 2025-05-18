@@ -26,7 +26,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
-fun AdditionalTextField(
+fun RegistrationTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     @StringRes labelId: Int,
@@ -74,12 +74,12 @@ fun RegistrationTextFieldPreview() {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            AdditionalTextField(
+            RegistrationTextField(
                 value = TextFieldValue(""),
                 labelId = R.string.auth_label_full_name,
                 onValueChange = {},
             )
-            AdditionalTextField(
+            RegistrationTextField(
                 value = TextFieldValue(""),
                 labelId = R.string.auth_label_username,
                 onValueChange = {},

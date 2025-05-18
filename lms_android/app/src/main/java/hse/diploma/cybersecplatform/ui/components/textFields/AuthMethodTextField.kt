@@ -27,7 +27,7 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 
 @Composable
-fun AuthMethodTextField(
+fun AuthorizationTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -79,9 +79,9 @@ fun AuthMethodTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun AuthMethodTextFieldPreview() {
+fun AuthorizationTextFieldPreview() {
     CyberSecPlatformTheme {
-        AuthMethodTextField(
+        AuthorizationTextField(
             value = TextFieldValue(""),
             onValueChange = {},
         )

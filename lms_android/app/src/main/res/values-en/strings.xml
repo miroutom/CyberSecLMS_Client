@@ -23,6 +23,7 @@
     <string name="have_account_button">I have an account</string>
     <string name="register_button">Register</string>
 
+    <string name="save_button">Save</string>
     <string name="confirmation_and_password_are_not_equal">Passwords aren\'t equal</string>
 
     <string name="onboarding_title_first">Where to practice in\ncybersec?</string>
@@ -85,4 +86,26 @@
     <string name="yes_button">Yes</string>
     <string name="reset_progress_title">Reset course progress</string>
     <string name="reset_progress_body">This action can\'t be canceled.\nDo you want to continue?</string>
+    <string name="theme_setting">Theme</string>
+    <string name="language_setting">Language</string>
+    <string name="update_profile_setting">Personal information</string>
+    <string name="update_password_setting">Password</string>
+    <string name="delete_account">Delete account</string>
+    <string name="upload_photo">Upload photo</string>
+    <string name="choose_source_to_upload">Choose source to upload from</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+
+    <string name="current_password_required">Enter current password</string>
+    <string name="new_password_required">Enter new password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+
+    <string name="delete_button">Delete</string>
+    <string name="delete_account_confirmation">This action can\'t be canceled.\nDo you want to delete your account?</string>
+    <string name="delete_account_title">Delete account</string>
+
+    <string name="settings_title">Settings</string>
 </resources>

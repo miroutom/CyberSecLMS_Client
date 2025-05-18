@@ -24,6 +24,7 @@
     <string name="have_account_button">У меня уже есть аккаунт</string>
     <string name="register_button">Зарегистрироваться</string>
     <string name="skip_button">Пропустить</string>
+    <string name="save_button">Сохранить</string>
 
     <string name="confirmation_and_password_are_not_equal">Пароли не совпадают</string>
 
@@ -98,4 +99,28 @@
 
     <string name="reset_progress_title">Сбросить прогресс по курсу</string>
     <string name="reset_progress_body">Это действие нельзя отменить.\nХотите продолжить?</string>
+
+    <string name="theme_setting">Тема</string>
+    <string name="language_setting">Язык</string>
+    <string name="update_profile_setting">Редактировать профиль</string>
+    <string name="update_password_setting">Пароль</string>
+    <string name="delete_account">Удалить аккаунт</string>
+
+    <string name="upload_photo">Загрузить фото</string>
+    <string name="choose_source_to_upload">Выберите источник загрузки</string>
+    <string name="camera">Камера</string>
+    <string name="gallery">Галерея</string>
+
+    <string name="current_password">Текущий пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="confirm_new_password">Подтвердить новый пароль</string>
+    <string name="current_password_required">Введите текущий пароль</string>
+
+    <string name="new_password_required">Введите новый пароль</string>
+    <string name="passwords_dont_match">Пароли не совпадают</string>
+
+    <string name="delete_button">Удалить</string>
+    <string name="delete_account_confirmation">Это действие нельзя отменить.\nВы точно хотите удалить аккаунт?</string>
+    <string name="delete_account_title">Удаление аккаунта</string>
+    <string name="settings_title">Настройки</string>
 </resources>

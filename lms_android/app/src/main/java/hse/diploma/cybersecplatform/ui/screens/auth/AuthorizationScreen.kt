@@ -36,7 +36,7 @@ import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
-import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
+import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.theme.Typography
@@ -50,7 +50,7 @@ fun AuthorizationScreen(
     onNavigateToRegistration: () -> Unit,
     onAuthorized: () -> Unit,
     onError: (String) -> Unit,
-    viewModel: AuthorizationScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
+    viewModel: AuthorizationViewModel = viewModel(factory = LocalViewModelFactory.current),
     otpViewModel: OtpViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
@@ -102,7 +102,7 @@ fun AuthorizationScreen(
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        AdditionalTextField(
+                        RegistrationTextField(
                             value = username,
                             onValueChange = viewModel::onUsernameChange,
                             labelId = R.string.auth_label_username,
@@ -200,6 +200,6 @@ fun AuthorizationScreenPreview() {
         onNavigateToRegistration = {},
         onAuthorized = {},
         onError = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationScreenViewModel::class.java),
+        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationViewModel::class.java),
     )
 }

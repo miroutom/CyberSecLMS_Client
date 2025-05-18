@@ -47,7 +47,7 @@ fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+    val viewModel: HomeViewModel = viewModel(factory = LocalViewModelFactory.current)
     val searchQuery by viewModel.searchQuery.collectAsState()
     val allCoursesState by viewModel.allCoursesState.collectAsState()
 

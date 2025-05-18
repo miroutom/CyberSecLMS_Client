@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -13,14 +17,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 
+enum class SettingsDialog {
+    NONE, THEME, LANGUAGE, PASSWORD, DELETE_ACCOUNT
+}
+
 @Composable
-fun ProfileMenu(
-    onTheoryClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onLogoutClick: () -> Unit,
+fun SettingsMenu(
+    onThemeClick: () -> Unit,
+    onLanguageClick: () -> Unit,
+    onPasswordChangeClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dividerColor = colorResource(R.color.menu_divider)
+    var visibleDialog by remember { mutableStateOf(SettingsDialog.NONE) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -28,8 +38,8 @@ fun ProfileMenu(
     ) {
         MenuItem(
             icon = painterResource(R.drawable.ic_theory),
-            text = stringResource(R.string.profile_theory_section),
-            onClick = onTheoryClick,
+            text = stringResource(R.string.theme_setting),
+            onClick = onThemeClick,
         )
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 8.dp),
@@ -37,12 +47,17 @@ fun ProfileMenu(
         )
         MenuItem(
             icon = painterResource(R.drawable.ic_settings),
-            text = stringResource(R.string.profile_settings_section),
-            onClick = onSettingsClick,
+            text = stringResource(R.string.language_setting),
+            onClick = onLanguageClick,
         )
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 8.dp),
             color = dividerColor,
+        )
+        MenuItem(
+            icon = painterResource(R.drawable.ic_support),
+            text = stringResource(R.string.update_password_setting),
+            onClick = onPasswordChangeClick,
         )
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 8.dp),
@@ -50,10 +65,11 @@ fun ProfileMenu(
         )
         MenuItem(
             icon = painterResource(R.drawable.ic_logout),
-            text = stringResource(R.string.profile_logout),
+            text = stringResource(R.string.delete_account),
             iconTint = colorResource(R.color.logout),
             textColor = colorResource(R.color.logout),
-            onClick = onLogoutClick,
+            onClick = onDeleteClick,
         )
     }
 }
+

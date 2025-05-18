@@ -9,6 +9,7 @@ import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
 import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreen
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreen
+import hse.diploma.cybersecplatform.ui.screens.settings.SettingsScreen
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreen
 
 @Composable
@@ -30,13 +31,17 @@ fun MainNavigationGraph() {
                 MyCoursesScreen(mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(mainNavController)
             }
 
             animatedComposable(Screen.TaskScreen.route) { backStackEntry ->
                 val typeString = backStackEntry.arguments?.getString("vulnerabilityType")
                 val type = VulnerabilityType.valueOf(typeString ?: "XSS")
                 TasksScreen(type)
+            }
+
+            animatedComposable(Screen.Settings.route) {
+                SettingsScreen()
             }
         }
     }

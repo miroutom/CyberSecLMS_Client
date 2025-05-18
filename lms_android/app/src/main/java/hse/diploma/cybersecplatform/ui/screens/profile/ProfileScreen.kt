@@ -37,6 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
@@ -44,6 +46,7 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
+import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
@@ -51,8 +54,11 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    val viewModel: ProfileScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+fun ProfileScreen(
+    navHostController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    val viewModel: ProfileViewModel = viewModel(factory = LocalViewModelFactory.current)
     val authStateViewModel = LocalAuthStateViewModel.current
     val profileState by viewModel.profileState.collectAsState()
 
@@ -67,6 +73,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         is ProfileState.Success -> {
             val uiState = (profileState as ProfileState.Success).uiState
             ProfileContent(
+                navHostController = navHostController,
                 profile = uiState,
                 modifier = modifier,
                 onLogoutClick = { authStateViewModel.logout() },
@@ -81,6 +88,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ProfileContent(
+    navHostController: NavHostController,
     profile: ProfileUiState,
     modifier: Modifier = Modifier,
     onLogoutClick: () -> Unit,
@@ -110,11 +118,6 @@ private fun ProfileContent(
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = stringResource(R.string.welcome_text, profile.fullName),
@@ -168,8 +171,7 @@ private fun ProfileContent(
 
         ProfileMenu(
             onTheoryClick = {},
-            onSupportClick = {},
-            onSettingsClick = {},
+            onSettingsClick = { navHostController.navigate(Screen.Settings.route) },
             onLogoutClick = onLogoutClick,
         )
     }
@@ -202,11 +204,6 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "",
@@ -322,7 +319,6 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
 
         ProfileMenu(
             onTheoryClick = {},
-            onSupportClick = {},
             onSettingsClick = {},
             onLogoutClick = {},
         )
@@ -333,6 +329,6 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
 @Composable
 fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
-        ProfileScreen()
+        ProfileScreen(rememberNavController())
     }
 }

@@ -46,7 +46,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 fun OnBoardingScreen(
     onNavigateToAuthorization: () -> Unit,
     onNavigateToRegistration: () -> Unit,
-    viewModel: OnBoardingScreenViewModel = viewModel(),
+    viewModel: OnBoardingViewModel = viewModel(),
     modifier: Modifier = Modifier,
 ) {
     val currentStep by viewModel.currentPage.collectAsState()
@@ -187,6 +187,6 @@ fun OnBoardingScreenPreview() {
     OnBoardingScreen(
         onNavigateToAuthorization = {},
         onNavigateToRegistration = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(OnBoardingScreenViewModel::class.java),
+        viewModel = MainApplication.appComponent.viewModelFactory().create(OnBoardingViewModel::class.java),
     )
 }

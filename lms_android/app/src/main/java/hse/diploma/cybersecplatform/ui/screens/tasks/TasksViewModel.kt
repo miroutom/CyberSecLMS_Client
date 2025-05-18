@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-class TasksScreenViewModel @Inject constructor() : ViewModel() {
+class TasksViewModel @Inject constructor() : ViewModel() {
     // TODO: replace with real data
     private val _tasks = MutableStateFlow(mockTasksItems)
     val tasks = _tasks.asStateFlow()
@@ -41,6 +41,6 @@ class TasksScreenViewModel @Inject constructor() : ViewModel() {
     }
 
     companion object {
-        private const val TAG = "TasksScreenViewModel"
+        private const val TAG = "TasksViewModel"
     }
 }
