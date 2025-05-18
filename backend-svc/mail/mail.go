@@ -127,3 +127,30 @@ func sendOTPEmailFallback(email, code string) error {
 	fmt.Printf("Fallback email sent successfully to %s\n", email)
 	return nil
 }
+
+func SendDeleteAccountEmail(email, code string) error {
+	subject := "Account Deletion Confirmation"
+
+	plainText := fmt.Sprintf("You have requested to delete your account. To confirm, please use this verification code: %s\n\n"+
+		"This code is valid for 5 minutes.\n\n"+
+		"If you did not request account deletion, please ignore this email or contact support immediately.", code)
+
+	message := []byte(fmt.Sprintf("From: %s\r\n"+
+		"To: %s\r\n"+
+		"Subject: %s\r\n"+
+		"Content-Type: text/plain; charset=UTF-8\r\n"+
+		"\r\n"+
+		"%s",
+		smtpFrom, email, subject, plainText))
+
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, smtpUsername, []string{email}, message)
+	if err != nil {
+		fmt.Printf("Error sending delete account email: %v\n", err)
+		fmt.Printf("Deletion code for %s: %s\n", email, code)
+		return err
+	}
+
+	fmt.Printf("Delete account email sent successfully to %s\n", email)
+	return nil
+}

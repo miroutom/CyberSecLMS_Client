@@ -37,6 +37,8 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 			account.Any("/2fa/enable", proxyHandler(config.AuthService.URL))
 			account.Any("/profile/image", proxyHandler(config.AuthService.URL))
 			account.Any("/change-password", proxyHandler(config.AuthService.URL))
+			account.Any("/delete", proxyHandler(config.AuthService.URL))
+			account.Any("/delete/confirm", proxyHandler(config.AuthService.URL))
 		}
 
 		admin := api.Group("/admin")

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend-svc/models"
+	"log"
 	"time"
 )
 
@@ -324,6 +325,57 @@ func (s *DBStorage) UpdateUserProfileImage(userID int, imageURL string) error {
 	result, err := stmt.Exec(imageURL, userID)
 	if err != nil {
 		return fmt.Errorf("execute statement: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (s *DBStorage) DeleteUser(userID int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				log.Printf("rollback error: %v (original error: %v)", rbErr, err)
+			}
+		} else {
+			if cmtErr := tx.Commit(); cmtErr != nil {
+				err = fmt.Errorf("commit error: %w", cmtErr)
+			}
+		}
+	}()
+
+	stmt, err := tx.Prepare("DELETE FROM user_progress WHERE user_id = ?")
+	if err != nil {
+		return fmt.Errorf("prepare delete progress statement: %w", err)
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(userID); err != nil {
+		return fmt.Errorf("delete user progress: %w", err)
+	}
+
+	stmt2, err := tx.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		return fmt.Errorf("prepare delete user statement: %w", err)
+	}
+	defer stmt2.Close()
+
+	result, err := stmt2.Exec(userID)
+	if err != nil {
+		return fmt.Errorf("delete user: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()

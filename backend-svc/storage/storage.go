@@ -19,6 +19,7 @@ type Storage interface {
 	UpdateUserProfile(userID int, data models.UpdateProfileRequest) error
 	Enable2FA(userID int) error
 	UpdateUserProfileImage(userID int, imageURL string) error
+	DeleteUser(userID int) error
 
 	IsAdmin(userID int) (bool, error)
 	GetAllUsers() ([]models.User, error)
