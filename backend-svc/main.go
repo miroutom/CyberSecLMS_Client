@@ -24,6 +24,7 @@ import (
 // @version 1.0
 // @description API for Learning Management System
 // @host localhost:8080
+// @schemes https
 // @BasePath /api
 // @securityDefinitions.apikey BearerAuth
 // @in header
