@@ -31,7 +31,7 @@ import hse.diploma.cybersecplatform.utils.isPasswordValid
 fun PasswordChangeDialog(
     onDismiss: () -> Unit,
     onSubmit: (currentPassword: String, newPassword: String) -> Unit,
-    isLoading: Boolean
+    isLoading: Boolean,
 ) {
     var currentPassword by remember { mutableStateOf(TextFieldValue("")) }
     var newPassword by remember { mutableStateOf(TextFieldValue("")) }
@@ -41,6 +41,7 @@ fun PasswordChangeDialog(
     val currentPasswordRequired = stringResource(R.string.current_password_required)
     val newPasswordRequired = stringResource(R.string.new_password_required)
     val passwordsNotMatchError = stringResource(R.string.passwords_dont_match)
+    val currentAndNewPasswordsAreEqual = stringResource(R.string.current_and_new_passwords_are_equal)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -48,7 +49,7 @@ fun PasswordChangeDialog(
             Text(
                 text = stringResource(R.string.update_password_setting),
                 fontFamily = Montserrat,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         },
         text = {
@@ -56,7 +57,7 @@ fun PasswordChangeDialog(
                 PasswordField(
                     value = currentPassword,
                     onValueChange = { currentPassword = it },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -64,7 +65,7 @@ fun PasswordChangeDialog(
                 PasswordField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -73,7 +74,7 @@ fun PasswordChangeDialog(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     passwordValue = TextFieldValue(newPassword.text),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 error?.let {
@@ -82,7 +83,7 @@ fun PasswordChangeDialog(
                         text = it,
                         color = Color.Red,
                         fontSize = 12.sp,
-                        fontFamily = Montserrat
+                        fontFamily = Montserrat,
                     )
                 }
             }
@@ -96,6 +97,7 @@ fun PasswordChangeDialog(
                         !isPasswordValid(newPassword.text) -> {
                             error = null
                         }
+                        currentPassword == newPassword -> error = currentPasswordRequired
                         newPassword.text != confirmPassword.text -> error = passwordsNotMatchError
                         else -> {
                             error = null
@@ -103,15 +105,20 @@ fun PasswordChangeDialog(
                         }
                     }
                 },
-                enabled = !isLoading && isPasswordValid(newPassword.text) && newPassword.text == confirmPassword.text && currentPassword.text.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.button_enabled),
-                    disabledContainerColor = colorResource(R.color.button_disabled)
-                )
+                enabled =
+                    !isLoading &&
+                        isPasswordValid(newPassword.text) &&
+                        newPassword.text == confirmPassword.text &&
+                        currentPassword.text.isNotEmpty(),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.button_enabled),
+                        disabledContainerColor = colorResource(R.color.button_disabled),
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.confirm_button),
-                    fontFamily = Montserrat
+                    fontFamily = Montserrat,
                 )
             }
         },
@@ -119,16 +126,17 @@ fun PasswordChangeDialog(
             Button(
                 onClick = onDismiss,
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.button_enabled)
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.button_enabled),
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.cancel_button),
-                    fontFamily = Montserrat
+                    fontFamily = Montserrat,
                 )
             }
         },
-        containerColor = colorResource(id = R.color.dialog_color)
+        containerColor = colorResource(id = R.color.dialog_color),
     )
 }

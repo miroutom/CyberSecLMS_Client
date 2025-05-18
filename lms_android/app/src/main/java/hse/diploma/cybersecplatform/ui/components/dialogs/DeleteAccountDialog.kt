@@ -16,7 +16,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 fun DeleteAccountDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    isLoading: Boolean
+    isLoading: Boolean,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -25,26 +25,27 @@ fun DeleteAccountDialog(
                 text = stringResource(R.string.delete_account_title),
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.Medium,
-                color = Color.Red
+                color = Color.Red,
             )
         },
         text = {
             Text(
                 text = stringResource(R.string.delete_account_confirmation),
-                fontFamily = Montserrat
+                fontFamily = Montserrat,
             )
         },
         confirmButton = {
             Button(
                 onClick = onConfirm,
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color.Red,
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.delete_button),
-                    fontFamily = Montserrat
+                    fontFamily = Montserrat,
                 )
             }
         },
@@ -52,16 +53,17 @@ fun DeleteAccountDialog(
             Button(
                 onClick = onDismiss,
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.button_enabled)
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.button_enabled),
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.cancel_button),
-                    fontFamily = Montserrat
+                    fontFamily = Montserrat,
                 )
             }
         },
-        containerColor = colorResource(id = R.color.dialog_color)
+        containerColor = colorResource(id = R.color.dialog_color),
     )
 }

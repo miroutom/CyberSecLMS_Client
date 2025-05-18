@@ -15,15 +15,19 @@ fun createImageUri(context: Context): Uri? {
     return try {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-        val file = File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        )
+        val file =
+            File.createTempFile(
+                // prefix
+                "JPEG_${timeStamp}_",
+                // suffix
+                ".jpg",
+                // directory
+                storageDir,
+            )
         FileProvider.getUriForFile(
             context,
             context.packageName + ".fileprovider",
-            file
+            file,
         )
     } catch (e: Exception) {
         null

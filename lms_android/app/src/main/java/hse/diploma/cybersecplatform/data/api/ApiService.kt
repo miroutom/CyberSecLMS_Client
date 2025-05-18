@@ -9,11 +9,9 @@ import hse.diploma.cybersecplatform.data.model.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
 import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.UpdatePasswordRequest
 import hse.diploma.cybersecplatform.data.model.UpdateProfileRequest
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
-import hse.diploma.cybersecplatform.domain.model.Course
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -44,28 +42,28 @@ interface ApiService {
 
     @PUT("api/profile")
     suspend fun updateProfile(
-        @Body request: UpdateProfileRequest
+        @Body request: UpdateProfileRequest,
     ): Response<UserData>
 
     @POST("api/account/change-password")
     suspend fun changePassword(
-        @Body request: ChangePasswordRequest
+        @Body request: ChangePasswordRequest,
     ): Response<Map<String, String>>
 
     @POST("api/forgot-password")
     suspend fun forgotPassword(
-        @Body request: ForgotPasswordRequest
+        @Body request: ForgotPasswordRequest,
     ): Response<TempTokenResponse>
 
     @POST("api/reset-password")
     suspend fun resetPassword(
-        @Body request: ResetPasswordRequest
+        @Body request: ResetPasswordRequest,
     ): Response<SuccessResponse>
 
     @Multipart
     @POST("api/account/profile/image")
     suspend fun uploadAvatar(
-        @Part avatar: MultipartBody.Part
+        @Part avatar: MultipartBody.Part,
     ): Response<Map<String, String>>
 
     @POST("api/account/delete")
@@ -73,6 +71,6 @@ interface ApiService {
 
     @POST("api/account/delete/confirm")
     suspend fun confirmDeleteAccount(
-        @Body request: VerifyOtpRequest
+        @Body request: VerifyOtpRequest,
     ): Response<SuccessResponse>
 }

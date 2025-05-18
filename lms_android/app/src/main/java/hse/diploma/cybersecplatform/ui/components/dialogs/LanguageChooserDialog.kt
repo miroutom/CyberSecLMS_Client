@@ -24,7 +24,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 fun LanguageChooserDialog(
     currentLanguage: Language,
     onLanguageSelected: (Language) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -37,11 +37,11 @@ fun LanguageChooserDialog(
                             .fillMaxWidth()
                             .clickable { onLanguageSelected(language) }
                             .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = currentLanguage == language,
-                            onClick = { onLanguageSelected(language) }
+                            onClick = { onLanguageSelected(language) },
                         )
                         Text(language.name, fontFamily = Montserrat)
                     }
@@ -52,11 +52,11 @@ fun LanguageChooserDialog(
         dismissButton = {
             FilledButton(
                 text = stringResource(R.string.cancel_button),
-                onClick = onDismiss
+                onClick = onDismiss,
             )
         },
         containerColor = colorResource(R.color.dialog_color),
-        tonalElevation = 8.dp
+        tonalElevation = 8.dp,
     )
 }
 
@@ -66,6 +66,6 @@ private fun LanguageChooserDialogPreview() {
     LanguageChooserDialog(
         currentLanguage = Language.ENGLISH,
         onLanguageSelected = {},
-        onDismiss = {}
+        onDismiss = {},
     )
 }

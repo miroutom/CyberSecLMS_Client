@@ -37,7 +37,7 @@ fun EditProfileDialog(
     onDismiss: () -> Unit,
     onSave: (username: String, fullName: String, email: String) -> Unit,
     isSaving: Boolean = false,
-    errorMessage: String? = null
+    errorMessage: String? = null,
 ) {
     var username by remember { mutableStateOf(uiState.username) }
     var fullName by remember { mutableStateOf(uiState.fullName) }
@@ -86,7 +86,7 @@ fun EditProfileDialog(
                     Text(
                         errorMessage,
                         color = colorResource(R.color.error_dialog_text),
-                        style = Typography.bodyMedium
+                        style = Typography.bodyMedium,
                     )
                 }
             }
@@ -95,28 +95,33 @@ fun EditProfileDialog(
             Button(
                 onClick = { onSave(username, fullName, email) },
                 enabled = !isSaving,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = colorResource(R.color.button_enabled),
-                    contentColor = Color.White,
-                ),
+                colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = colorResource(R.color.button_enabled),
+                        contentColor = Color.White,
+                    ),
             ) {
-                if (isSaving) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
-                else Text(
-                    text = stringResource(R.string.save_button),
-                    fontStyle = FontStyle.Italic,
-                    fontFamily = Montserrat,
-                    fontWeight = FontWeight.Normal,
-                )
+                if (isSaving) {
+                    CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = stringResource(R.string.save_button),
+                        fontStyle = FontStyle.Italic,
+                        fontFamily = Montserrat,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
             }
         },
         dismissButton = {
             Button(
                 onClick = onDismiss,
                 enabled = !isSaving,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = colorResource(R.color.button_enabled),
-                    contentColor = Color.White,
-                ),
+                colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = colorResource(R.color.button_enabled),
+                        contentColor = Color.White,
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.cancel_button),
@@ -136,12 +141,13 @@ fun EditProfileDialog(
 private fun EditProfileDialogPreview() {
     CyberSecPlatformTheme {
         EditProfileDialog(
-            uiState = ProfileUiState(
-                username = "username",
-                fullName = "fullName",
-                email = "email",
-                avatarUrl = null
-            ),
+            uiState =
+                ProfileUiState(
+                    username = "username",
+                    fullName = "fullName",
+                    email = "email",
+                    avatarUrl = null,
+                ),
             onDismiss = {},
             onSave = { _, _, _ -> },
         )

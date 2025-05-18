@@ -41,9 +41,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
-    navController: NavHostController,
-) {
+fun TopBar(navController: NavHostController) {
     val profileViewModel: ProfileViewModel = viewModel(factory = LocalViewModelFactory.current)
     val context = LocalContext.current
 
@@ -55,24 +53,26 @@ fun TopBar(
     var editProfileUiState by remember { mutableStateOf<ProfileUiState?>(null) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
-    val noBackStackRoutes = setOf(
-        Screen.HomeScreen.route,
-        Screen.MyCourses.route,
-        Screen.Profile.route,
-    )
+    val noBackStackRoutes =
+        setOf(
+            Screen.HomeScreen.route,
+            Screen.MyCourses.route,
+            Screen.Profile.route,
+        )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val canNavigateBack = navController.previousBackStackEntry != null && currentRoute !in noBackStackRoutes
 
-    val currentScreen = when (currentRoute) {
-        Screen.HomeScreen.route -> Screen.HomeScreen
-        Screen.MyCourses.route -> Screen.MyCourses
-        Screen.Profile.route -> Screen.Profile
-        Screen.TaskScreen.route -> Screen.TaskScreen
-        Screen.Settings.route -> Screen.Settings
-        else -> null
-    }
+    val currentScreen =
+        when (currentRoute) {
+            Screen.HomeScreen.route -> Screen.HomeScreen
+            Screen.MyCourses.route -> Screen.MyCourses
+            Screen.Profile.route -> Screen.Profile
+            Screen.TaskScreen.route -> Screen.TaskScreen
+            Screen.Settings.route -> Screen.Settings
+            else -> null
+        }
 
     val successState = profileState as? ProfileState.Success
     val errorState = profileState as? ProfileState.Error
@@ -117,19 +117,21 @@ fun TopBar(
         },
         actions = {
             EditProfile(
-                userProfileImageUrl = successState?.uiState?.avatarUrl
-                    ?: "https://placehold.co/256x256.png?text=Avatar",
+                userProfileImageUrl =
+                    successState?.uiState?.avatarUrl
+                        ?: "https://placehold.co/256x256.png?text=Avatar",
                 onEditProfileClick = { showEditProfile = true },
-                onProfilePhotoClick = { showPhotoPicker = true }
+                onProfilePhotoClick = { showPhotoPicker = true },
             )
         },
-        colors = TopAppBarColors(
-            containerColor = Color.White,
-            titleContentColor = Color.Black,
-            scrolledContainerColor = Color.Transparent,
-            navigationIconContentColor = Color.Black,
-            actionIconContentColor = Color.Transparent,
-        ),
+        colors =
+            TopAppBarColors(
+                containerColor = Color.White,
+                titleContentColor = Color.Black,
+                scrolledContainerColor = Color.Transparent,
+                navigationIconContentColor = Color.Black,
+                actionIconContentColor = Color.Transparent,
+            ),
     )
 
     if (showEditProfile && editProfileUiState != null) {
@@ -143,7 +145,7 @@ fun TopBar(
                 profileViewModel.updateProfile(username, fullname, email)
             },
             isSaving = isLoading,
-            errorMessage = errorMsg
+            errorMessage = errorMsg,
         )
     }
 
@@ -153,7 +155,7 @@ fun TopBar(
                 profileViewModel.uploadPhoto(uri, context.contentResolver)
                 showPhotoPicker = false
             },
-            onDismiss = { showPhotoPicker = false }
+            onDismiss = { showPhotoPicker = false },
         )
     }
 }

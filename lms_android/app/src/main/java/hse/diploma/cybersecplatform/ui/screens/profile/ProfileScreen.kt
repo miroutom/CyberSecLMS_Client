@@ -56,7 +56,7 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 @Composable
 fun ProfileScreen(
     navHostController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val viewModel: ProfileViewModel = viewModel(factory = LocalViewModelFactory.current)
     val authStateViewModel = LocalAuthStateViewModel.current

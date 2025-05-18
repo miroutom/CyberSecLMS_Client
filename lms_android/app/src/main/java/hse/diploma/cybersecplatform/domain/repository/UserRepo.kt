@@ -9,5 +9,8 @@ interface UserRepo {
 
     suspend fun updateProfile(userData: UserData): Result<UserData>
 
-    suspend fun uploadAvatar(contentUri: Uri, contentResolver: ContentResolver): Result<UserData>
+    suspend fun uploadAvatar(
+        contentUri: Uri,
+        contentResolver: ContentResolver,
+    ): Result<UserData>
 }

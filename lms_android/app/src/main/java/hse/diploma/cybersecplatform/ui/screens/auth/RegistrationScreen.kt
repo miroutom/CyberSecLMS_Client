@@ -30,10 +30,10 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
-import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.AuthorizationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordConfirmationField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
+import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.logD

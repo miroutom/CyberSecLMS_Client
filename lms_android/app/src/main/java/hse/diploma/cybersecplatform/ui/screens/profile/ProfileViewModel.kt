@@ -33,7 +33,7 @@ class ProfileViewModel @Inject constructor(
                             username = user.username,
                             fullName = user.fullName,
                             email = user.email,
-                            avatarUrl = user.avatarUrl
+                            avatarUrl = user.avatarUrl,
                         ),
                     )
             } else {
@@ -42,52 +42,64 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun updateProfile(username: String, fullName: String, email: String) {
+    fun updateProfile(
+        username: String,
+        fullName: String,
+        email: String,
+    ) {
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
-            val data = UserData(
-                username = username,
-                fullName = fullName,
-                email = email
-            )
+            val data =
+                UserData(
+                    username = username,
+                    fullName = fullName,
+                    email = email,
+                )
             val result = userRepository.updateProfile(data)
             if (result.isSuccess) {
                 val user = result.getOrNull()!!
-                _profileState.value = ProfileState.Success(
-                    ProfileUiState(
-                        username = user.username,
-                        fullName = user.fullName,
-                        email = user.email,
-                        avatarUrl = user.avatarUrl
+                _profileState.value =
+                    ProfileState.Success(
+                        ProfileUiState(
+                            username = user.username,
+                            fullName = user.fullName,
+                            email = user.email,
+                            avatarUrl = user.avatarUrl,
+                        ),
                     )
-                )
             } else {
-                _profileState.value = ProfileState.Error(
-                    result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other
-                )
+                _profileState.value =
+                    ProfileState.Error(
+                        result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other,
+                    )
             }
         }
     }
 
-    fun uploadPhoto(avatarUri: Uri?, contentResolver: ContentResolver) {
+    fun uploadPhoto(
+        avatarUri: Uri?,
+        contentResolver: ContentResolver,
+    ) {
         if (avatarUri == null) return
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
             val result = userRepository.uploadAvatar(avatarUri, contentResolver)
             if (result.isSuccess) {
                 val user = result.getOrNull()!!
-                _profileState.value = ProfileState.Success(
-                    ProfileUiState(
-                        username = user.username,
-                        fullName = user.fullName,
-                        email = user.email,
-                        avatarUrl = user.avatarUrl
+                _profileState.value =
+                    ProfileState.Success(
+                        ProfileUiState(
+                            username = user.username,
+                            fullName = user.fullName,
+                            email = user.email,
+                            avatarUrl = user.avatarUrl,
+                        ),
                     )
-                )
             } else {
-                _profileState.value = ProfileState.Error(
-                    result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other
-                )
+                _profileState.value =
+                    ProfileState.Error(
+                        result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other,
+                    )
             }
         }
     }

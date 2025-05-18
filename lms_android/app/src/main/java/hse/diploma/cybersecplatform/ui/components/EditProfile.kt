@@ -26,17 +26,18 @@ import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 fun EditProfile(
     userProfileImageUrl: String?,
     onEditProfileClick: () -> Unit,
-    onProfilePhotoClick: () -> Unit
+    onProfilePhotoClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(end = 8.dp)
+        modifier = Modifier.padding(end = 8.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .clickable { onProfilePhotoClick() }
+            modifier =
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .clickable { onProfilePhotoClick() },
         ) {
             ProfileIcon(userProfileImageUrl)
         }
@@ -44,7 +45,7 @@ fun EditProfile(
         IconButton(onClick = onEditProfileClick, modifier = Modifier.size(24.dp)) {
             Icon(
                 painter = painterResource(R.drawable.ic_expand_more),
-                contentDescription = "Expand"
+                contentDescription = "Expand",
             )
         }
     }
@@ -58,17 +59,17 @@ private fun ProfileIcon(userProfileImageUrl: String?) {
             contentDescription = "User avatar",
             contentScale = ContentScale.Crop,
             modifier =
-            Modifier
-                .size(48.dp)
-                .clip(CircleShape),
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
         )
     } else {
         Box(
             modifier =
-            Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(color = colorResource(R.color.text_disabled)),
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(color = colorResource(R.color.text_disabled)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -88,7 +89,7 @@ fun EditProfilePreview() {
         EditProfile(
             null,
             onEditProfileClick = {},
-            onProfilePhotoClick = {}
+            onProfilePhotoClick = {},
         )
     }
 }

@@ -18,7 +18,11 @@ import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 
 enum class SettingsDialog {
-    NONE, THEME, LANGUAGE, PASSWORD, DELETE_ACCOUNT
+    NONE,
+    THEME,
+    LANGUAGE,
+    PASSWORD,
+    DELETE_ACCOUNT,
 }
 
 @Composable
@@ -72,4 +76,3 @@ fun SettingsMenu(
         )
     }
 }
-

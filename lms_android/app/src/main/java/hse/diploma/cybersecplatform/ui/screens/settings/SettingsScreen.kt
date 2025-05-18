@@ -44,7 +44,7 @@ import kotlinx.coroutines.delay
 fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current),
     authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
     val theme by viewModel.themePreference.collectAsState()
@@ -80,20 +80,22 @@ fun SettingsScreen(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Color.White),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
         ) {
             SettingsMenu(
                 onThemeClick = { visibleDialog = SettingsDialog.THEME },
                 onLanguageClick = { visibleDialog = SettingsDialog.LANGUAGE },
                 onPasswordChangeClick = { visibleDialog = SettingsDialog.PASSWORD },
-                onDeleteClick = { visibleDialog = SettingsDialog.DELETE_ACCOUNT }
+                onDeleteClick = { visibleDialog = SettingsDialog.DELETE_ACCOUNT },
             )
 
             successMessage?.let {
@@ -103,20 +105,21 @@ fun SettingsScreen(
                     color = Color.Green,
                     fontSize = 14.sp,
                     fontFamily = Montserrat,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
                 )
             }
         }
 
         if (isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.7f))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = 0.7f)),
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
-                    color = colorResource(R.color.button_enabled)
+                    color = colorResource(R.color.button_enabled),
                 )
             }
         }
@@ -129,7 +132,7 @@ fun SettingsScreen(
                     onThemeSelected = { selectedTheme ->
                         viewModel.setThemePreference(selectedTheme)
                         visibleDialog = SettingsDialog.NONE
-                    }
+                    },
                 )
             }
             SettingsDialog.LANGUAGE -> {
@@ -139,7 +142,7 @@ fun SettingsScreen(
                     onLanguageSelected = { selectedLanguage ->
                         viewModel.setLanguagePreference(selectedLanguage)
                         visibleDialog = SettingsDialog.NONE
-                    }
+                    },
                 )
             }
             SettingsDialog.PASSWORD -> {
@@ -148,7 +151,7 @@ fun SettingsScreen(
                     onSubmit = { currentPassword, newPassword ->
                         viewModel.initiatePasswordChange(
                             currentPassword = currentPassword,
-                            newPassword = newPassword
+                            newPassword = newPassword,
                         ) { result ->
                             result.onSuccess {
                             }.onFailure { error ->
@@ -156,7 +159,7 @@ fun SettingsScreen(
                             }
                         }
                     },
-                    isLoading = isLoading
+                    isLoading = isLoading,
                 )
             }
             SettingsDialog.DELETE_ACCOUNT -> {
@@ -170,7 +173,7 @@ fun SettingsScreen(
                             }
                         }
                     },
-                    isLoading = isLoading
+                    isLoading = isLoading,
                 )
             }
             SettingsDialog.NONE -> { // do nothing
@@ -191,7 +194,7 @@ fun SettingsScreen(
                 },
                 onDismiss = {
                     viewModel.cancelPasswordOtp()
-                }
+                },
             )
         }
 
@@ -209,7 +212,7 @@ fun SettingsScreen(
                 },
                 onDismiss = {
                     viewModel.cancelDeleteOtp()
-                }
+                },
             )
         }
 

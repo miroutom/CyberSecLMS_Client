@@ -108,4 +108,5 @@
     <string name="delete_account_title">Delete account</string>
 
     <string name="settings_title">Settings</string>
+    <string name="current_and_new_passwords_are_equal">New password can\'t be equal to current</string>
 </resources>

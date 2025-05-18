@@ -36,8 +36,8 @@ import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
-import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
+import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient

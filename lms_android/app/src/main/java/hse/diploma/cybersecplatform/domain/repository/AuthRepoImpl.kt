@@ -23,9 +23,14 @@ class AuthRepoImpl @Inject constructor(
     ): Result<TempTokenResponse> {
         return try {
             val response = apiService.login(LoginRequest(username, password))
-            response.body()?.let { tempTokenResponse ->
-                Result.success(tempTokenResponse)
-            } ?: Result.failure(Exception("No body"))
+
+            if (response.isSuccessful) {
+                response.body()?.let { tempTokenResponse ->
+                    Result.success(tempTokenResponse)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Login failed"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -42,11 +47,12 @@ class AuthRepoImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
+                    // Сохраняем токен для автоматической авторизации
                     tokenManager.saveToken(registerResponse.token)
                     Result.success(registerResponse)
-                } ?: Result.failure(Exception("No body"))
+                } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("OTP verification failed"))
+                Result.failure(Exception(response.errorBody()?.string() ?: "Registration failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -65,9 +71,9 @@ class AuthRepoImpl @Inject constructor(
                 response.body()?.let { loginResponse ->
                     tokenManager.saveToken(loginResponse.token)
                     Result.success(loginResponse)
-                } ?: Result.failure(Exception("No body"))
+                } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("OTP verification failed"))
+                Result.failure(Exception(response.errorBody()?.string() ?: "OTP verification failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -82,7 +88,10 @@ class AuthRepoImpl @Inject constructor(
         return tokenManager.hasToken()
     }
 
-    override suspend fun forgotPassword(email: String?, username: String?): Result<TempTokenResponse> {
+    override suspend fun forgotPassword(
+        email: String?,
+        username: String?,
+    ): Result<TempTokenResponse> {
         return try {
             val request = ForgotPasswordRequest(email = email, username = username)
             val response = apiService.forgotPassword(request)
@@ -101,14 +110,15 @@ class AuthRepoImpl @Inject constructor(
     override suspend fun resetPassword(
         tempToken: String,
         code: String,
-        newPassword: String
+        newPassword: String,
     ): Result<SuccessResponse> {
         return try {
-            val request = ResetPasswordRequest(
-                tempToken = tempToken,
-                code = code,
-                newPassword = newPassword
-            )
+            val request =
+                ResetPasswordRequest(
+                    tempToken = tempToken,
+                    code = code,
+                    newPassword = newPassword,
+                )
             val response = apiService.resetPassword(request)
 
             if (response.isSuccessful && response.body() != null) {
@@ -139,13 +149,14 @@ class AuthRepoImpl @Inject constructor(
 
     override suspend fun confirmDeleteAccount(
         otpValue: String,
-        tempToken: String
+        tempToken: String,
     ): Result<SuccessResponse> {
         return try {
-            val request = VerifyOtpRequest(
-                otp = otpValue,
-                tempToken = tempToken
-            )
+            val request =
+                VerifyOtpRequest(
+                    otp = otpValue,
+                    tempToken = tempToken,
+                )
             val response = apiService.confirmDeleteAccount(request)
 
             if (response.isSuccessful && response.body() != null) {

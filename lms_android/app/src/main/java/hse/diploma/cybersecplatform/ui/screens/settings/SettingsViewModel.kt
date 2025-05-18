@@ -15,9 +15,8 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val settingsRepo: SettingsRepo,
     private val userRepo: UserRepo,
-    private val authRepo: AuthRepo
+    private val authRepo: AuthRepo,
 ) : ViewModel() {
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -86,7 +85,11 @@ class SettingsViewModel(
         }
     }
 
-    fun initiatePasswordChange(currentPassword: String, newPassword: String, onResult: (Result<String>) -> Unit) {
+    fun initiatePasswordChange(
+        currentPassword: String,
+        newPassword: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             _isLoading.value = true
             _passwordOtpError.value = null
@@ -104,7 +107,10 @@ class SettingsViewModel(
         }
     }
 
-    fun verifyPasswordOtp(otpCode: String, onResult: (Result<String>) -> Unit) {
+    fun verifyPasswordOtp(
+        otpCode: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             _isLoading.value = true
             _passwordOtpError.value = null
@@ -151,7 +157,10 @@ class SettingsViewModel(
         }
     }
 
-    fun confirmAccountDeletion(otpCode: String, onResult: (Result<String>) -> Unit) {
+    fun confirmAccountDeletion(
+        otpCode: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             _isLoading.value = true
             _deleteOtpError.value = null
@@ -184,4 +193,3 @@ class SettingsViewModel(
 data class UpdatePasswordUiState(
     val newPassword: String,
 )
-

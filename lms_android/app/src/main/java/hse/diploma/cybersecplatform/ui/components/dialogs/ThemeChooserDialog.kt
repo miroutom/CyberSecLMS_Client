@@ -24,7 +24,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 fun ThemeChooserDialog(
     currentTheme: AppTheme,
     onThemeSelected: (AppTheme) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -34,14 +34,14 @@ fun ThemeChooserDialog(
                 AppTheme.entries.forEach { theme ->
                     Row(
                         Modifier
-                        .fillMaxWidth()
-                        .clickable { onThemeSelected(theme) }
-                        .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxWidth()
+                            .clickable { onThemeSelected(theme) }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = currentTheme == theme,
-                            onClick = { onThemeSelected(theme) }
+                            onClick = { onThemeSelected(theme) },
                         )
                         Text(theme.name, fontFamily = Montserrat)
                     }
@@ -52,11 +52,11 @@ fun ThemeChooserDialog(
         dismissButton = {
             FilledButton(
                 text = stringResource(R.string.cancel_button),
-                onClick = onDismiss
+                onClick = onDismiss,
             )
         },
         containerColor = colorResource(R.color.dialog_color),
-        tonalElevation = 8.dp
+        tonalElevation = 8.dp,
     )
 }
 
@@ -66,6 +66,6 @@ private fun ThemeChooserDialogPreview() {
     ThemeChooserDialog(
         currentTheme = AppTheme.LIGHT,
         onThemeSelected = {},
-        onDismiss = {}
+        onDismiss = {},
     )
 }

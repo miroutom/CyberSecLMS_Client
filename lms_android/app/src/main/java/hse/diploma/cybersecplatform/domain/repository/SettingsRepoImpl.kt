@@ -17,9 +17,8 @@ import javax.inject.Singleton
 @Singleton
 class SettingsRepoImpl @Inject constructor(
     private val preferencesManager: AppPreferencesManager,
-    private val apiService: ApiService
+    private val apiService: ApiService,
 ) : SettingsRepo {
-
     override fun getThemePreference(): Flow<AppTheme> = preferencesManager.themeFlow
 
     override suspend fun setThemePreference(theme: AppTheme) {
@@ -38,19 +37,25 @@ class SettingsRepoImpl @Inject constructor(
 
     override suspend fun initiatePasswordUpdate(
         currentPassword: String,
-        newPassword: String
+        newPassword: String,
     ): Result<TempTokenResponse> {
         return try {
-            val request = ChangePasswordRequest(
-                currentPassword = currentPassword,
-                newPassword = newPassword
-            )
+            val request =
+                ChangePasswordRequest(
+                    currentPassword = currentPassword,
+                    newPassword = newPassword,
+                )
             val response = apiService.changePassword(request)
 
             if (response.isSuccessful) {
                 val tempToken = response.body()?.get("tempToken")
                 if (tempToken != null) {
-                    Result.success(TempTokenResponse(tempToken = tempToken, message = "OTP requested"))
+                    Result.success(
+                        TempTokenResponse(
+                            tempToken = tempToken,
+                            message = "OTP requested",
+                        ),
+                    )
                 } else {
                     Result.failure(Exception("No temporary token returned"))
                 }
@@ -65,13 +70,14 @@ class SettingsRepoImpl @Inject constructor(
 
     override suspend fun confirmPasswordUpdate(
         otpValue: String,
-        tempToken: String
+        tempToken: String,
     ): Result<SuccessResponse> {
         return try {
-            val request = VerifyOtpRequest(
-                otp = otpValue,
-                tempToken = tempToken
-            )
+            val request =
+                VerifyOtpRequest(
+                    otp = otpValue,
+                    tempToken = tempToken,
+                )
             val response = apiService.verifyOtp(request)
 
             if (response.isSuccessful) {
