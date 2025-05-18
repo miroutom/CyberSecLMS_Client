@@ -42,6 +42,20 @@ definitions:
       vulnerabilityType:
         type: string
     type: object
+  models.DeleteAccountConfirmRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  models.DeleteAccountInitRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
   models.Enable2FARequest:
     properties:
       otp:
@@ -306,6 +320,78 @@ paths:
       summary: Change password
       tags:
       - Profile
+  /account/delete:
+    post:
+      consumes:
+      - application/json
+      description: Request account deletion (sends verification code)
+      parameters:
+      - description: Password confirmation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteAccountInitRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Initialize account deletion
+      tags:
+      - Account
+  /account/delete/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Delete account permanently using verification code
+      parameters:
+      - description: Verification code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteAccountConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Confirm account deletion
+      tags:
+      - Account
   /account/profile/image:
     post:
       consumes:
@@ -978,6 +1064,8 @@ paths:
       summary: Verify OTP
       tags:
       - Auth
+schemes:
+- https
 securityDefinitions:
   BearerAuth:
     in: header
