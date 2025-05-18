@@ -109,4 +109,7 @@
 
     <string name="settings_title">Settings</string>
     <string name="current_and_new_passwords_are_equal">New password can\'t be equal to current</string>
+    <string name="otp_sent_general_message">Confirmation code was sent to your e-mail</string>
+    <string name="camera_permission_required">Camera permission required</string>
+    <string name="choose_photo_source">Choose source to upload your photo</string>
 </resources>

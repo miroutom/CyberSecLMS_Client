@@ -30,10 +30,7 @@ class ProfileViewModel @Inject constructor(
                 _profileState.value =
                     ProfileState.Success(
                         ProfileUiState(
-                            username = user.username,
-                            fullName = user.fullName,
-                            email = user.email,
-                            avatarUrl = user.avatarUrl,
+                            userData = user,
                         ),
                     )
             } else {
@@ -61,10 +58,7 @@ class ProfileViewModel @Inject constructor(
                 _profileState.value =
                     ProfileState.Success(
                         ProfileUiState(
-                            username = user.username,
-                            fullName = user.fullName,
-                            email = user.email,
-                            avatarUrl = user.avatarUrl,
+                            userData = user,
                         ),
                     )
             } else {
@@ -89,10 +83,7 @@ class ProfileViewModel @Inject constructor(
                 _profileState.value =
                     ProfileState.Success(
                         ProfileUiState(
-                            username = user.username,
-                            fullName = user.fullName,
-                            email = user.email,
-                            avatarUrl = user.avatarUrl,
+                            userData = user,
                         ),
                     )
             } else {
@@ -110,8 +101,5 @@ class ProfileViewModel @Inject constructor(
 }
 
 data class ProfileUiState(
-    val username: String,
-    val fullName: String,
-    val email: String,
-    val avatarUrl: String?,
+    val userData: UserData,
 )

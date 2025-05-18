@@ -1,5 +1,6 @@
 package hse.diploma.cybersecplatform.ui.components.systemBars
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,9 +32,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
-import hse.diploma.cybersecplatform.ui.components.EditProfile
 import hse.diploma.cybersecplatform.ui.components.dialogs.EditProfileDialog
-import hse.diploma.cybersecplatform.ui.components.dialogs.PhotoPickerDialog
+import hse.diploma.cybersecplatform.ui.components.dialogs.AvatarChooserDialog
 import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
@@ -46,33 +48,30 @@ fun TopBar(navController: NavHostController) {
     val context = LocalContext.current
 
     var showEditProfile by remember { mutableStateOf(false) }
-    var showPhotoPicker by remember { mutableStateOf(false) }
 
     val profileState by profileViewModel.profileState.collectAsState()
 
     var editProfileUiState by remember { mutableStateOf<ProfileUiState?>(null) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
-    val noBackStackRoutes =
-        setOf(
-            Screen.HomeScreen.route,
-            Screen.MyCourses.route,
-            Screen.Profile.route,
-        )
+    val noBackStackRoutes = setOf(
+        Screen.HomeScreen.route,
+        Screen.MyCourses.route,
+        Screen.Profile.route,
+    )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val canNavigateBack = navController.previousBackStackEntry != null && currentRoute !in noBackStackRoutes
 
-    val currentScreen =
-        when (currentRoute) {
-            Screen.HomeScreen.route -> Screen.HomeScreen
-            Screen.MyCourses.route -> Screen.MyCourses
-            Screen.Profile.route -> Screen.Profile
-            Screen.TaskScreen.route -> Screen.TaskScreen
-            Screen.Settings.route -> Screen.Settings
-            else -> null
-        }
+    val currentScreen = when (currentRoute) {
+        Screen.HomeScreen.route -> Screen.HomeScreen
+        Screen.MyCourses.route -> Screen.MyCourses
+        Screen.Profile.route -> Screen.Profile
+        Screen.TaskScreen.route -> Screen.TaskScreen
+        Screen.Settings.route -> Screen.Settings
+        else -> null
+    }
 
     val successState = profileState as? ProfileState.Success
     val errorState = profileState as? ProfileState.Error
@@ -116,22 +115,31 @@ fun TopBar(navController: NavHostController) {
             }
         },
         actions = {
-            EditProfile(
-                userProfileImageUrl =
-                    successState?.uiState?.avatarUrl
-                        ?: "https://placehold.co/256x256.png?text=Avatar",
-                onEditProfileClick = { showEditProfile = true },
-                onProfilePhotoClick = { showPhotoPicker = true },
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AvatarChooserDialog(
+                    profileState = profileState,
+                    onPhotoPicked = { uri ->
+                        profileViewModel.uploadPhoto(uri, context.contentResolver)
+                    }
+                )
+                IconButton(onClick = { showEditProfile = !showEditProfile }) {
+                    Icon(
+                        painter = painterResource(
+                            if (showEditProfile) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+                        ),
+                        contentDescription = if (showEditProfile) "Hide profile editor" else "Show profile editor",
+                        tint = colorResource(R.color.button_enabled),
+                    )
+                }
+            }
         },
-        colors =
-            TopAppBarColors(
-                containerColor = Color.White,
-                titleContentColor = Color.Black,
-                scrolledContainerColor = Color.Transparent,
-                navigationIconContentColor = Color.Black,
-                actionIconContentColor = Color.Transparent,
-            ),
+        colors = TopAppBarColors(
+            containerColor = Color.White,
+            titleContentColor = Color.Black,
+            scrolledContainerColor = Color.Transparent,
+            navigationIconContentColor = Color.Black,
+            actionIconContentColor = Color.Transparent,
+        ),
     )
 
     if (showEditProfile && editProfileUiState != null) {
@@ -141,21 +149,11 @@ fun TopBar(navController: NavHostController) {
                 showEditProfile = false
                 errorMsg = null
             },
-            onSave = { username, fullname, email ->
-                profileViewModel.updateProfile(username, fullname, email)
+            onSave = { username, fullName, email ->
+                profileViewModel.updateProfile(username, fullName, email)
             },
             isSaving = isLoading,
             errorMessage = errorMsg,
-        )
-    }
-
-    if (showPhotoPicker) {
-        PhotoPickerDialog(
-            onPhotoPicked = { uri ->
-                profileViewModel.uploadPhoto(uri, context.contentResolver)
-                showPhotoPicker = false
-            },
-            onDismiss = { showPhotoPicker = false },
         )
     }
 }

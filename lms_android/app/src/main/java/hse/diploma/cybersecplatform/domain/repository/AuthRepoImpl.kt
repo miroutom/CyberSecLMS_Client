@@ -12,7 +12,9 @@ import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepoImpl @Inject constructor(
     private val apiService: ApiService,
     private val tokenManager: TokenManager,

@@ -42,10 +42,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current),
-    authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current)
+    val authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current
+
     val isLoading by viewModel.isLoading.collectAsState()
     val theme by viewModel.themePreference.collectAsState()
     val language by viewModel.languagePreference.collectAsState()

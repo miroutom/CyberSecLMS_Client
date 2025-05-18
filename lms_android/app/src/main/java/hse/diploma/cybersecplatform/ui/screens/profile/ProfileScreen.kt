@@ -120,7 +120,7 @@ private fun ProfileContent(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = stringResource(R.string.welcome_text, profile.fullName),
+                            text = stringResource(R.string.welcome_text, profile.userData.fullName),
                             fontFamily = Montserrat,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
@@ -129,7 +129,7 @@ private fun ProfileContent(
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.email_label, profile.email),
+                        text = stringResource(R.string.email_label, profile.userData.email),
                         fontFamily = Montserrat,
                         fontSize = 12.sp,
                         color = Color.Black,

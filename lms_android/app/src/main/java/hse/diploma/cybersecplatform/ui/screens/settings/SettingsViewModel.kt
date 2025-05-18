@@ -11,8 +11,9 @@ import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingsViewModel(
+class SettingsViewModel @Inject constructor(
     private val settingsRepo: SettingsRepo,
     private val userRepo: UserRepo,
     private val authRepo: AuthRepo,

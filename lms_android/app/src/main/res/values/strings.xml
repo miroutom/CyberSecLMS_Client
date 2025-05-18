@@ -124,4 +124,7 @@
     <string name="delete_account_confirmation">Это действие нельзя отменить.\nВы точно хотите удалить аккаунт?</string>
     <string name="delete_account_title">Удаление аккаунта</string>
     <string name="settings_title">Настройки</string>
+    <string name="otp_sent_general_message">Код подтверждения отправлен на ваш e-mail</string>
+    <string name="camera_permission_required">Отсутствует разрешение на камеру</string>
+    <string name="choose_photo_source">Выберите источник загрузки фото</string>
 </resources>

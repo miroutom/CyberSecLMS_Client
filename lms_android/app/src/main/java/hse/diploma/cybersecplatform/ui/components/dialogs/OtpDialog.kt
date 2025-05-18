@@ -55,7 +55,11 @@ fun OtpDialog(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    val maskedEmail = maskEmail(email)
+    val maskedEmail = if (email.isNotEmpty()) {
+        stringResource(R.string.otp_sent_to_email, maskEmail(email))
+    } else {
+        stringResource(R.string.otp_sent_general_message)
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
