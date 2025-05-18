@@ -4,87 +4,105 @@
     <div class="content-wrapper">
       <aside class="sidebar"><TheSideBar /></aside>
       <main class="task-page-container">
-        <div class="navigation">
-          <button @click="previousTask" :disabled="currentTaskIndex === 0">
-            Предыдущее
-          </button>
-          <span>{{ currentTask.title }}</span>
-          <button
-            @click="nextTask"
-            :disabled="currentTaskIndex === tasks.length - 1"
-          >
-            Следующее
-          </button>
-        </div>
-        <div class="task-description">
-          <div v-html="currentTask.description"></div>
-        </div>
-        <div class="task-content">
-          <div class="app-frame">
-            <AppFrame :taskPath="currentTask.path" @code-updated="updateCode" />
+        <div v-if="loading" class="loading">Загрузка задач...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <template v-else>
+          <div class="navigation">
+            <button @click="previousTask" :disabled="currentTaskIndex === 0">
+              Предыдущее
+            </button>
+            <span>{{ currentTask.title }}</span>
+            <button
+              @click="nextTask"
+              :disabled="currentTaskIndex === tasks.length - 1"
+            >
+              Следующее
+            </button>
           </div>
-          <div class="code-editor">
-            <CodeEditor
-              v-model="currentTask.code"
-              :language="currentTask.language"
-            />
+          <div class="task-description">
+            <div v-html="currentTask.description"></div>
           </div>
-        </div>
+          <div class="task-content">
+            <div class="app-frame">
+              <AppFrame
+                :taskPath="currentTask.path"
+                @code-updated="updateCode"
+              />
+            </div>
+            <div class="code-editor">
+              <CodeEditor
+                v-model="currentTask.code"
+                :language="currentTask.language"
+              />
+            </div>
+          </div>
+        </template>
       </main>
     </div>
   </div>
 </template>
 
 <script>
-import TheHeader from "@/components/common/TheHeader.vue";
-import TheSideBar from "@/components/common/TheSideBar.vue";
-import AppFrame from "@/components/task/AppFrame.vue";
-import CodeEditor from "@/components/task/CodeEditor.vue";
+import TheHeader from "@/components/common/TheHeader.vue"
+import TheSideBar from "@/components/common/TheSideBar.vue"
+import AppFrame from "@/components/task/AppFrame.vue"
+import CodeEditor from "@/components/task/CodeEditor.vue"
+import { taskService } from "@/services/taskService"
 
 export default {
   components: { TheHeader, TheSideBar, AppFrame, CodeEditor },
   data() {
     return {
-      tasks: [
-        {
-          title: "Задание 1: XSS",
-          path: "/vulnerable-app/xss.html",
-          code: "", // Initial code is logged from html file
-          language: "html",
-          description: "",
-        },
-        {
-          title: "Задание 2: CSRF",
-          path: "/vulnerable-app/csrf.html",
-          code: "",
-          language: "javascript",
-          description: "",
-        },
-      ],
+      tasks: [],
       currentTaskIndex: 0,
-    };
+      loading: false,
+      error: null,
+    }
   },
   computed: {
     currentTask() {
-      return this.tasks[this.currentTaskIndex];
+      return this.tasks[this.currentTaskIndex] || {}
+    },
+    vulnerability() {
+      return this.$route.params.vulnerability
     },
   },
   methods: {
     previousTask() {
-      this.currentTaskIndex = Math.max(0, this.currentTaskIndex - 1);
+      this.currentTaskIndex = Math.max(0, this.currentTaskIndex - 1)
     },
     nextTask() {
       this.currentTaskIndex = Math.min(
         this.tasks.length - 1,
         this.currentTaskIndex + 1
-      );
+      )
     },
     updateCode(data) {
-      this.currentTask.code = data.code;
-      this.currentTask.description = data.description; // saving description
+      this.currentTask.code = data.code
+      this.currentTask.description = data.description
+    },
+    async fetchTasks() {
+      try {
+        this.loading = true
+        const response = await taskService.getTasksByVulnerability(
+          this.vulnerability
+        )
+        this.tasks = response.tasks.map((task) => ({
+          ...task,
+          code: "", // Initialize code property for each task
+        }))
+      } catch (error) {
+        this.error = error.error || "Failed to load tasks"
+        console.error("Error loading tasks:", error)
+      } finally {
+        this.loading = false
+      }
     },
   },
-};
+  async created() {
+    await this.fetchTasks()
+  },
+}
 </script>
 
 <style scoped>
@@ -179,5 +197,16 @@ export default {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.error {
+  color: #ff4444;
 }
 </style>

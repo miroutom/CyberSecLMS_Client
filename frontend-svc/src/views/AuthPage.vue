@@ -13,27 +13,7 @@
             required
             placeholder=" "
           />
-          <label for="username">Имя пользователя:</label>
-        </div>
-        <div class="input-group">
-          <input
-            type="text"
-            id="email"
-            v-model="formData.email"
-            required
-            placeholder=" "
-          />
-          <label for="email">Email:</label>
-        </div>
-        <div class="input-group">
-          <input
-            type="text"
-            id="fullName"
-            v-model="formData.fullName"
-            required
-            placeholder=" "
-          />
-          <label for="fullName">Полное имя:</label>
+          <label for="username">Номер телефона/email:</label>
         </div>
         <div class="input-group">
           <input
@@ -47,10 +27,10 @@
         </div>
         <div class="button-group">
           <button type="submit" class="login-button" :disabled="isLoading">
-            {{ isLoading ? "Регистрация..." : "Зарегистрироваться" }}
+            {{ isLoading ? "Вход..." : "Войти" }}
           </button>
-          <router-link to="/auth" class="login-link">
-            Уже есть аккаунт? Войти
+          <router-link to="/register" class="login-link">
+            Нет аккаунта? Зарегистрироваться
           </router-link>
         </div>
         <div v-if="error" class="error-message">
@@ -67,15 +47,13 @@ import { useRouter } from "vue-router"
 import { authService } from "@/services/authService"
 
 export default {
-  name: "RegistrationPage",
+  name: "AuthPage",
   setup() {
     const router = useRouter()
     const isLoading = ref(false)
     const error = ref("")
     const formData = ref({
       username: "",
-      email: "",
-      fullName: "",
       password: "",
     })
 
@@ -84,12 +62,15 @@ export default {
         isLoading.value = true
         error.value = ""
 
-        await authService.register(formData.value)
+        const response = await authService.login(formData.value)
 
-        // After successful registration, redirect to login
+        // Store the token in localStorage
+        localStorage.setItem("token", response.token)
+
+        // Redirect to home page or dashboard
         router.push("/")
       } catch (err) {
-        error.value = err.error || "Произошла ошибка при регистрации"
+        error.value = err.error || "Ошибка при входе"
       } finally {
         isLoading.value = false
       }

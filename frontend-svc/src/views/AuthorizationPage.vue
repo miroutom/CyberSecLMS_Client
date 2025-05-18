@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 
 export default {
   data() {
@@ -43,7 +43,7 @@ export default {
       username: "",
       password: "",
       error: null,
-    };
+    }
   },
   methods: {
     login() {
@@ -56,26 +56,26 @@ export default {
         .then((response) => {
           if (response.status === 200) {
             // Successful login
-            localStorage.setItem("token", response.data.token); // Saving token
-            localStorage.setItem("userName", response.data.username);
-            this.$router.push("/"); // Redirecting to main page
-            this.error = null;
+            localStorage.setItem("token", response.data.token) // Saving token
+            localStorage.setItem("userName", response.data.username)
+            this.$router.push("/") // Redirecting to main page
+            this.error = null
           } else {
-            this.error = "Неожиданный ответ сервера";
+            this.error = "Неожиданный ответ сервера"
           }
         })
         .catch((error) => {
           if (error.response && error.response.status === 401) {
-            this.error = "Неверный логин или пароль";
+            this.error = "Неверный логин или пароль"
           } else if (error.response) {
-            this.error = "Ошибка: " + error.response.data.message;
+            this.error = "Ошибка: " + error.response.data.message
           } else {
-            this.error = "Ошибка при авторизации";
+            this.error = "Ошибка при авторизации"
           }
-        });
+        })
     },
   },
-};
+}
 </script>
 
 <style scoped>

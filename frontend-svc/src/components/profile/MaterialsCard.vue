@@ -42,7 +42,7 @@
 <script>
 export default {
   name: "MaterialCardPreview",
-};
+}
 </script>
 
 <style scoped>

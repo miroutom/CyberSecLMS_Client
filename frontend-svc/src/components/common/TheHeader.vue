@@ -45,34 +45,34 @@ export default {
   data() {
     return {
       isOpen: false,
-    };
+    }
   },
   computed: {
     activeTabTitle() {
       switch (this.$route.path) {
         case "/":
-          return "Все курсы";
+          return "Все курсы"
         case "/my_courses":
-          return "Мои курсы";
+          return "Мои курсы"
         case "/statistics":
-          return "Статистика";
+          return "Статистика"
         case "/profile":
-          return "Профиль";
+          return "Профиль"
         case "/tasks/XSS":
-          return "XSS";
+          return "XSS"
         case "/tasks/CSRF":
-          return "CSRF";
+          return "CSRF"
         default:
-          return "null";
+          return "null"
       }
     },
   },
   methods: {
     toggleDropdown() {
-      this.isOpen = !this.isOpen;
+      this.isOpen = !this.isOpen
     },
   },
-};
+}
 </script>
 
 <style scoped>

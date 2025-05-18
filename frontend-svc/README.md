@@ -28,5 +28,4 @@ npm run lint
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-
 18/05/2025 - start api integration
