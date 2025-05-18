@@ -5,27 +5,30 @@ import (
 )
 
 type User struct {
-	ID           int
-	Username     string
-	PasswordHash string
-	Email        string
-	FullName     string
-	TOTPSecret   string
-	Is2FAEnabled bool
-	IsAdmin      bool
-	IsActive     bool
-	LastLogin    time.Time
+	ID             int              `json:"id"`
+	Username       string           `json:"username"`
+	PasswordHash   string           `json:"-"` // Скрыто в JSON
+	Email          string           `json:"email"`
+	FullName       string           `json:"fullName"`
+	ProfileImage   string           `json:"profileImage"`
+	TOTPSecret     string           `json:"-"` // Скрыто в JSON
+	Is2FAEnabled   bool             `json:"is2faEnabled"`
+	IsAdmin        bool             `json:"isAdmin,omitempty"`
+	IsActive       bool             `json:"isActive,omitempty"`
+	LastLogin      time.Time        `json:"lastLogin,omitempty"`
+	Courses        []CourseProgress `json:"courses,omitempty"`
+	CompletedTasks int              `json:"completedTasks,omitempty"`
+	TotalTasks     int              `json:"totalTasks,omitempty"`
+	Progress       float64          `json:"progress,omitempty"`
 }
 
-type UserProfile struct {
-	ID           int       `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	FullName     string    `json:"fullName"`
-	Is2FAEnabled bool      `json:"is2faEnabled"`
-	IsAdmin      bool      `json:"isAdmin,omitempty"`   // Только для админов
-	IsActive     bool      `json:"isActive,omitempty"`  // Только для админов
-	LastLogin    time.Time `json:"lastLogin,omitempty"` // Только для админов
+type CourseProgress struct {
+	ID                int     `json:"id"`
+	VulnerabilityType string  `json:"vulnerabilityType"`
+	Description       string  `json:"description"`
+	TasksCount        int     `json:"tasksCount"`
+	CompletedTasks    int     `json:"completedTasks"`
+	Progress          float64 `json:"progress"`
 }
 
 type UpdateProfileRequest struct {
@@ -36,6 +39,22 @@ type UpdateProfileRequest struct {
 
 type UpdateStatusRequest struct {
 	IsActive bool `json:"isActive" binding:"required"`
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"currentPassword" binding:"required,min=6"`
+	NewPassword     string `json:"newPassword" binding:"required,min=6"`
+}
+
+type ForgotPasswordRequest struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+}
+
+type ResetPasswordRequest struct {
+	TempToken   string `json:"tempToken" binding:"required"`
+	Code        string `json:"code" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required,min=6"`
 }
 
 type LoginRequest struct {

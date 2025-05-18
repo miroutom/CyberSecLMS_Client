@@ -37,7 +37,7 @@ func main() {
 		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(db:3306)/lms_db?parseTime=true"
 	}
 
-	var useMockData bool = false
+	var useMockData = false
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -76,6 +76,8 @@ func main() {
 		public.POST("/register", handlers.RegisterHandler)
 		public.POST("/login", handlers.LoginHandler)
 		public.POST("/verify-otp", handlers.VerifyOTPHandler)
+		public.POST("/forgot-password", handlers.ForgotPassword)
+		public.POST("/reset-password", handlers.ResetPassword)
 		public.GET("/health", HealthCheckHandler)
 	}
 
@@ -93,15 +95,15 @@ func main() {
 		account := api.Group("/account")
 		{
 			account.POST("/2fa/enable", handlers.Enable2FAHandler)
+			account.POST("/profile/image", handlers.UpdateProfileImageHandler)
+			account.POST("/change-password", handlers.ChangePassword)
 		}
 
 		admin := api.Group("/admin")
 		admin.Use(AdminAuthMiddleware())
 		{
-			// Шаблоны писем
 			admin.POST("/reload-templates", handlers.ReloadTemplatesHandler)
 
-			// Управление пользователями
 			admin.GET("/users", handlers.GetAllUsers)
 			admin.GET("/users/:id", handlers.GetUserByID)
 			admin.GET("/users/by-role", handlers.GetUsersByRole)
@@ -111,6 +113,8 @@ func main() {
 			admin.POST("/users/:id/demote", handlers.DemoteFromAdmin)
 		}
 	}
+
+	r.Static("/uploads", "./uploads")
 
 	port := os.Getenv("PORT")
 	if port == "" {
