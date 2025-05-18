@@ -31,6 +31,28 @@ type CourseProgress struct {
 	Progress          float64 `json:"progress"`
 }
 
+type Course struct {
+	ID                int    `json:"id"`
+	VulnerabilityType string `json:"vulnerabilityType"`
+	TasksCount        int    `json:"tasksCount"`
+	Description       string `json:"description"`
+	Tasks             []Task `json:"tasks"`
+}
+
+type Task struct {
+	ID          int    `json:"id"`
+	CourseID    int    `json:"courseId"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Difficulty  string `json:"difficulty"` // например: "easy", "medium", "hard"
+	Order       int    `json:"order"`      // порядковый номер задания в курсе
+}
+
+type UserProgress struct {
+	UserID    int          `json:"userId"`
+	Completed map[int]bool `json:"completed"` // ключ - ID задания
+}
+
 type UpdateProfileRequest struct {
 	Email    string `json:"email,omitempty"`
 	FullName string `json:"fullName,omitempty"`
@@ -107,24 +129,10 @@ type Enable2FAResponse struct {
 	Status string `json:"status" example:"2FA enabled"`
 }
 
-type Course struct {
-	ID                int    `json:"id"`
-	VulnerabilityType string `json:"vulnerabilityType"`
-	TasksCount        int    `json:"tasksCount"`
-	Description       string `json:"description"`
-	Tasks             []Task `json:"tasks"`
+type DeleteAccountInitRequest struct {
+	Password string `json:"password" binding:"required"`
 }
 
-type Task struct {
-	ID          int    `json:"id"`
-	CourseID    int    `json:"courseId"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Difficulty  string `json:"difficulty"` // например: "easy", "medium", "hard"
-	Order       int    `json:"order"`      // порядковый номер задания в курсе
-}
-
-type UserProgress struct {
-	UserID    int          `json:"userId"`
-	Completed map[int]bool `json:"completed"` // ключ - ID задания
+type DeleteAccountConfirmRequest struct {
+	Code string `json:"code" binding:"required,len=6"`
 }

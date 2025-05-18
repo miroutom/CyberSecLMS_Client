@@ -1,12 +1,45 @@
 basePath: /api
 definitions:
+  models.ChangePasswordRequest:
+    properties:
+      currentPassword:
+        minLength: 6
+        type: string
+      newPassword:
+        minLength: 6
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
   models.Course:
     properties:
       description:
         type: string
       id:
         type: integer
-      title:
+      tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      tasksCount:
+        type: integer
+      vulnerabilityType:
+        type: string
+    type: object
+  models.CourseProgress:
+    properties:
+      completedTasks:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      progress:
+        type: number
+      tasksCount:
+        type: integer
+      vulnerabilityType:
         type: string
     type: object
   models.Enable2FARequest:
@@ -26,6 +59,13 @@ definitions:
   models.ErrorResponse:
     properties:
       error:
+        type: string
+    type: object
+  models.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+      username:
         type: string
     type: object
   models.LoginRequest:
@@ -69,9 +109,47 @@ definitions:
     - password
     - username
     type: object
+  models.RegisterResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  models.ResetPasswordRequest:
+    properties:
+      code:
+        type: string
+      newPassword:
+        minLength: 6
+        type: string
+      tempToken:
+        type: string
+    required:
+    - code
+    - newPassword
+    - tempToken
+    type: object
   models.SuccessResponse:
     properties:
       message:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      courseId:
+        type: integer
+      description:
+        type: string
+      difficulty:
+        description: 'например: "easy", "medium", "hard"'
+        type: string
+      id:
+        type: integer
+      order:
+        description: порядковый номер задания в курсе
+        type: integer
+      title:
         type: string
     type: object
   models.TempTokenResponse:
@@ -97,8 +175,14 @@ definitions:
     required:
     - isActive
     type: object
-  models.UserProfile:
+  models.User:
     properties:
+      completedTasks:
+        type: integer
+      courses:
+        items:
+          $ref: '#/definitions/models.CourseProgress'
+        type: array
       email:
         type: string
       fullName:
@@ -108,14 +192,17 @@ definitions:
       is2faEnabled:
         type: boolean
       isActive:
-        description: Только для админов
         type: boolean
       isAdmin:
-        description: Только для админов
         type: boolean
       lastLogin:
-        description: Только для админов
         type: string
+      profileImage:
+        type: string
+      progress:
+        type: number
+      totalTasks:
+        type: integer
       username:
         type: string
     type: object
@@ -124,6 +211,7 @@ definitions:
       completed:
         additionalProperties:
           type: boolean
+        description: ключ - ID задания
         type: object
       userId:
         type: integer
@@ -180,6 +268,81 @@ paths:
       summary: Enable 2FA
       tags:
       - Auth
+  /account/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password (requires current password)
+      parameters:
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - Profile
+  /account/profile/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new profile image for the current user
+      parameters:
+      - description: Profile image (JPEG, PNG or GIF, max 2MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload profile image
+      tags:
+      - Profile
   /admin/reload-templates:
     post:
       consumes:
@@ -214,7 +377,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.UserProfile'
+              $ref: '#/definitions/models.User'
             type: array
         "401":
           description: Unauthorized
@@ -235,9 +398,7 @@ paths:
       - Admin
   /admin/users/{id}:
     get:
-      consumes:
-      - application/json
-      description: Get the profile information of another user (admin only)
+      description: Get user information by ID (admin only)
       parameters:
       - description: User ID
         in: path
@@ -250,7 +411,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserProfile'
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
@@ -269,7 +434,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get another user's profile
+      summary: Get user by ID
       tags:
       - Admin
   /admin/users/{id}/demote:
@@ -425,7 +590,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.UserProfile'
+              $ref: '#/definitions/models.User'
             type: array
         "401":
           description: Unauthorized
@@ -462,8 +627,12 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.UserProfile'
+              $ref: '#/definitions/models.User'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
@@ -525,6 +694,40 @@ paths:
       summary: Get course by ID
       tags:
       - Courses
+  /forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Sends a password reset code to the user's email
+      parameters:
+      - description: Email for password reset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TempTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - Auth
   /login:
     post:
       consumes:
@@ -560,16 +763,14 @@ paths:
       - Auth
   /profile:
     get:
-      consumes:
-      - application/json
-      description: Get the profile information of the current user
+      description: Get current user's profile information with courses and progress
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserProfile'
+            $ref: '#/definitions/models.User'
         "401":
           description: Unauthorized
           schema:
@@ -582,13 +783,13 @@ paths:
       - BearerAuth: []
       summary: Get user profile
       tags:
-      - User
+      - Profile
     put:
       consumes:
       - application/json
-      description: Update the profile of the current user
+      description: Update current user's profile information (email, full name)
       parameters:
-      - description: Profile data to update
+      - description: Profile update data
         in: body
         name: request
         required: true
@@ -600,7 +801,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            additionalProperties:
+              type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -617,7 +820,7 @@ paths:
       - BearerAuth: []
       summary: Update user profile
       tags:
-      - User
+      - Profile
   /progress/{user_id}:
     get:
       parameters:
@@ -640,7 +843,7 @@ paths:
       summary: Get user progress
       tags:
       - Progress
-  /progress/{user_id}/assignments/{assignment_id}/complete:
+  /progress/{user_id}/tasks/{task_id}/complete:
     post:
       parameters:
       - description: User ID
@@ -648,9 +851,9 @@ paths:
         name: user_id
         required: true
         type: integer
-      - description: Assignment ID
+      - description: Task ID
         in: path
-        name: assignment_id
+        name: task_id
         required: true
         type: integer
       produces:
@@ -664,11 +867,15 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Complete assignment
+      summary: Complete task
       tags:
       - Progress
   /register:
@@ -688,7 +895,7 @@ paths:
         "201":
           description: User created
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/models.RegisterResponse'
         "400":
           description: Invalid request
           schema:
@@ -704,6 +911,40 @@ paths:
       summary: Register new user
       tags:
       - Authentication
+  /reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using the code sent to email
+      parameters:
+      - description: Reset password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Reset password with code
+      tags:
+      - Auth
   /verify-otp:
     post:
       consumes:

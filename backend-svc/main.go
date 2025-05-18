@@ -97,6 +97,8 @@ func main() {
 			account.POST("/2fa/enable", handlers.Enable2FAHandler)
 			account.POST("/profile/image", handlers.UpdateProfileImageHandler)
 			account.POST("/change-password", handlers.ChangePassword)
+			account.POST("/delete", handlers.InitDeleteAccount)
+			account.POST("/delete/confirm", handlers.ConfirmDeleteAccount)
 		}
 
 		admin := api.Group("/admin")

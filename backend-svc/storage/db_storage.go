@@ -338,6 +338,60 @@ func (s *DBStorage) UpdateUserProfileImage(userID int, imageURL string) error {
 	return nil
 }
 
+func (s *DBStorage) DeleteUser(userID int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+
+	var txErr error
+	defer func() {
+		if txErr != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	stmt, err := tx.Prepare("DELETE FROM user_progress WHERE user_id = ?")
+	if err != nil {
+		txErr = err
+		return fmt.Errorf("prepare delete progress statement: %w", err)
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(userID); err != nil {
+		txErr = err
+		return fmt.Errorf("delete user progress: %w", err)
+	}
+
+	stmt2, err := tx.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		txErr = err
+		return fmt.Errorf("prepare delete user statement: %w", err)
+	}
+	defer stmt2.Close()
+
+	result, err := stmt2.Exec(userID)
+	if err != nil {
+		txErr = err
+		return fmt.Errorf("delete user: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		txErr = err
+		return fmt.Errorf("get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		txErr = fmt.Errorf("user not found")
+		return txErr
+	}
+
+	return nil
+}
+
 // ****** АДМИНИСТРАТИВНЫЕ МЕТОДЫ ******
 
 func (s *DBStorage) IsAdmin(userID int) (bool, error) {

@@ -82,6 +82,113 @@ func UpdateUserProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
 
+// InitDeleteAccount принимает запрос на удаление и отправляет код подтверждения
+// @Summary Initialize account deletion
+// @Description Request account deletion (sends verification code)
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body models.DeleteAccountInitRequest true "Password confirmation"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Security BearerAuth
+// @Router /account/delete [post]
+func InitDeleteAccount(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+
+	var req models.DeleteAccountInitRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	user, err := Store.GetUserByID(userID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to get user data"})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid password"})
+		return
+	}
+
+	code := ""
+	for i := 0; i < 6; i++ {
+		code += strconv.Itoa(rand.Intn(10))
+	}
+
+	if err := Store.SaveOTPCode(user.ID, code); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to save verification code"})
+		return
+	}
+
+	if err := mail.SendDeleteAccountEmail(user.Email, code); err != nil {
+		fmt.Printf("Error sending delete account email: %v\n", err)
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse{
+		Message: "Verification code sent to your email. Use it to confirm account deletion.",
+	})
+}
+
+// ConfirmDeleteAccount подтверждает удаление аккаунта
+// @Summary Confirm account deletion
+// @Description Delete account permanently using verification code
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body models.DeleteAccountConfirmRequest true "Verification code"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Security BearerAuth
+// @Router /account/delete/confirm [post]
+func ConfirmDeleteAccount(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+
+	var req models.DeleteAccountConfirmRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	valid, err := Store.VerifyOTPCode(userID.(int), req.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to verify code"})
+		return
+	}
+
+	if !valid {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid or expired verification code"})
+		return
+	}
+
+	if err := Store.ClearOTPCode(userID.(int)); err != nil {
+		fmt.Printf("Error clearing OTP code: %v\n", err)
+	}
+
+	if err := Store.DeleteUser(userID.(int)); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to delete account"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse{
+		Message: "Your account has been successfully deleted.",
+	})
+}
+
 // UpdateProfileImageHandler загружает и обновляет изображение профиля
 // @Summary Upload profile image
 // @Description Upload a new profile image for the current user

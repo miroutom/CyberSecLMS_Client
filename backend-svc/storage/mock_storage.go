@@ -443,3 +443,22 @@ func (s *MockStorage) UpdateUserProfileImage(userID int, imageURL string) error 
 
 	return nil
 }
+
+func (s *MockStorage) DeleteUser(userID int) error {
+	if _, exists := mockUsers[userID]; !exists {
+		return errors.New("user not found")
+	}
+
+	delete(mockUsers, userID)
+
+	for username, id := range mockUsersByUsername {
+		if id == userID {
+			delete(mockUsersByUsername, username)
+			break
+		}
+	}
+
+	delete(mockUserProgress, userID)
+
+	return nil
+}
