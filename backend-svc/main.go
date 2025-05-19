@@ -117,7 +117,7 @@ func main() {
 		}
 	}
 
-	r.Static("/uploads", "./uploads")
+	r.Static("/uploads", "/uploads")
 
 	port := os.Getenv("PORT")
 	if port == "" {
