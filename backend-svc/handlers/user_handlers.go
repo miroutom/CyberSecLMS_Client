@@ -227,7 +227,7 @@ func UpdateProfileImageHandler(c *gin.Context) {
 		return
 	}
 
-	uploadsDir := "./uploads/profiles"
+	uploadsDir := "/uploads/profiles"
 	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to create uploads directory"})
 		return
