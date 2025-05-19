@@ -55,5 +55,5 @@ func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 		}
 	}
 
-	router.Static("/uploads", "./uploads")
+	router.Static("/uploads", "/uploads")
 }
