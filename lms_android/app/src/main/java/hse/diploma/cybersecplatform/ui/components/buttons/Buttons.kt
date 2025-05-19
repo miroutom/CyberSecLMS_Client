@@ -14,7 +14,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,9 +40,9 @@ fun FilledButton(
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = colorResource(R.color.button_enabled),
-                contentColor = Color.White,
+                contentColor = colorResource(R.color.background),
                 disabledContainerColor = colorResource(R.color.button_disabled),
-                disabledContentColor = Color.White,
+                disabledContentColor = colorResource(R.color.background),
             ),
     ) {
         Text(
@@ -69,7 +68,7 @@ fun CustomOutlinedButton(
         modifier = modifier.fillMaxWidth().wrapContentHeight(),
         colors =
             ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Black,
+                contentColor = colorResource(R.color.main_text_color),
                 disabledContentColor = colorResource(R.color.text_disabled),
             ),
         border =

@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,10 +29,10 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
-import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
-import hse.diploma.cybersecplatform.ui.components.textFields.AuthMethodTextField
+import hse.diploma.cybersecplatform.ui.components.textFields.AuthorizationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordConfirmationField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
+import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
 import hse.diploma.cybersecplatform.utils.logD
@@ -45,7 +44,7 @@ fun RegistrationScreen(
     onNavigateToAuthorization: () -> Unit,
     onRegistered: () -> Unit,
     onError: (String) -> Unit,
-    viewModel: RegistrationScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
+    viewModel: RegistrationViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
     val login by viewModel.login.collectAsState()
@@ -64,7 +63,7 @@ fun RegistrationScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(Color.White)
+                        .background(colorResource(R.color.background))
                         .padding(paddingValues),
             ) {
                 if (isLoading) {
@@ -99,19 +98,19 @@ fun RegistrationScreen(
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        AdditionalTextField(
+                        RegistrationTextField(
                             value = fullName,
                             onValueChange = viewModel::onFullNameChange,
                             labelId = R.string.auth_label_full_name,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        AdditionalTextField(
+                        RegistrationTextField(
                             value = username,
                             onValueChange = viewModel::onUsernameChange,
                             labelId = R.string.auth_label_username,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        AuthMethodTextField(
+                        AuthorizationTextField(
                             value = login,
                             onValueChange = viewModel::onLoginChange,
                             modifier = Modifier.fillMaxWidth(),
@@ -167,6 +166,6 @@ fun RegistrationScreenPreview() {
         onNavigateToAuthorization = {},
         onRegistered = {},
         onError = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(RegistrationScreenViewModel::class.java),
+        viewModel = MainApplication.appComponent.viewModelFactory().create(RegistrationViewModel::class.java),
     )
 }

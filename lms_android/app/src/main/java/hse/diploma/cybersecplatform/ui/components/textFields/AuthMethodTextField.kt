@@ -13,6 +13,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +28,7 @@ import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
 
 @Composable
-fun AuthMethodTextField(
+fun AuthorizationTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -39,7 +40,7 @@ fun AuthMethodTextField(
         if (!isAuthMethodTypeValid && value.text.isNotEmpty()) {
             Text(
                 text = "${stringResource(R.string.auth_label_error)} ${label.lowercase()}",
-                color = Color.Red,
+                color = colorResource(R.color.error_text_color),
                 style = Typography.labelSmall,
                 modifier = Modifier.padding(start = 8.dp),
             )
@@ -55,13 +56,13 @@ fun AuthMethodTextField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
             },
             colors =
                 TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = colorResource(R.color.background),
+                    unfocusedContainerColor = colorResource(R.color.background),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -70,7 +71,12 @@ fun AuthMethodTextField(
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = if (!isAuthMethodTypeValid && value.text.isNotEmpty()) Color.Red else Color.Black,
+                        color =
+                            if (!isAuthMethodTypeValid && value.text.isNotEmpty()) {
+                                colorResource(R.color.error_text_color)
+                            } else {
+                                colorResource(R.color.main_text_color)
+                            },
                         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
                     ),
         )
@@ -79,9 +85,9 @@ fun AuthMethodTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun AuthMethodTextFieldPreview() {
+fun AuthorizationTextFieldPreview() {
     CyberSecPlatformTheme {
-        AuthMethodTextField(
+        AuthorizationTextField(
             value = TextFieldValue(""),
             onValueChange = {},
         )

@@ -47,7 +47,7 @@ fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+    val viewModel: HomeViewModel = viewModel(factory = LocalViewModelFactory.current)
     val searchQuery by viewModel.searchQuery.collectAsState()
     val allCoursesState by viewModel.allCoursesState.collectAsState()
 
@@ -68,7 +68,7 @@ fun HomeScreen(
                     searchQuery = searchQuery,
                     onSearchQueryChange = viewModel::onSearchQueryChange,
                     enableFiltering = false,
-                    modifier = Modifier.background(Color.White),
+                    modifier = Modifier.background(colorResource(R.color.background)),
                 )
                 val coursesToShow =
                     coursesUiState.filteredCourses.ifEmpty {

@@ -25,7 +25,7 @@ not implemented
 - **Frontend**: 
 - **Database**: 
 - **Mobile**: Android SDK, REST API, Jetpack Compose
-- **CI/CD**: GitHub Actions
+- **CI/CD**: GitHub Actions, Docker, Docker-Compose
 
 ## 📧 Контакты
 - Email:  

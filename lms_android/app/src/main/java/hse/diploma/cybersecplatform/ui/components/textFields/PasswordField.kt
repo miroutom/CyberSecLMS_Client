@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,7 +52,7 @@ fun PasswordField(
         if (!isPasswordValid && value.text.isNotEmpty()) {
             Text(
                 text = getPasswordErrorMessage(value.text),
-                color = Color.Red,
+                color = colorResource(R.color.error_text_color),
                 style = Typography.labelSmall,
                 modifier = Modifier.padding(start = 8.dp),
             )
@@ -68,7 +69,7 @@ fun PasswordField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -95,8 +96,8 @@ fun PasswordField(
             },
             colors =
                 TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = colorResource(R.color.background),
+                    unfocusedContainerColor = colorResource(R.color.background),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -105,7 +106,12 @@ fun PasswordField(
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = if (!isPasswordValid && value.text.isNotEmpty()) Color.Red else Color.Black,
+                        color =
+                            if (!isPasswordValid && value.text.isNotEmpty()) {
+                                colorResource(R.color.error_text_color)
+                            } else {
+                                colorResource(R.color.main_text_color)
+                            },
                         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
                     ),
         )

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class RegistrationScreenViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
+class RegistrationViewModel @Inject constructor(private val authRepo: AuthRepo) : ViewModel() {
     private val _fullName = MutableStateFlow(TextFieldValue(""))
     val fullName = _fullName.asStateFlow()
 

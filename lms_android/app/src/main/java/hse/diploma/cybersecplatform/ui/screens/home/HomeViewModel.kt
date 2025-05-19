@@ -7,8 +7,8 @@ import dagger.Module
 import hse.diploma.cybersecplatform.domain.model.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
+import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
 import hse.diploma.cybersecplatform.ui.state.AllCoursesState
-import hse.diploma.cybersecplatform.ui.state.CoursesUiState
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Module
-class HomeScreenViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
 ) : ViewModel() {
     // TODO: replace with real data
@@ -70,6 +70,6 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "HomeScreenViewModel"
+        private const val TAG = "HomeViewModel"
     }
 }

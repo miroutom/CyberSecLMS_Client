@@ -54,7 +54,7 @@ fun MyCoursesScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: MyCoursesScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+    val viewModel: MyCoursesViewModel = viewModel(factory = LocalViewModelFactory.current)
     val myCoursesState by viewModel.myCoursesState.collectAsState()
     var isStartedSelected by remember { mutableStateOf(true) }
 
