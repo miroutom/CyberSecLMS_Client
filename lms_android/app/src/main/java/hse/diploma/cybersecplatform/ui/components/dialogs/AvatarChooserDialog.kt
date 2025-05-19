@@ -1,182 +1,145 @@
 package hse.diploma.cybersecplatform.ui.components.dialogs
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.mock.mockNewUser
-import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
-import hse.diploma.cybersecplatform.ui.state.ProfileState
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import hse.diploma.cybersecplatform.utils.PickerSource
+import hse.diploma.cybersecplatform.utils.createImageUri
 
 @Composable
 fun AvatarChooserDialog(
-    profileState: ProfileState,
     onPhotoPicked: (Uri) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
-    val tempImageUri = remember { mutableStateOf<Uri?>(null) }
+    var currentImageUri by remember { mutableStateOf<Uri?>(null) }
+    var launchSource by remember { mutableStateOf<PickerSource?>(null) }
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { onPhotoPicked(it) }
-    }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success: Boolean ->
-        if (success && tempImageUri.value != null) {
-            onPhotoPicked(tempImageUri.value!!)
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+        ) { uri: Uri? ->
+            if (uri != null) onPhotoPicked(uri)
+            onDismiss()
         }
-    }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            tempImageUri.value = createTempImageUri(context)
-            tempImageUri.value?.let { cameraLauncher.launch(it) }
-        } else {
-            Toast.makeText(
-                context,
-                context.getString(R.string.camera_permission_required),
-                Toast.LENGTH_SHORT
-            ).show()
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture(),
+        ) { success: Boolean ->
+            if (success && currentImageUri != null) onPhotoPicked(currentImageUri!!)
+            onDismiss()
         }
-    }
 
-    fun selectPhotoSource() {
-        val options = arrayOf(
-            context.getString(R.string.gallery),
-            context.getString(R.string.camera)
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                currentImageUri = createImageUri(context)
+                currentImageUri?.let { cameraLauncher.launch(it) }
+            } else {
+                Toast.makeText(
+                    context,
+                    "Camera permission is required to take photos",
+                    Toast.LENGTH_SHORT,
+                ).show()
+                onDismiss()
+            }
+        }
+
+    if (launchSource == null) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(
+                    text = stringResource(R.string.upload_photo),
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    fontFamily = Montserrat,
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.choose_source_to_upload),
+                    fontFamily = Montserrat,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { launchSource = PickerSource.CAMERA },
+                    colors =
+                        ButtonDefaults.filledTonalButtonColors(
+                            containerColor = colorResource(R.color.button_enabled),
+                            contentColor = colorResource(R.color.background),
+                        ),
+                ) { Text(stringResource(R.string.camera), fontFamily = Montserrat) }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { launchSource = PickerSource.GALLERY },
+                    colors =
+                        ButtonDefaults.filledTonalButtonColors(
+                            containerColor = colorResource(R.color.button_enabled),
+                            contentColor = colorResource(R.color.background),
+                        ),
+                ) { Text(stringResource(R.string.gallery), fontFamily = Montserrat) }
+            },
+            containerColor = colorResource(R.color.dialog_color),
+            tonalElevation = 8.dp,
         )
+    } else {
+        LaunchedEffect(launchSource) {
+            when (launchSource) {
+                PickerSource.CAMERA -> {
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.CAMERA,
+                        )
 
-        androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.choose_photo_source))
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> galleryLauncher.launch("image/*")
-                    1 -> {
-                        if (ContextCompat.checkSelfPermission(
-                                context,
-                                android.Manifest.permission.CAMERA
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            tempImageUri.value = createTempImageUri(context)
-                            tempImageUri.value?.let { cameraLauncher.launch(it) }
-                        } else {
-                            permissionLauncher.launch(android.Manifest.permission.CAMERA)
-                        }
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        currentImageUri = createImageUri(context)
+                        currentImageUri?.let { cameraLauncher.launch(it) }
+                    } else {
+                        cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                     }
                 }
+
+                PickerSource.GALLERY -> {
+                    galleryLauncher.launch("image/*")
+                }
+
+                else -> {}
             }
-            .show()
-    }
-
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(colorResource(R.color.button_enabled))
-            .clickable { selectPhotoSource() }
-    ) {
-        val success = profileState as? ProfileState.Success
-        val avatarUrl = success?.uiState?.userData?.avatarUrl
-            ?: "https://placehold.co/256x256.png?text=Avatar"
-
-        if (avatarUrl.isNotEmpty()) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(avatarUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "Profile image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            Icon(
-                painter = painterResource(R.drawable.ic_account),
-                contentDescription = "Profile Image",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.Center)
-            )
         }
-
-        Icon(
-            painter = painterResource(R.drawable.ic_account),
-            contentDescription = "Edit photo",
-            tint = Color.White,
-            modifier = Modifier
-                .size(16.dp)
-                .align(Alignment.BottomEnd)
-                .background(
-                    color = colorResource(R.color.button_enabled),
-                    shape = CircleShape
-                )
-                .padding(2.dp)
-        )
-    }
-}
-
-fun createTempImageUri(context: Context): Uri? {
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val imageFileName = "JPEG_$timeStamp"
-    val storageDir = context.cacheDir
-
-    return try {
-        val tempFile = File.createTempFile(imageFileName, ".jpg", storageDir)
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            tempFile
-        )
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun AvatarChooserDialogPreview() {
-    AvatarChooserDialog(
-        profileState = ProfileState.Success(ProfileUiState(userData = mockNewUser)),
-        onPhotoPicked = {}
-    )
+    AvatarChooserDialog(onPhotoPicked = {}, onDismiss = {})
 }

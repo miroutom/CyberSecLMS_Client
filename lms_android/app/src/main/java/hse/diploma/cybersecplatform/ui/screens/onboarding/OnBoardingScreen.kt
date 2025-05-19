@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -70,7 +69,7 @@ fun OnBoardingScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(colorResource(R.color.background)),
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -108,7 +107,7 @@ fun OnBoardingScreen(
                         fontFamily = Montserrat,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 28.sp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )

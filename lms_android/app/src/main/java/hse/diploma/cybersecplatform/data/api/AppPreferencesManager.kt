@@ -35,22 +35,34 @@ class AppPreferencesManager @Inject constructor(context: Context) {
         prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
     }
 
-    private fun getTheme(): AppTheme {
-        val themeOrdinal = prefs.getInt(KEY_THEME, AppTheme.SYSTEM.ordinal)
-        return AppTheme.entries.toTypedArray().getOrElse(themeOrdinal) { AppTheme.SYSTEM }
-    }
-
     fun setTheme(theme: AppTheme) {
         prefs.edit().putInt(KEY_THEME, theme.ordinal).apply()
-    }
-
-    private fun getLanguage(): Language {
-        val langOrdinal = prefs.getInt(KEY_LANGUAGE, Language.ENGLISH.ordinal)
-        return Language.entries.toTypedArray().getOrElse(langOrdinal) { Language.ENGLISH }
+        if (_themeFlow.value != theme) {
+            _themeFlow.value = theme
+        } else {
+            // do nothing
+        }
     }
 
     fun setLanguage(language: Language) {
         prefs.edit().putInt(KEY_LANGUAGE, language.ordinal).apply()
+        if (_languageFlow.value != language) {
+            _languageFlow.value = language
+        } else {
+            // do nothing
+        }
+    }
+
+    fun getTheme(): AppTheme {
+        val themeOrdinal = prefs.getInt(KEY_THEME, AppTheme.SYSTEM.ordinal)
+        val theme = AppTheme.entries.toTypedArray().getOrElse(themeOrdinal) { AppTheme.SYSTEM }
+        return theme
+    }
+
+    private fun getLanguage(): Language {
+        val langOrdinal = prefs.getInt(KEY_LANGUAGE, Language.ENGLISH.ordinal)
+        val lang = Language.entries.toTypedArray().getOrElse(langOrdinal) { Language.ENGLISH }
+        return lang
     }
 
     companion object {

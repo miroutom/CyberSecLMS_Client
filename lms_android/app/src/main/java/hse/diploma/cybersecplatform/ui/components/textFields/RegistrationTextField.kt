@@ -13,6 +13,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,13 +46,13 @@ fun RegistrationTextField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
             },
             colors =
                 TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = colorResource(R.color.background),
+                    unfocusedContainerColor = colorResource(R.color.background),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -60,7 +61,7 @@ fun RegistrationTextField(
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
                     ),
         )

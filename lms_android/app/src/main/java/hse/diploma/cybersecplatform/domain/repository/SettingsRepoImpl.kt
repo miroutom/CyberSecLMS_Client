@@ -8,9 +8,7 @@ import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,17 +20,13 @@ class SettingsRepoImpl @Inject constructor(
     override fun getThemePreference(): Flow<AppTheme> = preferencesManager.themeFlow
 
     override suspend fun setThemePreference(theme: AppTheme) {
-        withContext(Dispatchers.IO) {
-            preferencesManager.setTheme(theme)
-        }
+        preferencesManager.setTheme(theme)
     }
 
     override fun getLanguagePreference(): Flow<Language> = preferencesManager.languageFlow
 
     override suspend fun setLanguagePreference(language: Language) {
-        withContext(Dispatchers.IO) {
-            preferencesManager.setLanguage(language)
-        }
+        preferencesManager.setLanguage(language)
     }
 
     override suspend fun initiatePasswordUpdate(

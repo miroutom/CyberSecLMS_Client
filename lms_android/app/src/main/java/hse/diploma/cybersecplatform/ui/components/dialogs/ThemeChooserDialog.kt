@@ -1,5 +1,6 @@
 package hse.diploma.cybersecplatform.ui.components.dialogs
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +29,8 @@ fun ThemeChooserDialog(
     onThemeSelected: (AppTheme) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.theme_setting), fontFamily = Montserrat) },
@@ -35,13 +40,23 @@ fun ThemeChooserDialog(
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .clickable { onThemeSelected(theme) }
+                            .clickable {
+                                Toast.makeText(context, "Selected theme: ${theme.name}", Toast.LENGTH_SHORT).show()
+                                onThemeSelected(theme)
+                            }
                             .padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = currentTheme == theme,
-                            onClick = { onThemeSelected(theme) },
+                            colors =
+                                RadioButtonDefaults.colors(
+                                    selectedColor = colorResource(R.color.button_enabled),
+                                ),
+                            onClick = {
+                                Toast.makeText(context, "Selected theme: ${theme.name}", Toast.LENGTH_SHORT).show()
+                                onThemeSelected(theme)
+                            },
                         )
                         Text(theme.name, fontFamily = Montserrat)
                     }

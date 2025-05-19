@@ -5,7 +5,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +24,7 @@ fun DeleteAccountDialog(
                 text = stringResource(R.string.delete_account_title),
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.Medium,
-                color = Color.Red,
+                color = colorResource(R.color.error_text_color),
             )
         },
         text = {
@@ -40,7 +39,7 @@ fun DeleteAccountDialog(
                 enabled = !isLoading,
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = Color.Red,
+                        containerColor = colorResource(R.color.error_text_color),
                     ),
             ) {
                 Text(

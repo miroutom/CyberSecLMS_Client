@@ -21,6 +21,10 @@ class ProfileViewModel @Inject constructor(
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
     val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
 
+    init {
+        loadProfile()
+    }
+
     fun loadProfile() {
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
@@ -44,6 +48,8 @@ class ProfileViewModel @Inject constructor(
         fullName: String,
         email: String,
     ) {
+        val currentImage = (profileState.value as? ProfileState.Success)?.uiState?.userData?.profileImage
+
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
             val data =
@@ -51,6 +57,7 @@ class ProfileViewModel @Inject constructor(
                     username = username,
                     fullName = fullName,
                     email = email,
+                    profileImage = currentImage,
                 )
             val result = userRepository.updateProfile(data)
             if (result.isSuccess) {
@@ -79,6 +86,7 @@ class ProfileViewModel @Inject constructor(
             _profileState.value = ProfileState.Loading
             val result = userRepository.uploadAvatar(avatarUri, contentResolver)
             if (result.isSuccess) {
+                loadProfile()
                 val user = result.getOrNull()!!
                 _profileState.value =
                     ProfileState.Success(

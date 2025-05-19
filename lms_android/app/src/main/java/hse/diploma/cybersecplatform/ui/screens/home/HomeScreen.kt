@@ -68,7 +68,7 @@ fun HomeScreen(
                     searchQuery = searchQuery,
                     onSearchQueryChange = viewModel::onSearchQueryChange,
                     enableFiltering = false,
-                    modifier = Modifier.background(Color.White),
+                    modifier = Modifier.background(colorResource(R.color.background)),
                 )
                 val coursesToShow =
                     coursesUiState.filteredCourses.ifEmpty {

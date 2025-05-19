@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -55,11 +54,12 @@ fun OtpDialog(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    val maskedEmail = if (email.isNotEmpty()) {
-        stringResource(R.string.otp_sent_to_email, maskEmail(email))
-    } else {
-        stringResource(R.string.otp_sent_general_message)
-    }
+    val maskedEmail =
+        if (email.isNotEmpty()) {
+            stringResource(R.string.otp_sent_to_email, maskEmail(email))
+        } else {
+            stringResource(R.string.otp_sent_general_message)
+        }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -77,7 +77,7 @@ fun OtpDialog(
                     text = stringResource(R.string.otp_sent_to_email, maskedEmail),
                     fontFamily = Montserrat,
                     fontSize = 14.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
                 Spacer(Modifier.height(16.dp))
                 Box(
@@ -116,14 +116,14 @@ fun OtpDialog(
                                         .size(40.dp)
                                         .padding(2.dp)
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Color.White)
+                                        .background(colorResource(R.color.background))
                                         .border(
                                             width = 2.dp,
                                             color =
                                                 if (code.length == i) {
                                                     colorResource(R.color.button_enabled)
                                                 } else {
-                                                    Color.LightGray
+                                                    colorResource(R.color.shimmer_color)
                                                 },
                                             shape = RoundedCornerShape(6.dp),
                                         ),
@@ -133,7 +133,12 @@ fun OtpDialog(
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = Montserrat,
-                                    color = if (char.isEmpty()) Color.Gray else Color.Black,
+                                    color =
+                                        if (char.isEmpty()) {
+                                            colorResource(R.color.shimmer_color)
+                                        } else {
+                                            colorResource(R.color.main_text_color)
+                                        },
                                 )
                             }
                         }
@@ -142,7 +147,7 @@ fun OtpDialog(
                 if (!error.isNullOrEmpty()) {
                     Text(
                         text = error,
-                        color = Color.Red,
+                        color = colorResource(R.color.error_text_color),
                         fontSize = 12.sp,
                         fontFamily = Montserrat,
                         modifier = Modifier.padding(top = 4.dp),
@@ -157,7 +162,7 @@ fun OtpDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
             ) {
                 Text(
@@ -173,7 +178,7 @@ fun OtpDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
                 enabled = !isLoading,
             ) {

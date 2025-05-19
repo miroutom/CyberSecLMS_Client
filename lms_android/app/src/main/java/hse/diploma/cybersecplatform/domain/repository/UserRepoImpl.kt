@@ -72,10 +72,10 @@ class UserRepoImpl @Inject constructor(
 
             val mimeType = contentResolver.getType(contentUri) ?: "image/jpeg"
 
-            val filename = getFileName(contentUri, contentResolver) ?: "avatar_${System.currentTimeMillis()}.jpg"
+            val filename = getFileName(contentUri, contentResolver) ?: "image_${System.currentTimeMillis()}.jpg"
 
             val requestFile = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("avatar", filename, requestFile)
+            val part = MultipartBody.Part.createFormData("image", filename, requestFile)
 
             val response = apiService.uploadAvatar(part)
 

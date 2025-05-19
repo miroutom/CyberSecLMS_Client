@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -82,7 +81,7 @@ fun BaseCourseCard(
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
-                color = Color.Black,
+                color = colorResource(R.color.main_text_color),
                 textAlign = TextAlign.Center,
             )
             Text(

@@ -41,9 +41,7 @@ import hse.diploma.cybersecplatform.utils.maskEmail
 import kotlinx.coroutines.delay
 
 @Composable
-fun SettingsScreen(
-    modifier: Modifier = Modifier,
-) {
+fun SettingsScreen(modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current)
     val authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current
 
@@ -84,13 +82,10 @@ fun SettingsScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(colorResource(R.color.background)),
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             SettingsMenu(
                 onThemeClick = { visibleDialog = SettingsDialog.THEME },
@@ -116,7 +111,7 @@ fun SettingsScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(Color.White.copy(alpha = 0.7f)),
+                        .background(colorResource(R.color.background).copy(alpha = 0.7f)),
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),

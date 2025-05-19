@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -67,7 +66,7 @@ fun FilterSelectionDialog(
                                 CheckboxDefaults.colors(
                                     checkedColor = colorResource(R.color.button_enabled),
                                     uncheckedColor = colorResource(R.color.button_enabled),
-                                    checkmarkColor = Color.White,
+                                    checkmarkColor = colorResource(R.color.background),
                                 ),
                         )
                         Text(
@@ -87,7 +86,7 @@ fun FilterSelectionDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
             ) {
                 Text(
@@ -107,7 +106,7 @@ fun FilterSelectionDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
             ) {
                 Text(

@@ -23,7 +23,7 @@ fun MenuItem(
     icon: Painter,
     text: String,
     iconTint: Color = colorResource(R.color.icon_black_tint),
-    textColor: Color = Color.Black,
+    textColor: Color = colorResource(R.color.main_text_color),
     onClick: () -> Unit,
 ) {
     Row(

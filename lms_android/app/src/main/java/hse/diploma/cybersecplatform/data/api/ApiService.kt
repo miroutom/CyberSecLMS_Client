@@ -13,6 +13,7 @@ import hse.diploma.cybersecplatform.data.model.UpdateProfileRequest
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -63,8 +64,8 @@ interface ApiService {
     @Multipart
     @POST("api/account/profile/image")
     suspend fun uploadAvatar(
-        @Part avatar: MultipartBody.Part,
-    ): Response<Map<String, String>>
+        @Part image: MultipartBody.Part,
+    ): Response<ResponseBody>
 
     @POST("api/account/delete")
     suspend fun requestDeleteAccount(): Response<TempTokenResponse>

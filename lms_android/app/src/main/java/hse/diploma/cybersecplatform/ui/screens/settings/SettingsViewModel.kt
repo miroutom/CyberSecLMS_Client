@@ -8,8 +8,11 @@ import hse.diploma.cybersecplatform.domain.model.Language
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.domain.repository.SettingsRepo
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
+import hse.diploma.cybersecplatform.utils.logD
+import hse.diploma.cybersecplatform.utils.logE
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,28 +22,28 @@ class SettingsViewModel @Inject constructor(
     private val authRepo: AuthRepo,
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _themePreference = MutableStateFlow(AppTheme.SYSTEM)
-    val themePreference: StateFlow<AppTheme> = _themePreference
+    val themePreference: StateFlow<AppTheme> = _themePreference.asStateFlow()
 
     private val _languagePreference = MutableStateFlow(Language.ENGLISH)
-    val languagePreference: StateFlow<Language> = _languagePreference
+    val languagePreference: StateFlow<Language> = _languagePreference.asStateFlow()
 
     private val _user = MutableStateFlow<UserData?>(null)
-    val user: StateFlow<UserData?> = _user
+    val user: StateFlow<UserData?> = _user.asStateFlow()
 
     private val _passwordTempToken = MutableStateFlow<String?>(null)
-    val passwordTempToken: StateFlow<String?> = _passwordTempToken
+    val passwordTempToken: StateFlow<String?> = _passwordTempToken.asStateFlow()
 
     private val _deleteTempToken = MutableStateFlow<String?>(null)
-    val deleteTempToken: StateFlow<String?> = _deleteTempToken
+    val deleteTempToken: StateFlow<String?> = _deleteTempToken.asStateFlow()
 
     private val _passwordOtpError = MutableStateFlow<String?>(null)
-    val passwordOtpError: StateFlow<String?> = _passwordOtpError
+    val passwordOtpError: StateFlow<String?> = _passwordOtpError.asStateFlow()
 
     private val _deleteOtpError = MutableStateFlow<String?>(null)
-    val deleteOtpError: StateFlow<String?> = _deleteOtpError
+    val deleteOtpError: StateFlow<String?> = _deleteOtpError.asStateFlow()
 
     init {
         loadSettings()
@@ -76,13 +79,23 @@ class SettingsViewModel @Inject constructor(
 
     fun setThemePreference(theme: AppTheme) {
         viewModelScope.launch {
-            settingsRepo.setThemePreference(theme)
+            try {
+                logD(TAG, "Setting theme to: ${theme.name}")
+                settingsRepo.setThemePreference(theme)
+            } catch (e: Exception) {
+                logE(TAG, "Error setting theme", e)
+            }
         }
     }
 
     fun setLanguagePreference(language: Language) {
         viewModelScope.launch {
-            settingsRepo.setLanguagePreference(language)
+            try {
+                logD(TAG, "Setting language to: ${language.name}")
+                settingsRepo.setLanguagePreference(language)
+            } catch (e: Exception) {
+                logE(TAG, "Error setting language", e)
+            }
         }
     }
 
@@ -188,6 +201,10 @@ class SettingsViewModel @Inject constructor(
     fun cancelDeleteOtp() {
         _deleteTempToken.value = null
         _deleteOtpError.value = null
+    }
+
+    companion object {
+        private const val TAG = "SettingsViewModel"
     }
 }
 

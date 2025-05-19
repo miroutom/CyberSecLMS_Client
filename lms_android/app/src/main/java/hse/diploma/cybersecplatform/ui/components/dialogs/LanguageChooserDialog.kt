@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +42,10 @@ fun LanguageChooserDialog(
                     ) {
                         RadioButton(
                             selected = currentLanguage == language,
+                            colors =
+                                RadioButtonDefaults.colors(
+                                    selectedColor = colorResource(R.color.button_enabled),
+                                ),
                             onClick = { onLanguageSelected(language) },
                         )
                         Text(language.name, fontFamily = Montserrat)

@@ -16,9 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Task
 import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
@@ -43,7 +44,7 @@ fun TasksScreen(
             searchQuery = searchQuery,
             onSearchQueryChange = viewModel::onSearchQueryChange,
             onFilterClick = { showFilterDialog = true },
-            modifier = Modifier.background(Color.White),
+            modifier = Modifier.background(colorResource(R.color.background)),
         )
 
         TasksContent(tasks, vulnerabilityType)

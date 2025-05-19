@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -81,7 +80,7 @@ fun PasswordChangeDialog(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = it,
-                        color = Color.Red,
+                        color = colorResource(R.color.error_text_color),
                         fontSize = 12.sp,
                         fontFamily = Montserrat,
                     )
@@ -97,7 +96,7 @@ fun PasswordChangeDialog(
                         !isPasswordValid(newPassword.text) -> {
                             error = null
                         }
-                        currentPassword == newPassword -> error = currentPasswordRequired
+                        currentPassword == newPassword -> error = currentAndNewPasswordsAreEqual
                         newPassword.text != confirmPassword.text -> error = passwordsNotMatchError
                         else -> {
                             error = null
@@ -137,6 +136,6 @@ fun PasswordChangeDialog(
                 )
             }
         },
-        containerColor = colorResource(id = R.color.dialog_color),
+        containerColor = colorResource(R.color.background),
     )
 }

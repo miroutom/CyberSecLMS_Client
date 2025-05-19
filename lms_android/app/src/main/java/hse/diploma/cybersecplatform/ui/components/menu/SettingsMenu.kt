@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -34,14 +32,13 @@ fun SettingsMenu(
     modifier: Modifier = Modifier,
 ) {
     val dividerColor = colorResource(R.color.menu_divider)
-    var visibleDialog by remember { mutableStateOf(SettingsDialog.NONE) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
         MenuItem(
-            icon = painterResource(R.drawable.ic_theory),
+            icon = painterResource(R.drawable.ic_theme),
             text = stringResource(R.string.theme_setting),
             onClick = onThemeClick,
         )
@@ -50,7 +47,7 @@ fun SettingsMenu(
             color = dividerColor,
         )
         MenuItem(
-            icon = painterResource(R.drawable.ic_settings),
+            icon = painterResource(R.drawable.ic_language),
             text = stringResource(R.string.language_setting),
             onClick = onLanguageClick,
         )
@@ -59,7 +56,7 @@ fun SettingsMenu(
             color = dividerColor,
         )
         MenuItem(
-            icon = painterResource(R.drawable.ic_support),
+            icon = painterResource(R.drawable.ic_lock),
             text = stringResource(R.string.update_password_setting),
             onClick = onPasswordChangeClick,
         )
@@ -68,7 +65,7 @@ fun SettingsMenu(
             color = dividerColor,
         )
         MenuItem(
-            icon = painterResource(R.drawable.ic_logout),
+            icon = painterResource(R.drawable.ic_trash),
             text = stringResource(R.string.delete_account),
             iconTint = colorResource(R.color.logout),
             textColor = colorResource(R.color.logout),

@@ -44,10 +44,6 @@ fun ProfileMenu(
             modifier = Modifier.padding(horizontal = 8.dp),
             color = dividerColor,
         )
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            color = dividerColor,
-        )
         MenuItem(
             icon = painterResource(R.drawable.ic_logout),
             text = stringResource(R.string.profile_logout),
