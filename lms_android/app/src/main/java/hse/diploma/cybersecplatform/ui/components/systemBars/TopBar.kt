@@ -91,8 +91,9 @@ fun TopBar(
             logD("EditProfile", "userData: ${successState?.uiState?.userData}")
             EditProfile(
                 profileViewModel = profileViewModel,
-                userProfileImageUrl = successState?.uiState?.userData?.profileImage?.toAbsoluteUrl()?.addTimestamp()
-                    ?: "https://placehold.co/256x256.png?text=Avatar"
+                userProfileImageUrl =
+                    successState?.uiState?.userData?.profileImage?.toAbsoluteUrl()?.addTimestamp()
+                        ?: "https://placehold.co/256x256.png?text=Avatar",
             )
         },
         colors =

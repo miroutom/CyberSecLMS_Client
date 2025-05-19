@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.mock.mockNewUser
+import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
@@ -132,7 +132,12 @@ private fun EditProfileDialogPreview() {
         EditProfileDialog(
             uiState =
                 ProfileUiState(
-                    mockNewUser,
+                    UserData(
+                        username = "lika",
+                        fullName = "lika s",
+                        email = "example.com",
+                        profileImage = "image",
+                    ),
                 ),
             onDismiss = {},
             onSave = { _, _, _ -> },

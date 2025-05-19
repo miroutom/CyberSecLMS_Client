@@ -153,7 +153,7 @@ private fun ProfileIcon(
             modifier = Modifier.size(48.dp),
             placeholder = painterResource(R.drawable.ic_account),
             error = painterResource(R.drawable.ic_trash),
-            onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) }
+            onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
         )
     } else {
         Box(
