@@ -144,27 +144,24 @@ private fun ProfileIcon(
     userProfileImageUrl: String?,
     onClick: () -> Unit,
 ) {
-    logD("EditProfile", "userProfileImageUrl: $userProfileImageUrl")
-    if (userProfileImageUrl != null) {
-        AsyncImage(
-            model = userProfileImageUrl,
-            contentDescription = "User avatar",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.size(48.dp),
-            placeholder = painterResource(R.drawable.ic_account),
-            error = painterResource(R.drawable.ic_trash),
-            onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
-        )
-    } else {
-        Box(
-            modifier =
-                Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(color = colorResource(R.color.text_disabled))
-                    .clickable(onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (userProfileImageUrl != null) {
+            AsyncImage(
+                model = userProfileImageUrl,
+                contentDescription = "User avatar",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize(),
+                placeholder = painterResource(R.drawable.ic_account),
+                error = painterResource(R.drawable.ic_account),
+                onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) }
+            )
+        } else {
             Icon(
                 painter = painterResource(R.drawable.ic_account),
                 contentDescription = "Profile",
