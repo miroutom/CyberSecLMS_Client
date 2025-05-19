@@ -1,7 +1,6 @@
 package hse.diploma.cybersecplatform.ui.components
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -40,7 +39,6 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.EditProfileDialog
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
-import hse.diploma.cybersecplatform.utils.logD
 import hse.diploma.cybersecplatform.utils.logE
 
 @Composable
@@ -145,10 +143,11 @@ private fun ProfileIcon(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
+        modifier =
+            Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         if (userProfileImageUrl != null) {
@@ -159,7 +158,7 @@ private fun ProfileIcon(
                 modifier = Modifier.matchParentSize(),
                 placeholder = painterResource(R.drawable.ic_account),
                 error = painterResource(R.drawable.ic_account),
-                onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) }
+                onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
             )
         } else {
             Icon(
