@@ -4,12 +4,11 @@ import hse.diploma.cybersecplatform.data.model.ChangePasswordRequest
 import hse.diploma.cybersecplatform.data.model.ForgotPasswordRequest
 import hse.diploma.cybersecplatform.data.model.LoginRequest
 import hse.diploma.cybersecplatform.data.model.LoginResponse
+import hse.diploma.cybersecplatform.data.model.MessageResponse
 import hse.diploma.cybersecplatform.data.model.RegisterRequest
 import hse.diploma.cybersecplatform.data.model.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
-import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.UpdateProfileRequest
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import okhttp3.MultipartBody
@@ -43,8 +42,8 @@ interface ApiService {
 
     @PUT("api/profile")
     suspend fun updateProfile(
-        @Body request: UpdateProfileRequest,
-    ): Response<UserData>
+        @Body userData: UserData,
+    ): Response<MessageResponse>
 
     @POST("api/account/change-password")
     suspend fun changePassword(
@@ -59,7 +58,7 @@ interface ApiService {
     @POST("api/reset-password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest,
-    ): Response<SuccessResponse>
+    ): Response<MessageResponse>
 
     @Multipart
     @POST("api/account/profile/image")
@@ -73,5 +72,5 @@ interface ApiService {
     @POST("api/account/delete/confirm")
     suspend fun confirmDeleteAccount(
         @Body request: VerifyOtpRequest,
-    ): Response<SuccessResponse>
+    ): Response<MessageResponse>
 }

@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import hse.diploma.cybersecplatform.data.api.ApiService
-import hse.diploma.cybersecplatform.data.model.UpdateProfileRequest
+import hse.diploma.cybersecplatform.data.model.MessageResponse
 import hse.diploma.cybersecplatform.data.model.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,15 +36,14 @@ class UserRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateProfile(userData: UserData): Result<UserData> {
+    override suspend fun updateProfile(userData: UserData): Result<MessageResponse> {
         return try {
-            val request = UpdateProfileRequest(userData)
-            val response = apiService.updateProfile(request)
+            val response = apiService.updateProfile(userData)
 
             if (response.isSuccessful) {
-                val updatedUser = response.body()
-                if (updatedUser != null) {
-                    Result.success(updatedUser)
+                val message = response.body()
+                if (message != null) {
+                    Result.success(message)
                 } else {
                     Result.failure(Exception("Empty response body"))
                 }

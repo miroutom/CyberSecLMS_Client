@@ -30,8 +30,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
@@ -163,9 +163,7 @@ private fun CoursesCardShimmer(
                         visible = true,
                         color = baseColor,
                         highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
             Spacer(Modifier.height(18.dp))
@@ -177,9 +175,7 @@ private fun CoursesCardShimmer(
                         visible = true,
                         color = baseColor,
                         highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
             Spacer(Modifier.height(12.dp))
@@ -191,9 +187,7 @@ private fun CoursesCardShimmer(
                         visible = true,
                         color = baseColor,
                         highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
         }

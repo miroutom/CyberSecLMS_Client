@@ -28,6 +28,7 @@ import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
+import hse.diploma.cybersecplatform.utils.logD
 
 @Composable
 fun EditProfileDialog(
@@ -36,6 +37,7 @@ fun EditProfileDialog(
     onSave: (username: String, fullName: String, email: String) -> Unit,
     errorMessage: String? = null,
 ) {
+    logD("EditProfileDialog", "userData: ${uiState.userData}")
     var username by remember { mutableStateOf(uiState.userData.username) }
     var fullName by remember { mutableStateOf(uiState.userData.fullName) }
     var email by remember { mutableStateOf(uiState.userData.email) }
@@ -88,7 +90,7 @@ fun EditProfileDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(username, fullName, email) },
-                enabled = username.isNotBlank() || fullName.isNotBlank() || email.isNotBlank(),
+                enabled = username.isNotEmpty() || fullName.isNotEmpty() || email.isNotEmpty(),
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),

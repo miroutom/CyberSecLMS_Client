@@ -20,6 +20,12 @@ val baseUrl: String =
         ?: localProperties.getProperty("BASE_URL")
         ?: "\"https://default-url.example.com/api/\""
 
+val uploadsUrl: String =
+    System.getProperty("UPLOADS_URL")
+        ?: System.getenv("UPLOADS_URL")
+        ?: localProperties.getProperty("UPLOADS_URL")
+        ?: "\"https://default-url.example.com/api/\""
+
 android {
     namespace = "hse.diploma.cybersecplatform"
     compileSdk = 35
@@ -44,10 +50,12 @@ android {
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
 
         debug {
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
     }
     compileOptions {
