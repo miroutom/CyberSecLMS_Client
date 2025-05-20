@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend-svc/models"
 	"log"
 	"time"
@@ -259,12 +258,11 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 	if err != nil {
 		return err
 	}
+
+	commit := false
 	defer func() {
-		if err != nil {
-			rollbackErr := tx.Rollback()
-			if rollbackErr != nil {
-				err = fmt.Errorf("original error: %w, rollback error: %v", err, rollbackErr)
-			}
+		if !commit {
+			tx.Rollback()
 		}
 	}()
 
@@ -294,25 +292,11 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 		}
 	}
 
-	if data.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return err
-		}
-
-		stmt, err := tx.Prepare("UPDATE users SET password_hash = ? WHERE id = ?")
-		if err != nil {
-			return err
-		}
-		defer stmt.Close()
-
-		_, err = stmt.Exec(string(hashedPassword), userID)
-		if err != nil {
-			return err
-		}
+	err = tx.Commit()
+	if err == nil {
+		commit = true
 	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *DBStorage) UpdateUserProfileImage(userID int, imageURL string) error {
