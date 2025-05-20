@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,7 +51,7 @@ fun PasswordConfirmationField(
         if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.confirmation_and_password_are_not_equal),
-                color = Color.Red,
+                color = colorResource(R.color.error_text_color),
                 style = Typography.labelSmall,
                 modifier = Modifier.padding(start = 8.dp),
             )
@@ -67,7 +68,7 @@ fun PasswordConfirmationField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -94,8 +95,8 @@ fun PasswordConfirmationField(
             },
             colors =
                 TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = colorResource(R.color.background),
+                    unfocusedContainerColor = colorResource(R.color.background),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -105,7 +106,11 @@ fun PasswordConfirmationField(
                     .border(
                         width = 1.dp,
                         color =
-                            if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) Color.Red else Color.Black,
+                            if (!isConfirmationEqualsPassword && value.text.isNotEmpty()) {
+                                colorResource(R.color.error_text_color)
+                            } else {
+                                colorResource(R.color.main_text_color)
+                            },
                         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
                     ),
         )

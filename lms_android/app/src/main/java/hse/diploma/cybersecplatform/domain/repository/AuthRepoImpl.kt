@@ -2,16 +2,21 @@ package hse.diploma.cybersecplatform.domain.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.TokenManager
+import hse.diploma.cybersecplatform.data.model.ForgotPasswordRequest
 import hse.diploma.cybersecplatform.data.model.LoginRequest
 import hse.diploma.cybersecplatform.data.model.LoginResponse
 import hse.diploma.cybersecplatform.data.model.RegisterRequest
 import hse.diploma.cybersecplatform.data.model.RegisterResponse
+import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
+import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepoImpl @Inject constructor(
-    private val api: ApiService,
+    private val apiService: ApiService,
     private val tokenManager: TokenManager,
 ) : AuthRepo {
     override suspend fun login(
@@ -19,10 +24,15 @@ class AuthRepoImpl @Inject constructor(
         password: String,
     ): Result<TempTokenResponse> {
         return try {
-            val response = api.login(LoginRequest(username, password))
-            response.body()?.let { tempTokenResponse ->
-                Result.success(tempTokenResponse)
-            } ?: Result.failure(Exception("No body"))
+            val response = apiService.login(LoginRequest(username, password))
+
+            if (response.isSuccessful) {
+                response.body()?.let { tempTokenResponse ->
+                    Result.success(tempTokenResponse)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Login failed"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -35,14 +45,16 @@ class AuthRepoImpl @Inject constructor(
         fullName: String,
     ): Result<RegisterResponse> {
         return try {
-            val response = api.register(RegisterRequest(username, password, email, fullName))
+            val response = apiService.register(RegisterRequest(username, password, email, fullName))
+
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
+                    // Сохраняем токен для автоматической авторизации
                     tokenManager.saveToken(registerResponse.token)
                     Result.success(registerResponse)
-                } ?: Result.failure(Exception("No body"))
+                } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("OTP verification failed"))
+                Result.failure(Exception(response.errorBody()?.string() ?: "Registration failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -55,14 +67,15 @@ class AuthRepoImpl @Inject constructor(
     ): Result<LoginResponse> {
         return try {
             val request = VerifyOtpRequest(otpValue, tempToken)
-            val response = api.verifyOtp(request)
+            val response = apiService.verifyOtp(request)
+
             if (response.isSuccessful) {
                 response.body()?.let { loginResponse ->
                     tokenManager.saveToken(loginResponse.token)
                     Result.success(loginResponse)
-                } ?: Result.failure(Exception("No body"))
+                } ?: Result.failure(Exception("Empty response body"))
             } else {
-                Result.failure(Exception("OTP verification failed"))
+                Result.failure(Exception(response.errorBody()?.string() ?: "OTP verification failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -75,5 +88,88 @@ class AuthRepoImpl @Inject constructor(
 
     override fun isAuthorized(): Boolean {
         return tokenManager.hasToken()
+    }
+
+    override suspend fun forgotPassword(
+        email: String?,
+        username: String?,
+    ): Result<TempTokenResponse> {
+        return try {
+            val request = ForgotPasswordRequest(email = email, username = username)
+            val response = apiService.forgotPassword(request)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to reset password"
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun resetPassword(
+        tempToken: String,
+        code: String,
+        newPassword: String,
+    ): Result<SuccessResponse> {
+        return try {
+            val request =
+                ResetPasswordRequest(
+                    tempToken = tempToken,
+                    code = code,
+                    newPassword = newPassword,
+                )
+            val response = apiService.resetPassword(request)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to reset password"
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun requestDeleteAccount(): Result<TempTokenResponse> {
+        return try {
+            val response = apiService.requestDeleteAccount()
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to request account deletion"
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun confirmDeleteAccount(
+        otpValue: String,
+        tempToken: String,
+    ): Result<SuccessResponse> {
+        return try {
+            val request =
+                VerifyOtpRequest(
+                    otp = otpValue,
+                    tempToken = tempToken,
+                )
+            val response = apiService.confirmDeleteAccount(request)
+
+            if (response.isSuccessful && response.body() != null) {
+                logout()
+                Result.success(response.body()!!)
+            } else {
+                val errorMessage = response.errorBody()?.string() ?: "Failed to delete account"
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

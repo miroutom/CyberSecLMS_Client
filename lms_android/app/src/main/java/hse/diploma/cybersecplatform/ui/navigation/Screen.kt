@@ -23,4 +23,6 @@ sealed class Screen(
     data object TaskScreen : Screen("taskScreen/{vulnerabilityType}", R.string.tasks_title) {
         fun createRoute(vulnerabilityType: VulnerabilityType) = "taskScreen/${vulnerabilityType.name}"
     }
+
+    data object Settings : Screen("settings", R.string.settings_title)
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-open class OnBoardingScreenViewModel : ViewModel() {
+open class OnBoardingViewModel : ViewModel() {
     private val _currentPage = MutableStateFlow(0)
     open val currentPage = _currentPage.asStateFlow()
 

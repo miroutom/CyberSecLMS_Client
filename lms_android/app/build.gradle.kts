@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 val localProperties = Properties()
@@ -91,7 +91,7 @@ dependencies {
     implementation(libs.dagger)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.fragment)
-    kapt(libs.dagger.compiler)
+    ksp(libs.dagger.compiler)
 
     // --- REST API ---
     implementation(libs.retrofit)

@@ -1,12 +1,12 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-import TaskPage from "@/views/TaskPage.vue";
-import AllTasks from "@/views/AllTasks.vue";
-import LoginPage from "@/views/LoginPage.vue";
-import AuthorizationPage from "@/views/AuthorizationPage.vue";
-import MyCourses from "@/views/MyCourses.vue";
-import TaskList from "@/views/TaskList.vue";
-import ProfilePage from "@/views/ProfilePage.vue";
-import TestComponent from "@/views/TestComponent.vue";
+import { createRouter, createWebHashHistory } from "vue-router"
+import TaskPage from "@/views/TaskPage.vue"
+import AllTasks from "@/views/AllTasks.vue"
+import LoginPage from "@/views/LoginPage.vue"
+import AuthorizationPage from "@/views/AuthorizationPage.vue"
+import MyCourses from "@/views/MyCourses.vue"
+import TaskList from "@/views/TaskList.vue"
+import ProfilePage from "@/views/ProfilePage.vue"
+import TestComponent from "@/views/TestComponent.vue"
 
 const routes = [
   {
@@ -52,11 +52,11 @@ const routes = [
     component: ProfilePage,
     props: true,
   },
-];
+]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-});
+})
 
-export default router;
+export default router

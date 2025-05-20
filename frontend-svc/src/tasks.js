@@ -31,4 +31,4 @@ export default [
     path: "/vulnerable-app/csrf.html",
     language: "javascript",
   },
-];
+]

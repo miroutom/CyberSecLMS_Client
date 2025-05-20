@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -36,8 +35,8 @@ import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
-import hse.diploma.cybersecplatform.ui.components.textFields.AdditionalTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
+import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
@@ -50,7 +49,7 @@ fun AuthorizationScreen(
     onNavigateToRegistration: () -> Unit,
     onAuthorized: () -> Unit,
     onError: (String) -> Unit,
-    viewModel: AuthorizationScreenViewModel = viewModel(factory = LocalViewModelFactory.current),
+    viewModel: AuthorizationViewModel = viewModel(factory = LocalViewModelFactory.current),
     otpViewModel: OtpViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
@@ -73,7 +72,7 @@ fun AuthorizationScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(Color.White)
+                        .background(colorResource(R.color.background))
                         .padding(paddingValues),
             ) {
                 Column(
@@ -102,7 +101,7 @@ fun AuthorizationScreen(
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        AdditionalTextField(
+                        RegistrationTextField(
                             value = username,
                             onValueChange = viewModel::onUsernameChange,
                             labelId = R.string.auth_label_username,
@@ -176,7 +175,7 @@ fun AuthorizationScreen(
                     Box(
                         Modifier
                             .fillMaxSize()
-                            .background(Color.White.copy(alpha = 0.7f)),
+                            .background(colorResource(R.color.background).copy(alpha = 0.7f)),
                     ) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
@@ -200,6 +199,6 @@ fun AuthorizationScreenPreview() {
         onNavigateToRegistration = {},
         onAuthorized = {},
         onError = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationScreenViewModel::class.java),
+        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationViewModel::class.java),
     )
 }

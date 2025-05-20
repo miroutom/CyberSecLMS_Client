@@ -22,13 +22,11 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
@@ -44,6 +44,7 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
+import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
@@ -51,14 +52,13 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    val viewModel: ProfileScreenViewModel = viewModel(factory = LocalViewModelFactory.current)
+fun ProfileScreen(
+    profileViewModel: ProfileViewModel,
+    navHostController: NavHostController,
+    modifier: Modifier = Modifier,
+) {
     val authStateViewModel = LocalAuthStateViewModel.current
-    val profileState by viewModel.profileState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadProfile()
-    }
+    val profileState by profileViewModel.profileState.collectAsState()
 
     when (profileState) {
         is ProfileState.Loading -> {
@@ -67,6 +67,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         is ProfileState.Success -> {
             val uiState = (profileState as ProfileState.Success).uiState
             ProfileContent(
+                navHostController = navHostController,
                 profile = uiState,
                 modifier = modifier,
                 onLogoutClick = { authStateViewModel.logout() },
@@ -74,13 +75,14 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         }
         is ProfileState.Error -> {
             val errorType = (profileState as ProfileState.Error).errorType
-            ErrorScreen(errorType, onReload = { viewModel.loadProfile() })
+            ErrorScreen(errorType, onReload = { profileViewModel.loadProfile() })
         }
     }
 }
 
 @Composable
 private fun ProfileContent(
+    navHostController: NavHostController,
     profile: ProfileUiState,
     modifier: Modifier = Modifier,
     onLogoutClick: () -> Unit,
@@ -110,14 +112,9 @@ private fun ProfileContent(
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = stringResource(R.string.welcome_text, profile.fullName),
+                            text = stringResource(R.string.welcome_text, profile.userData.fullName),
                             fontFamily = Montserrat,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
@@ -126,10 +123,10 @@ private fun ProfileContent(
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.email_label, profile.email),
+                        text = stringResource(R.string.email_label, profile.userData.email),
                         fontFamily = Montserrat,
                         fontSize = 12.sp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                     )
                 }
                 Spacer(Modifier.width(8.dp))
@@ -148,7 +145,7 @@ private fun ProfileContent(
             Icon(
                 painter = painterResource(R.drawable.ic_activity),
                 contentDescription = "Statistics",
-                tint = Color.Black,
+                tint = colorResource(R.color.main_text_color),
             )
             Spacer(Modifier.width(8.dp))
             Text(
@@ -163,13 +160,12 @@ private fun ProfileContent(
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFD9D9D9)),
+                    .background(colorResource(R.color.profile_content_background)),
         )
 
         ProfileMenu(
             onTheoryClick = {},
-            onSupportClick = {},
-            onSettingsClick = {},
+            onSettingsClick = { navHostController.navigate(Screen.Settings.route) },
             onLogoutClick = onLogoutClick,
         )
     }
@@ -202,11 +198,6 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_pencil),
-                        contentDescription = "Edit",
-                        tint = colorResource(R.color.icon_black_tint),
-                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "",
@@ -222,9 +213,9 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                         true,
                                         highlight =
                                             PlaceholderHighlight.shimmer(
-                                                highlightColor = Color.Gray,
+                                                highlightColor = colorResource(R.color.shimmer_color),
                                             ),
-                                        color = Color.Gray,
+                                        color = colorResource(R.color.shimmer_color),
                                     ),
                         )
                     }
@@ -233,7 +224,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                         text = "",
                         fontFamily = Montserrat,
                         fontSize = 12.sp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         modifier =
                             Modifier
                                 .fillMaxWidth(0.5f)
@@ -242,16 +233,16 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                     true,
                                     highlight =
                                         PlaceholderHighlight.shimmer(
-                                            highlightColor = Color.Gray,
+                                            highlightColor = colorResource(R.color.shimmer_color),
                                         ),
-                                    color = Color.Gray,
+                                    color = colorResource(R.color.shimmer_color),
                                 ),
                     )
                     Text(
                         text = "",
                         fontFamily = Montserrat,
                         fontSize = 12.sp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         modifier =
                             Modifier
                                 .fillMaxWidth(0.3f)
@@ -260,9 +251,9 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                     true,
                                     highlight =
                                         PlaceholderHighlight.shimmer(
-                                            highlightColor = Color.Gray,
+                                            highlightColor = colorResource(R.color.shimmer_color),
                                         ),
-                                    color = Color.Gray,
+                                    color = colorResource(R.color.shimmer_color),
                                 ),
                     )
                 }
@@ -275,9 +266,9 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                             true,
                             highlight =
                                 PlaceholderHighlight.shimmer(
-                                    highlightColor = Color.Gray,
+                                    highlightColor = colorResource(R.color.shimmer_color),
                                 ),
-                            color = Color.Gray,
+                            color = colorResource(R.color.shimmer_color),
                         ),
                 )
             }
@@ -290,7 +281,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_activity),
                 contentDescription = "Statistics",
-                tint = Color.Black,
+                tint = colorResource(R.color.main_text_color),
             )
             Spacer(Modifier.width(8.dp))
             Text(
@@ -304,9 +295,9 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                             true,
                             highlight =
                                 PlaceholderHighlight.shimmer(
-                                    highlightColor = Color.Gray,
+                                    highlightColor = colorResource(R.color.shimmer_color),
                                 ),
-                            color = Color.Gray,
+                            color = colorResource(R.color.shimmer_color),
                         ),
             )
         }
@@ -317,12 +308,11 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFD9D9D9)),
+                    .background(colorResource(R.color.profile_content_background)),
         )
 
         ProfileMenu(
             onTheoryClick = {},
-            onSupportClick = {},
             onSettingsClick = {},
             onLogoutClick = {},
         )
@@ -333,6 +323,9 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
 @Composable
 fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
-        ProfileScreen()
+        ProfileScreen(
+            viewModel(factory = LocalViewModelFactory.current),
+            rememberNavController(),
+        )
     }
 }

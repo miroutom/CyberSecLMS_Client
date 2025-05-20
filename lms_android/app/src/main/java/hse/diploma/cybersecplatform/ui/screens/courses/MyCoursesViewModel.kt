@@ -6,7 +6,6 @@ import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.model.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.state.CoursesUiState
 import hse.diploma.cybersecplatform.ui.state.MyCoursesState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MyCoursesScreenViewModel @Inject constructor(
+class MyCoursesViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
 ) : ViewModel() {
     private val _myCoursesState = MutableStateFlow<MyCoursesState>(MyCoursesState.Loading)
@@ -60,6 +59,13 @@ class MyCoursesScreenViewModel @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "MyCoursesScreenViewModel"
+        private const val TAG = "MyCoursesViewModel"
     }
 }
+
+data class CoursesUiState(
+    val courses: List<Course> = emptyList(),
+    val startedCourses: List<Course> = emptyList(),
+    val completedCourses: List<Course> = emptyList(),
+    val filteredCourses: List<Course> = emptyList(),
+)

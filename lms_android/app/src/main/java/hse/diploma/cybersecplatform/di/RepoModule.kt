@@ -6,6 +6,8 @@ import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.domain.repository.AuthRepoImpl
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepoImpl
+import hse.diploma.cybersecplatform.domain.repository.SettingsRepo
+import hse.diploma.cybersecplatform.domain.repository.SettingsRepoImpl
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import hse.diploma.cybersecplatform.domain.repository.UserRepoImpl
 
@@ -19,4 +21,7 @@ interface RepoModule {
 
     @Binds
     fun bindCoursesRepo(coursesRepo: CoursesRepoImpl): CoursesRepo
+
+    @Binds
+    fun bindSettingsRepo(settingsRepo: SettingsRepoImpl): SettingsRepo
 }

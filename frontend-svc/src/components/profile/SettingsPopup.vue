@@ -4,65 +4,36 @@
       <h2 class="popup-title">Мой Профиль</h2>
       <form @submit.prevent="saveSettings">
         <div class="form-group">
-          <label for="photo">Изменить фото:</label>
-          <input type="file" id="photo" @change="handlePhotoUpload" />
-          <img
-            v-if="profilePhoto"
-            :src="profilePhoto"
-            alt="Фото профиля"
-            class="profile-photo"
-          />
-        </div>
-        <div class="form-group">
           <label for="username">Username:</label>
-          <input type="text" id="username" v-model="username" />
-        </div>
-        <div class="form-group">
-          <label for="firstName">Имя:</label>
-          <input type="text" id="firstName" v-model="firstName" />
-        </div>
-        <div class="form-group">
-          <label for="lastName">Фамилия:</label>
-          <input type="text" id="lastName" v-model="lastName" />
+          <input type="text" id="username" v-model="formData.username" />
         </div>
         <div class="form-group">
           <label for="email">Email:</label>
-          <input type="email" id="email" v-model="email" />
+          <input type="email" id="email" v-model="formData.email" />
         </div>
         <div class="form-group">
-          <label for="university">Университет:</label>
-          <input type="text" id="university" v-model="university" />
-        </div>
-        <div class="form-group">
-          <label for="faculty">Факультет:</label>
-          <input type="text" id="faculty" v-model="faculty" />
-        </div>
-        <div class="form-group">
-          <label for="theme">Тема:</label>
-          <select id="theme" v-model="theme">
-            <option value="light">Светлая</option>
-            <option value="dark">Темная</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="language">Язык:</label>
-          <select id="language" v-model="language">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-          </select>
+          <label for="phone">Телефон:</label>
+          <input type="tel" id="phone" v-model="formData.phone" />
         </div>
         <div class="buttons">
-          <button type="submit" class="save-button">Сохранить</button>
+          <button type="submit" class="save-button" :disabled="isLoading">
+            Сохранить
+          </button>
           <button type="button" @click="closePopup" class="cancel-button">
             Отмена
           </button>
         </div>
       </form>
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { profileService } from "@/services/profileService"
+
 export default {
   name: "SettingsPopup",
   props: {
@@ -70,41 +41,54 @@ export default {
       type: Boolean,
       default: false,
     },
+    initialData: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
-      profilePhoto: null,
-      username: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      university: "",
-      faculty: "",
-      theme: "light",
-      language: "ru",
-    };
+      formData: {
+        username: "",
+        email: "",
+        phone: "",
+      },
+      isLoading: false,
+      error: null,
+    }
+  },
+  watch: {
+    initialData: {
+      immediate: true,
+      handler(newData) {
+        this.formData = { ...newData }
+      },
+    },
   },
   methods: {
-    handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.profilePhoto = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    async saveSettings() {
+      try {
+        this.isLoading = true
+        this.error = null
+
+        const response = await profileService.updateProfile(this.formData)
+
+        if (response.success) {
+          this.$emit("save", response.profile)
+          this.closePopup()
+        }
+      } catch (error) {
+        this.error = error.error || "Failed to save settings"
+        console.error("Error saving settings:", error)
+      } finally {
+        this.isLoading = false
       }
     },
-    saveSettings() {
-      console.log("Сохраняем настройки:", this.$data);
-      this.closePopup();
-    },
     closePopup() {
-      this.$emit("close");
-      this.profilePhoto = null;
+      this.$emit("close")
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -126,14 +110,14 @@ export default {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  max-width: 700px;
-  max-height: 900px;
+  max-width: 500px;
   width: 90%;
 }
 
 .popup-title {
   margin-bottom: 20px;
   font-size: 24px;
+  color: #3764ed;
 }
 
 .form-group {
@@ -143,12 +127,11 @@ export default {
 label {
   display: block;
   margin-bottom: 5px;
+  color: #3764ed;
+  font-weight: 600;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="file"],
-select {
+input {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -156,15 +139,10 @@ select {
   box-sizing: border-box;
 }
 
-.profile-photo {
-  max-width: 150px;
-  margin-top: 10px;
-  display: block;
-}
-
 .buttons {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-top: 20px;
 }
 
@@ -174,15 +152,35 @@ select {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .save-button {
   background-color: #3764ed;
   color: white;
-  margin-left: 10px;
 }
 
 .cancel-button {
   background-color: #eee;
+  color: #333;
+}
+
+.save-button:hover {
+  background-color: #2d4fc7;
+}
+
+.cancel-button:hover {
+  background-color: #ddd;
+}
+
+.save-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4444;
+  margin-top: 10px;
+  text-align: center;
 }
 </style>

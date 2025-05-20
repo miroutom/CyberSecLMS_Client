@@ -21,9 +21,9 @@
 </template>
 
 <script>
-import TheHeader from "@/components/common/TheHeader.vue";
-import TheSideBar from "@/components/common/TheSideBar.vue";
-import CourseCard from "@/components/all_courses/CourseCard.vue";
+import TheHeader from "@/components/common/TheHeader.vue"
+import TheSideBar from "@/components/common/TheSideBar.vue"
+import CourseCard from "@/components/all_courses/CourseCard.vue"
 
 export default {
   components: {
@@ -76,9 +76,9 @@ export default {
         },
         // ... other vulnerabilities
       ],
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>

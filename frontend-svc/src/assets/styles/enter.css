@@ -12,7 +12,8 @@
   box-sizing: border-box;
 }
 
-.auth-container, .registration-container{
+.auth-container,
+.registration-container {
   background-color: #fff;
   padding: 2rem;
   border-radius: 20px;
