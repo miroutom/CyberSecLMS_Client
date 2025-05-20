@@ -262,7 +262,10 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 	commit := false
 	defer func() {
 		if !commit {
-			tx.Rollback()
+			rbErr := tx.Rollback()
+			if rbErr != nil && err == nil {
+				err = rbErr
+			}
 		}
 	}()
 
