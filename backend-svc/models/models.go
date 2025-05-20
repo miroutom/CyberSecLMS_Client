@@ -10,7 +10,7 @@ type User struct {
 	PasswordHash   string           `json:"-"` // Скрыто в JSON
 	Email          string           `json:"email"`
 	FullName       string           `json:"fullName"`
-	ProfileImage   string           `json:"profileImage"`
+	ProfileImage   string           `json:"profileImage,omitempty"`
 	TOTPSecret     string           `json:"-"` // Скрыто в JSON
 	Is2FAEnabled   bool             `json:"is2faEnabled"`
 	IsAdmin        bool             `json:"isAdmin,omitempty"`
