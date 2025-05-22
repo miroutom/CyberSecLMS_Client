@@ -8,6 +8,8 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+apply(from = "../../jacoco.gradle.kts")
+
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -114,6 +116,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
 }
 
 tasks.register("pullRequestCheck") {
