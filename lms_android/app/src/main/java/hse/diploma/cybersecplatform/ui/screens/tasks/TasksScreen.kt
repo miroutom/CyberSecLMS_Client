@@ -22,10 +22,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Task
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
 @Composable
 fun TasksScreen(

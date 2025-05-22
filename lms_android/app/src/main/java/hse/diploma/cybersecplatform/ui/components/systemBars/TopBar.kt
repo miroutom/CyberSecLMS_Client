@@ -27,8 +27,8 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.extensions.addTimestamp
 import hse.diploma.cybersecplatform.extensions.toAbsoluteUrl
-import hse.diploma.cybersecplatform.ui.components.EditProfile
 import hse.diploma.cybersecplatform.navigation.Screen
+import hse.diploma.cybersecplatform.ui.components.EditProfile
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme

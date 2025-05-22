@@ -35,9 +35,9 @@ import com.google.accompanist.placeholder.material.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.BaseCourseCard
-import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.AllCoursesState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme

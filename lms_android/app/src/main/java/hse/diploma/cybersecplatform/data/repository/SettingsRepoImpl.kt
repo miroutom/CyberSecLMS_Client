@@ -3,9 +3,9 @@ package hse.diploma.cybersecplatform.data.repository
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
 import hse.diploma.cybersecplatform.data.model.request.ChangePasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
 import hse.diploma.cybersecplatform.domain.repository.SettingsRepo

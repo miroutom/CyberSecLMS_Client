@@ -29,9 +29,9 @@ import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
-import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
 import hse.diploma.cybersecplatform.navigation.MainNavigationGraph
 import hse.diploma.cybersecplatform.navigation.authNavigationGraph
+import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
 import hse.diploma.cybersecplatform.ui.screens.SplashScreen
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
