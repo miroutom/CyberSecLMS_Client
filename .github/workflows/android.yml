@@ -9,13 +9,14 @@ on:
   pull_request_target:
     branches: [ main ]
 
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
 jobs:
   check-paths:
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-      contents: read
     outputs:
       android_changed: ${{ steps.filter.outputs.android }}
     steps:
