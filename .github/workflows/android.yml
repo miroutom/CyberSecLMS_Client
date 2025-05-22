@@ -58,11 +58,19 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
 
-      - name: Upload test results
+      - name: Upload test report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: lms_android/app/build/test-results
+          name: junit-report
+          path: lms_android/app/build/reports/tests/testDebugUnitTest/
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Tests
+          path: lms_android/app/build/test-results/testDebugUnitTest/*.xml
+          reporter: java-junit
 
   jacoco-report:
     name: Jacoco Report
@@ -81,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: lms_android/app/build/reports/jacoco/debug/html
+          path: lms_android/app/build/reports/jacoco/debug/index.html
 
       - name: Jacoco Coverage Summary
         uses: madrapps/jacoco-report@v1.6.1
