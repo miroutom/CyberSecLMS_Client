@@ -33,8 +33,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
@@ -236,15 +236,7 @@ private fun ShimmerCourseCard(
                 Modifier
                     .fillMaxWidth()
                     .height(90.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .placeholder(
-                        visible = true,
-                        color = shimmerHighlight,
-                        highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
-                    ),
+                    .clip(RoundedCornerShape(20.dp)),
             )
             Spacer(Modifier.height(12.dp))
             Box(
@@ -255,9 +247,7 @@ private fun ShimmerCourseCard(
                         visible = true,
                         color = shimmerHighlight,
                         highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
             Spacer(Modifier.height(10.dp))
@@ -269,9 +259,7 @@ private fun ShimmerCourseCard(
                         visible = true,
                         color = shimmerHighlight,
                         highlight =
-                            PlaceholderHighlight.shimmer(
-                                highlightColor = shimmerHighlight,
-                            ),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
         }

@@ -1,8 +1,8 @@
 package hse.diploma.cybersecplatform.domain.repository
 
 import hse.diploma.cybersecplatform.data.model.LoginResponse
+import hse.diploma.cybersecplatform.data.model.MessageResponse
 import hse.diploma.cybersecplatform.data.model.RegisterResponse
-import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 
 interface AuthRepo {
@@ -32,14 +32,14 @@ interface AuthRepo {
         tempToken: String,
         code: String,
         newPassword: String,
-    ): Result<SuccessResponse>
+    ): Result<MessageResponse>
 
     suspend fun requestDeleteAccount(): Result<TempTokenResponse>
 
     suspend fun confirmDeleteAccount(
         otpValue: String,
         tempToken: String,
-    ): Result<SuccessResponse>
+    ): Result<MessageResponse>
 
     fun logout()
 

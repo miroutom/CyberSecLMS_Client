@@ -5,10 +5,10 @@ import hse.diploma.cybersecplatform.data.api.TokenManager
 import hse.diploma.cybersecplatform.data.model.ForgotPasswordRequest
 import hse.diploma.cybersecplatform.data.model.LoginRequest
 import hse.diploma.cybersecplatform.data.model.LoginResponse
+import hse.diploma.cybersecplatform.data.model.MessageResponse
 import hse.diploma.cybersecplatform.data.model.RegisterRequest
 import hse.diploma.cybersecplatform.data.model.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
-import hse.diploma.cybersecplatform.data.model.SuccessResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import javax.inject.Inject
@@ -113,7 +113,7 @@ class AuthRepoImpl @Inject constructor(
         tempToken: String,
         code: String,
         newPassword: String,
-    ): Result<SuccessResponse> {
+    ): Result<MessageResponse> {
         return try {
             val request =
                 ResetPasswordRequest(
@@ -152,7 +152,7 @@ class AuthRepoImpl @Inject constructor(
     override suspend fun confirmDeleteAccount(
         otpValue: String,
         tempToken: String,
-    ): Result<SuccessResponse> {
+    ): Result<MessageResponse> {
         return try {
             val request =
                 VerifyOtpRequest(

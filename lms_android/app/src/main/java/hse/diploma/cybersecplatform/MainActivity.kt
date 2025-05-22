@@ -32,6 +32,7 @@ import hse.diploma.cybersecplatform.domain.model.Language
 import hse.diploma.cybersecplatform.ui.base.LifecycleComponentActivity
 import hse.diploma.cybersecplatform.ui.navigation.MainNavigationGraph
 import hse.diploma.cybersecplatform.ui.navigation.authNavigationGraph
+import hse.diploma.cybersecplatform.ui.screens.SplashScreen
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.utils.logD
@@ -131,8 +132,18 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                         val isAuthorized by authStateViewModel.isAuthorized.collectAsState()
                         NavHost(
                             navController = navController,
-                            startDestination = if (isAuthorized) "main_flow" else "auth_flow",
+                            startDestination = "splash",
                         ) {
+                            composable("splash") {
+                                SplashScreen(
+                                    isAuthorized = isAuthorized,
+                                    onSplashCompleted = { isAuth ->
+                                        navController.navigate(if (isAuth) "main_flow" else "auth_flow") {
+                                            popUpTo("splash") { inclusive = true }
+                                        }
+                                    },
+                                )
+                            }
                             authNavigationGraph(
                                 navController = navController,
                                 onAuthCompleted = {

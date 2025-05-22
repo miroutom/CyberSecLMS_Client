@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
@@ -39,6 +40,7 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.EditProfileDialog
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
+import hse.diploma.cybersecplatform.utils.UnsafeOkHttpClient
 import hse.diploma.cybersecplatform.utils.logE
 
 @Composable
@@ -89,10 +91,11 @@ fun EditProfile(
                 EditProfileDialog(
                     uiState = (profileState as ProfileState.Success).uiState,
                     onDismiss = {
-                        isEditProfileDialogOpened = !isEditProfileDialogOpened
+                        isEditProfileDialogOpened = false
                     },
                     onSave = { username, fullName, email ->
                         profileViewModel.updateProfile(username, fullName, email)
+                        isEditProfileDialogOpened = false
                     },
                 )
             }
@@ -142,6 +145,14 @@ private fun ProfileIcon(
     userProfileImageUrl: String?,
     onClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val imageLoader =
+        remember {
+            ImageLoader.Builder(context)
+                .okHttpClient(UnsafeOkHttpClient.unsafeOkHttpClient)
+                .build()
+        }
+
     Box(
         modifier =
             Modifier
@@ -159,6 +170,7 @@ private fun ProfileIcon(
                 placeholder = painterResource(R.drawable.ic_account),
                 error = painterResource(R.drawable.ic_account),
                 onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
+                imageLoader = imageLoader,
             )
         } else {
             Icon(

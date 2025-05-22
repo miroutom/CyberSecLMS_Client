@@ -74,7 +74,7 @@ fun OtpDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(R.string.otp_sent_to_email, maskedEmail),
+                    text = maskedEmail,
                     fontFamily = Montserrat,
                     fontSize = 14.sp,
                     color = colorResource(R.color.main_text_color),

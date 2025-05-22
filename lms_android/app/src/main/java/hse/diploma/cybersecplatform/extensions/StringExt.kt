@@ -1,7 +1,7 @@
 package hse.diploma.cybersecplatform.extensions
 
-import hse.diploma.cybersecplatform.BuildConfig.BASE_URL
+import hse.diploma.cybersecplatform.BuildConfig.UPLOADS_URL
 
 fun String.addTimestamp(): String = this + "?ts=" + System.currentTimeMillis()
 
-fun String.toAbsoluteUrl() = if (startsWith("http")) this else "$BASE_URL$this"
+fun String.toAbsoluteUrl() = if (startsWith("https")) this else "$UPLOADS_URL$this"

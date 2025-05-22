@@ -8,6 +8,8 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+apply(from = "../../jacoco.gradle.kts")
+
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -18,6 +20,12 @@ val baseUrl: String =
     System.getProperty("BASE_URL")
         ?: System.getenv("BASE_URL")
         ?: localProperties.getProperty("BASE_URL")
+        ?: "\"https://default-url.example.com/api/\""
+
+val uploadsUrl: String =
+    System.getProperty("UPLOADS_URL")
+        ?: System.getenv("UPLOADS_URL")
+        ?: localProperties.getProperty("UPLOADS_URL")
         ?: "\"https://default-url.example.com/api/\""
 
 android {
@@ -44,10 +52,12 @@ android {
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
 
         debug {
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
     }
     compileOptions {
@@ -106,6 +116,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
 }
 
 tasks.register("pullRequestCheck") {

@@ -38,8 +38,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
@@ -212,10 +212,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                     .placeholder(
                                         true,
                                         highlight =
-                                            PlaceholderHighlight.shimmer(
-                                                highlightColor = colorResource(R.color.shimmer_color),
-                                            ),
-                                        color = colorResource(R.color.shimmer_color),
+                                            PlaceholderHighlight.shimmer(),
                                     ),
                         )
                     }
@@ -232,10 +229,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                 .placeholder(
                                     true,
                                     highlight =
-                                        PlaceholderHighlight.shimmer(
-                                            highlightColor = colorResource(R.color.shimmer_color),
-                                        ),
-                                    color = colorResource(R.color.shimmer_color),
+                                        PlaceholderHighlight.shimmer(),
                                 ),
                     )
                     Text(
@@ -250,10 +244,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                 .placeholder(
                                     true,
                                     highlight =
-                                        PlaceholderHighlight.shimmer(
-                                            highlightColor = colorResource(R.color.shimmer_color),
-                                        ),
-                                    color = colorResource(R.color.shimmer_color),
+                                        PlaceholderHighlight.shimmer(),
                                 ),
                     )
                 }
@@ -265,10 +256,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                         .placeholder(
                             true,
                             highlight =
-                                PlaceholderHighlight.shimmer(
-                                    highlightColor = colorResource(R.color.shimmer_color),
-                                ),
-                            color = colorResource(R.color.shimmer_color),
+                                PlaceholderHighlight.shimmer(),
                         ),
                 )
             }
@@ -294,10 +282,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                         .placeholder(
                             true,
                             highlight =
-                                PlaceholderHighlight.shimmer(
-                                    highlightColor = colorResource(R.color.shimmer_color),
-                                ),
-                            color = colorResource(R.color.shimmer_color),
+                                PlaceholderHighlight.shimmer(),
                         ),
             )
         }

@@ -1,5 +1,5 @@
 package hse.diploma.cybersecplatform.data.model
 
-data class SuccessResponse(
+data class MessageResponse(
     val message: String,
 )

@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.domain.repository
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
 import hse.diploma.cybersecplatform.data.model.ChangePasswordRequest
-import hse.diploma.cybersecplatform.data.model.SuccessResponse
+import hse.diploma.cybersecplatform.data.model.MessageResponse
 import hse.diploma.cybersecplatform.data.model.TempTokenResponse
 import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
 import hse.diploma.cybersecplatform.domain.model.AppTheme
@@ -65,7 +65,7 @@ class SettingsRepoImpl @Inject constructor(
     override suspend fun confirmPasswordUpdate(
         otpValue: String,
         tempToken: String,
-    ): Result<SuccessResponse> {
+    ): Result<MessageResponse> {
         return try {
             val request =
                 VerifyOtpRequest(
@@ -75,7 +75,7 @@ class SettingsRepoImpl @Inject constructor(
             val response = apiService.verifyOtp(request)
 
             if (response.isSuccessful) {
-                Result.success(SuccessResponse(message = "Password updated successfully"))
+                Result.success(MessageResponse(message = "Password updated successfully"))
             } else {
                 val errorMessage = response.errorBody()?.string() ?: "Failed to verify OTP"
                 Result.failure(Exception(errorMessage))

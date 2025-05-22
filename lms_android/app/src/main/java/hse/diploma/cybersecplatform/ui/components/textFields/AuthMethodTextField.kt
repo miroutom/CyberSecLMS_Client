@@ -25,7 +25,7 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
-import hse.diploma.cybersecplatform.utils.isLoginValidAndAuthMethodType
+import hse.diploma.cybersecplatform.utils.isEmailValid
 
 @Composable
 fun AuthorizationTextField(
@@ -34,7 +34,7 @@ fun AuthorizationTextField(
     modifier: Modifier = Modifier,
 ) {
     val label = stringResource(R.string.auth_label_email)
-    val isAuthMethodTypeValid = isLoginValidAndAuthMethodType(value.text)
+    val isAuthMethodTypeValid = isEmailValid(value.text)
 
     Column(modifier = modifier.padding(8.dp)) {
         if (!isAuthMethodTypeValid && value.text.isNotEmpty()) {
