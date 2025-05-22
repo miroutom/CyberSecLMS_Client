@@ -1,11 +1,12 @@
-package hse.diploma.cybersecplatform.domain.repository
+package hse.diploma.cybersecplatform.data.repository
 
 import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import hse.diploma.cybersecplatform.data.api.ApiService
-import hse.diploma.cybersecplatform.data.model.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

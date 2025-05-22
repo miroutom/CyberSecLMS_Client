@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.courses
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.state.MyCoursesState

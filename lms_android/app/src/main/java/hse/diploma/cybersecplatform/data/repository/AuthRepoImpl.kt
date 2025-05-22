@@ -1,16 +1,17 @@
-package hse.diploma.cybersecplatform.domain.repository
+package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.TokenManager
-import hse.diploma.cybersecplatform.data.model.ForgotPasswordRequest
-import hse.diploma.cybersecplatform.data.model.LoginRequest
-import hse.diploma.cybersecplatform.data.model.LoginResponse
-import hse.diploma.cybersecplatform.data.model.MessageResponse
-import hse.diploma.cybersecplatform.data.model.RegisterRequest
-import hse.diploma.cybersecplatform.data.model.RegisterResponse
-import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
+import hse.diploma.cybersecplatform.data.model.request.ForgotPasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.LoginRequest
+import hse.diploma.cybersecplatform.data.model.response.LoginResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.request.RegisterRequest
+import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
+import hse.diploma.cybersecplatform.data.model.request.ResetPasswordRequest
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
+import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import javax.inject.Inject
 import javax.inject.Singleton
 

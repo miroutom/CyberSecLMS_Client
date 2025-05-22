@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.domain.model
+package hse.diploma.cybersecplatform.domain.error
 
 sealed class ErrorType {
     data object NoInternet : ErrorType()

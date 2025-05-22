@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.ui.navigation
+package hse.diploma.cybersecplatform.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

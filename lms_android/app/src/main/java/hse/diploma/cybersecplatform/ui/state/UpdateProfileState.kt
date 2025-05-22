@@ -1,6 +1,6 @@
 package hse.diploma.cybersecplatform.ui.state
 
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 
 sealed class UpdateProfileState {

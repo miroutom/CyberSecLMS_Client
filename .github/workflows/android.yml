@@ -88,7 +88,7 @@ jobs:
           java-version: '17'
 
       - name: Generate Jacoco report
-        run: ./gradlew jacocoDebugTestReport
+        run: ./gradlew testDebugUnitTest jacocoDebugTestReport
 
       - name: Upload Jacoco HTML report
         uses: actions/upload-artifact@v4

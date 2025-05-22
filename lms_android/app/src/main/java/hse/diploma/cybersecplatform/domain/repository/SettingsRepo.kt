@@ -1,7 +1,7 @@
 package hse.diploma.cybersecplatform.domain.repository
 
-import hse.diploma.cybersecplatform.data.model.MessageResponse
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
 import kotlinx.coroutines.flow.Flow

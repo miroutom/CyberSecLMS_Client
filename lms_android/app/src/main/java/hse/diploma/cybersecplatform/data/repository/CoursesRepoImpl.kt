@@ -1,7 +1,8 @@
-package hse.diploma.cybersecplatform.domain.repository
+package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.domain.model.Course
+import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.mock.mockAllCourses
 import hse.diploma.cybersecplatform.mock.mockCourses
 import retrofit2.Response

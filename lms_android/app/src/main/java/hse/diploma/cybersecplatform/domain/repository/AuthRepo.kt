@@ -1,9 +1,9 @@
 package hse.diploma.cybersecplatform.domain.repository
 
-import hse.diploma.cybersecplatform.data.model.LoginResponse
-import hse.diploma.cybersecplatform.data.model.MessageResponse
-import hse.diploma.cybersecplatform.data.model.RegisterResponse
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.response.LoginResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 
 interface AuthRepo {
     suspend fun login(

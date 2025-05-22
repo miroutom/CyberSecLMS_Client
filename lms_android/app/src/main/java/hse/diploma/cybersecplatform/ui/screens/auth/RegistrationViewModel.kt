@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.data.model.RegisterResponse
+import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isEmailValid
 import hse.diploma.cybersecplatform.utils.isPasswordValid

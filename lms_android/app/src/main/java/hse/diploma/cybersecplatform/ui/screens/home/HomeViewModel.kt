@@ -4,7 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Module
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState

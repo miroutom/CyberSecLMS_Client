@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

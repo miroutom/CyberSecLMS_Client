@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomOutlinedButton
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 

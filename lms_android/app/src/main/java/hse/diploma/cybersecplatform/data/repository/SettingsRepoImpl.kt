@@ -1,13 +1,14 @@
-package hse.diploma.cybersecplatform.domain.repository
+package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
-import hse.diploma.cybersecplatform.data.model.ChangePasswordRequest
-import hse.diploma.cybersecplatform.data.model.MessageResponse
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
+import hse.diploma.cybersecplatform.data.model.request.ChangePasswordRequest
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
+import hse.diploma.cybersecplatform.domain.repository.SettingsRepo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

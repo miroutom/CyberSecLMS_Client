@@ -2,7 +2,7 @@ package hse.diploma.cybersecplatform.domain.repository
 
 import android.content.ContentResolver
 import android.net.Uri
-import hse.diploma.cybersecplatform.data.model.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.UserData
 
 interface UserRepo {
