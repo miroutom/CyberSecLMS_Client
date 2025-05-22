@@ -4,25 +4,23 @@
     <div class="content-wrapper">
       <aside class="sidebar"><TheSideBar /></aside>
       <main class="profile-content">
-        <section class="user-info">
+        <div v-if="loading" class="loading">Загрузка профиля...</div>
+        <div v-else-if="error" class="error">
+          {{ error }}
+        </div>
+        <section v-else class="user-info">
           <div class="welcome-message">
             <div class="welcome-text">
               <h2>Привет, {{ username }}!</h2>
               <p><span class="contact-label">Email:</span> {{ email }}</p>
               <p><span class="contact-label">Телефон:</span> {{ phone }}</p>
-              <button
-                @click="
-                  showSettings = true;
-                  console.log(showSettings);
-                "
-                class="settings-button"
-              >
-                <img src="@/assets/icons/settings.svg" alt="Настройки" />
-                Настройки
+              <button class="settings-button" @click="showSettings = true">
+                <img src="@/assets/icons/settings.svg" alt="Settings" />
+                Настройки профиля
               </button>
             </div>
             <img
-              src="@/assets/icons/welcome-image.png "
+              src="@/assets/icons/welcome-image.png"
               alt=""
               class="welcome-image"
             />
@@ -32,8 +30,13 @@
             <div class="security-basics">
               <h3>Изучай кибербезопасность:</h3>
               <div class="cards-row">
-                <MaterialsCard />
-                <MaterialsCard />
+                <MaterialsCard
+                  v-for="material in materials"
+                  :key="material.title"
+                  :title="material.title"
+                  :description="material.description"
+                  :progress="material.progress"
+                />
               </div>
             </div>
             <div class="user-stats">
@@ -51,15 +54,21 @@
         </section>
       </main>
     </div>
-    <SettingsPopup :isVisible="showSettings" @close="showSettings = false" />
+    <SettingsPopup
+      :isVisible="showSettings"
+      :initialData="{ username, email, phone }"
+      @close="showSettings = false"
+      @save="handleSettingsSave"
+    />
   </div>
 </template>
 
 <script>
-import TheHeader from "@/components/common/TheHeader.vue";
-import TheSideBar from "@/components/common/TheSideBar.vue";
-import MaterialsCard from "@/components/profile/MaterialsCard.vue";
-import SettingsPopup from "@/components/profile/SettingsPopup.vue";
+import TheHeader from "@/components/common/TheHeader.vue"
+import TheSideBar from "@/components/common/TheSideBar.vue"
+import MaterialsCard from "@/components/profile/MaterialsCard.vue"
+import SettingsPopup from "@/components/profile/SettingsPopup.vue"
+import { profileService } from "@/services/profileService"
 
 export default {
   components: {
@@ -70,15 +79,61 @@ export default {
   },
   data() {
     return {
-      username: "User Name",
-      email: "user@example.com",
-      phone: "+7 (123) 456-78-90",
-      solvedTasks: 120,
-      completedCourses: 5,
+      username: "",
+      email: "",
+      phone: "",
+      solvedTasks: 0,
+      completedCourses: 0,
+      materials: [],
       showSettings: false,
-    };
+      loading: false,
+      error: null,
+    }
   },
-};
+  async created() {
+    try {
+      this.loading = true
+      const response = await profileService.getProfile()
+      const {
+        username,
+        email,
+        phone,
+        solvedTasks,
+        completedCourses,
+        materials,
+      } = response.profile
+
+      this.username = username
+      this.email = email
+      this.phone = phone
+      this.solvedTasks = solvedTasks
+      this.completedCourses = completedCourses
+      this.materials = materials
+    } catch (error) {
+      this.error = error.error || "Failed to load profile"
+      console.error("Error loading profile:", error)
+    } finally {
+      this.loading = false
+    }
+  },
+  methods: {
+    async handleSettingsSave(newData) {
+      try {
+        // Here you would typically make an API call to update the profile
+        // For now, we'll just update the local data
+        this.username = newData.username
+        this.email = newData.email
+        this.phone = newData.phone
+
+        // If you have a profile service, you would call it like this:
+        // await profileService.updateProfile(newData)
+      } catch (error) {
+        console.error("Error updating profile:", error)
+        // Handle error appropriately
+      }
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -90,7 +145,7 @@ export default {
 
 .content-wrapper {
   display: grid;
-  grid-template-columns: 200px 1fr; /* Сайдбар и контент */
+  grid-template-columns: 200px 1fr;
   gap: 20px;
   padding: 20px;
 }
@@ -141,17 +196,20 @@ export default {
   background-color: transparent;
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: all 0.3s ease;
 }
 
 .settings-button img {
-  height: 24px;
-  width: 24px;
-  margin-right: 10px;
+  height: 20px;
+  width: 20px;
+  margin-right: 8px;
 }
 
 .settings-button:hover {
   text-decoration: underline;
+  transform: scale(1.05);
 }
 
 .stats-security {
@@ -180,9 +238,7 @@ h3 {
   display: flex;
   gap: 20px;
 }
-.learn-more {
-  /* link styles */
-}
+
 .user-stats {
   background-color: rgb(226, 225, 225);
   width: 450px;
@@ -197,5 +253,19 @@ h3 {
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #dc3545;
+  font-size: 1.2rem;
 }
 </style>

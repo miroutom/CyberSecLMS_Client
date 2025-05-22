@@ -4,12 +4,10 @@
     <div class="content-wrapper">
       <aside class="sidebar"><TheSideBar /></aside>
       <div class="vulnerability-tasks">
-        <div class="task-cards-container">
-          <TaskCard
-            v-for="task in filteredTasks"
-            :key="task.title"
-            :task="task"
-          />
+        <div v-if="loading" class="loading">Загрузка задач...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else class="task-cards-container">
+          <TaskCard v-for="task in tasks" :key="task.id" :task="task" />
         </div>
       </div>
     </div>
@@ -17,10 +15,10 @@
 </template>
 
 <script>
-import tasksData from "@/tasks.js";
-import TheHeader from "@/components/common/TheHeader.vue";
-import TheSideBar from "@/components/common/TheSideBar.vue";
-import TaskCard from "@/components/task-list/TaskCard.vue";
+import TheHeader from "@/components/common/TheHeader.vue"
+import TheSideBar from "@/components/common/TheSideBar.vue"
+import TaskCard from "@/components/task-list/TaskCard.vue"
+import { taskService } from "@/services/taskService"
 
 export default {
   components: {
@@ -29,23 +27,33 @@ export default {
     TaskCard,
   },
   name: "TaskList",
-  props: {},
   data() {
     return {
-      allTasks: tasksData,
-    };
+      tasks: [],
+      loading: false,
+      error: null,
+    }
   },
   computed: {
     vulnerability() {
-      return this.$route.params.vulnerability;
-    },
-    filteredTasks() {
-      return this.allTasks.filter(
-        (task) => task.vulnerability === this.vulnerability
-      );
+      return this.$route.params.vulnerability
     },
   },
-};
+  async created() {
+    try {
+      this.loading = true
+      const response = await taskService.getTasksByVulnerability(
+        this.vulnerability
+      )
+      this.tasks = response.tasks
+    } catch (error) {
+      this.error = error.error || "Failed to load tasks"
+      console.error("Error loading tasks:", error)
+    } finally {
+      this.loading = false
+    }
+  },
+}
 </script>
 
 <style scoped>
@@ -64,5 +72,16 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 50px;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.error {
+  color: #ff4444;
 }
 </style>

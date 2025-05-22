@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import MonacoEditor from "vue-monaco-editor";
+import MonacoEditor from "vue-monaco-editor"
 
 export default {
   name: "CodeEditor",
@@ -27,17 +27,17 @@ export default {
         automaticLayout: true,
         theme: "vs-dark",
       },
-    };
+    }
   },
   methods: {
     editorDidMount(editor, monaco) {
-      console.log("Monaco Editor is ready!", editor, monaco);
+      console.log("Monaco Editor is ready!", editor, monaco)
     },
     logChange(newCode) {
-      this.$emit("code-changed", newCode);
+      this.$emit("code-changed", newCode)
     },
   },
-};
+}
 </script>
 
 <style scoped>

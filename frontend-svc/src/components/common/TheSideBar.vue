@@ -29,10 +29,10 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
-import IconHome from "./icons/IconHome.vue";
-import IconMyCourses from "./icons/IconMyCourses.vue";
-import IconProfile from "./icons/IconProfile.vue";
+import { ref, onMounted, onUnmounted } from "vue"
+import IconHome from "./icons/IconHome.vue"
+import IconMyCourses from "./icons/IconMyCourses.vue"
+import IconProfile from "./icons/IconProfile.vue"
 
 export default {
   components: {
@@ -41,25 +41,25 @@ export default {
     IconProfile,
   },
   setup() {
-    const isDesktop = ref(window.innerWidth >= 768);
+    const isDesktop = ref(window.innerWidth >= 768)
 
     const handleResize = () => {
-      isDesktop.value = window.innerWidth >= 768;
-    };
+      isDesktop.value = window.innerWidth >= 768
+    }
 
     onMounted(() => {
-      window.addEventListener("resize", handleResize);
-    });
+      window.addEventListener("resize", handleResize)
+    })
 
     onUnmounted(() => {
-      window.removeEventListener("resize", handleResize);
-    });
+      window.removeEventListener("resize", handleResize)
+    })
 
     return {
       isDesktop,
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>

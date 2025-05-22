@@ -35,25 +35,25 @@ export default {
     icon() {
       switch (this.task.vulnerability) {
         case "XSS":
-          return require("@/assets/icons/xss-icon.png");
+          return require("@/assets/icons/xss-icon.png")
         case "CSRF":
-          return require("@/assets/icons/csrf-icon.png");
+          return require("@/assets/icons/csrf-icon.png")
         default:
-          return require("@/assets/icons/xss-icon.png");
+          return require("@/assets/icons/xss-icon.png")
       }
     },
     cardColor() {
       switch (this.task.vulnerability) {
         case "XSS":
-          return "#F2F2FF";
+          return "#F2F2FF"
         case "CSRF":
-          return "#F1FFFF";
+          return "#F1FFFF"
         default:
-          return "#95a5a6";
+          return "#95a5a6"
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>

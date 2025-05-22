@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend-svc/mail"
 	"lmsmodule/backend-svc/models"
+	"log"
 	"net/http"
 	"time"
 )
@@ -189,7 +190,7 @@ func VerifyOTPHandler(c *gin.Context) {
 
 	userID, err := validateTempToken(req.TempToken)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid token"})
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Invalid temp token"})
 		return
 	}
 
@@ -323,9 +324,17 @@ func validateTempToken(tokenString string) (int, error) {
 }
 
 func createJWTToken(userID int) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(24 * time.Hour).Unix(),
-	})
+	now := time.Now()
+
+	claims := jwt.MapClaims{
+		"sub": userID,                         // Кому принадлежит токен
+		"iat": now.Unix(),                     // Когда был выдан
+		"exp": now.Add(24 * time.Hour).Unix(), // Когда истекает
+	}
+
+	log.Printf("Creating token for user %d, expires at: %v",
+		userID, time.Unix(claims["exp"].(int64), 0))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(JWTSecret))
 }
