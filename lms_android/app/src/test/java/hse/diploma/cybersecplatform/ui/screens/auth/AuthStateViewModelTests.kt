@@ -9,7 +9,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AuthStateViewModelTest {
-
     private val authRepo: AuthRepo = mock()
 
     @Test
@@ -43,4 +42,3 @@ class AuthStateViewModelTest {
         verify(authRepo).logout()
     }
 }
-

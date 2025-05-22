@@ -229,7 +229,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                 .placeholder(
                                     true,
                                     highlight =
-                                    PlaceholderHighlight.shimmer(),
+                                        PlaceholderHighlight.shimmer(),
                                 ),
                     )
                     Text(
@@ -244,7 +244,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                                 .placeholder(
                                     true,
                                     highlight =
-                                    PlaceholderHighlight.shimmer(),
+                                        PlaceholderHighlight.shimmer(),
                                 ),
                     )
                 }
@@ -256,7 +256,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                         .placeholder(
                             true,
                             highlight =
-                            PlaceholderHighlight.shimmer(),
+                                PlaceholderHighlight.shimmer(),
                         ),
                 )
             }
@@ -282,7 +282,7 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
                         .placeholder(
                             true,
                             highlight =
-                            PlaceholderHighlight.shimmer(),
+                                PlaceholderHighlight.shimmer(),
                         ),
             )
         }

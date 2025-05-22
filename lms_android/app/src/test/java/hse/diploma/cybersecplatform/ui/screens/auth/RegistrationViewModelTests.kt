@@ -19,7 +19,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegistrationViewModelTests {
-
     private val authRepo: AuthRepo = mock()
     private lateinit var viewModel: RegistrationViewModel
 
@@ -50,44 +49,48 @@ class RegistrationViewModelTests {
     }
 
     @Test
-    fun `isRegistrationEnabled false for invalid email`() = runTest {
-        viewModel.onLoginChange(TextFieldValue("invalid-email"))
-        viewModel.onPasswordChange(TextFieldValue(PASSWORD))
-        viewModel.onConfirmPasswordChange(TextFieldValue(PASSWORD))
+    fun `isRegistrationEnabled false for invalid email`() =
+        runTest {
+            viewModel.onLoginChange(TextFieldValue("invalid-email"))
+            viewModel.onPasswordChange(TextFieldValue(PASSWORD))
+            viewModel.onConfirmPasswordChange(TextFieldValue(PASSWORD))
 
-        advanceUntilIdle()
-        assertFalse(viewModel.isRegistrationEnabled.value)
-    }
-
-    @Test
-    fun `isRegistrationEnabled false for invalid password`() = runTest {
-        viewModel.onLoginChange(TextFieldValue(EMAIL))
-        viewModel.onPasswordChange(TextFieldValue("short"))
-        viewModel.onConfirmPasswordChange(TextFieldValue("short"))
-
-        advanceUntilIdle()
-        assertFalse(viewModel.isRegistrationEnabled.value)
-    }
+            advanceUntilIdle()
+            assertFalse(viewModel.isRegistrationEnabled.value)
+        }
 
     @Test
-    fun `isRegistrationEnabled false for mismatching passwords`() = runTest {
-        viewModel.onLoginChange(TextFieldValue(EMAIL))
-        viewModel.onPasswordChange(TextFieldValue(PASSWORD))
-        viewModel.onConfirmPasswordChange(TextFieldValue("AnotherPass1!"))
+    fun `isRegistrationEnabled false for invalid password`() =
+        runTest {
+            viewModel.onLoginChange(TextFieldValue(EMAIL))
+            viewModel.onPasswordChange(TextFieldValue("short"))
+            viewModel.onConfirmPasswordChange(TextFieldValue("short"))
 
-        advanceUntilIdle()
-        assertFalse(viewModel.isRegistrationEnabled.value)
-    }
+            advanceUntilIdle()
+            assertFalse(viewModel.isRegistrationEnabled.value)
+        }
 
     @Test
-    fun `isRegistrationEnabled true for valid email passwords and match`() = runTest {
-        viewModel.onLoginChange(TextFieldValue(EMAIL))
-        viewModel.onPasswordChange(TextFieldValue(PASSWORD))
-        viewModel.onConfirmPasswordChange(TextFieldValue(PASSWORD))
+    fun `isRegistrationEnabled false for mismatching passwords`() =
+        runTest {
+            viewModel.onLoginChange(TextFieldValue(EMAIL))
+            viewModel.onPasswordChange(TextFieldValue(PASSWORD))
+            viewModel.onConfirmPasswordChange(TextFieldValue("AnotherPass1!"))
 
-        advanceUntilIdle()
-        assertTrue(viewModel.isRegistrationEnabled.value)
-    }
+            advanceUntilIdle()
+            assertFalse(viewModel.isRegistrationEnabled.value)
+        }
+
+    @Test
+    fun `isRegistrationEnabled true for valid email passwords and match`() =
+        runTest {
+            viewModel.onLoginChange(TextFieldValue(EMAIL))
+            viewModel.onPasswordChange(TextFieldValue(PASSWORD))
+            viewModel.onConfirmPasswordChange(TextFieldValue(PASSWORD))
+
+            advanceUntilIdle()
+            assertTrue(viewModel.isRegistrationEnabled.value)
+        }
 
     companion object {
         private const val FULL_NAME = "John Test"
@@ -96,4 +99,3 @@ class RegistrationViewModelTests {
         private const val PASSWORD = "StrongPass1!"
     }
 }
-

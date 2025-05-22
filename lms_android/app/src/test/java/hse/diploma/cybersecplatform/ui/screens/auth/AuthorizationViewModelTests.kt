@@ -21,7 +21,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class AuthorizationViewModelTests {
-
     private lateinit var viewModel: AuthorizationViewModel
     private val authRepo: AuthRepo = mock()
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -38,59 +37,66 @@ class AuthorizationViewModelTests {
     }
 
     @Test
-    fun `initial state should have empty credentials and disabled login`() = runTest {
-        assertEquals(TextFieldValue(EMPTY_STRING), viewModel.username.first())
-        assertEquals(TextFieldValue(EMPTY_STRING), viewModel.password.first())
-        assertFalse(viewModel.isAuthorizationEnabled.first())
-        assertFalse(viewModel.isLoading.first())
-    }
+    fun `initial state should have empty credentials and disabled login`() =
+        runTest {
+            assertEquals(TextFieldValue(EMPTY_STRING), viewModel.username.first())
+            assertEquals(TextFieldValue(EMPTY_STRING), viewModel.password.first())
+            assertFalse(viewModel.isAuthorizationEnabled.first())
+            assertFalse(viewModel.isLoading.first())
+        }
 
     @Test
-    fun `onUsernameChange should update username state`() = runTest {
-        val newUsername = TextFieldValue(VALID_USERNAME)
-        viewModel.onUsernameChange(newUsername)
-        assertEquals(newUsername, viewModel.username.first())
-    }
+    fun `onUsernameChange should update username state`() =
+        runTest {
+            val newUsername = TextFieldValue(VALID_USERNAME)
+            viewModel.onUsernameChange(newUsername)
+            assertEquals(newUsername, viewModel.username.first())
+        }
 
     @Test
-    fun `onPasswordChange should update password state`() = runTest {
-        val newPassword = TextFieldValue(VALID_PASSWORD)
-        viewModel.onPasswordChange(newPassword)
-        assertEquals(newPassword, viewModel.password.first())
-    }
+    fun `onPasswordChange should update password state`() =
+        runTest {
+            val newPassword = TextFieldValue(VALID_PASSWORD)
+            viewModel.onPasswordChange(newPassword)
+            assertEquals(newPassword, viewModel.password.first())
+        }
 
     @Test
-    fun `authorization should be enabled with valid username and password`() = runTest {
-        viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
-        viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
-        assertTrue(viewModel.isAuthorizationEnabled.first())
-    }
+    fun `authorization should be enabled with valid username and password`() =
+        runTest {
+            viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
+            viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
+            assertTrue(viewModel.isAuthorizationEnabled.first())
+        }
 
     @Test
-    fun `authorization should be disabled with empty username`() = runTest {
-        viewModel.onUsernameChange(TextFieldValue(EMPTY_STRING))
-        viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
-        assertFalse(viewModel.isAuthorizationEnabled.first())
-    }
+    fun `authorization should be disabled with empty username`() =
+        runTest {
+            viewModel.onUsernameChange(TextFieldValue(EMPTY_STRING))
+            viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
+            assertFalse(viewModel.isAuthorizationEnabled.first())
+        }
 
     @Test
-    fun `authorization should be disabled with invalid password`() = runTest {
-        viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
-        viewModel.onPasswordChange(TextFieldValue(INVALID_PASSWORD))
-        assertFalse(viewModel.isAuthorizationEnabled.first())
-    }
+    fun `authorization should be disabled with invalid password`() =
+        runTest {
+            viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
+            viewModel.onPasswordChange(TextFieldValue(INVALID_PASSWORD))
+            assertFalse(viewModel.isAuthorizationEnabled.first())
+        }
 
     @Test
-    fun `isLoading should be true during login and false after completion`() = runTest {
-        whenever(authRepo.login(VALID_USERNAME, VALID_PASSWORD))
-            .thenReturn(Result.success(tempTokenResponse))
+    fun `isLoading should be true during login and false after completion`() =
+        runTest {
+            whenever(authRepo.login(VALID_USERNAME, VALID_PASSWORD))
+                .thenReturn(Result.success(tempTokenResponse))
 
-        assertFalse(viewModel.isLoading.first())
+            assertFalse(viewModel.isLoading.first())
 
-        viewModel.login(VALID_USERNAME, VALID_PASSWORD) { }
+            viewModel.login(VALID_USERNAME, VALID_PASSWORD) { }
 
-        assertFalse(viewModel.isLoading.first())
-    }
+            assertFalse(viewModel.isLoading.first())
+        }
 
     companion object {
         private val tempTokenResponse = TempTokenResponse("success", "token123")

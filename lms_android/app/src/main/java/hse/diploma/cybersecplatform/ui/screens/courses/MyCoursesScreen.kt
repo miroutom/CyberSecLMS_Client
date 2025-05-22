@@ -236,8 +236,7 @@ private fun ShimmerCourseCard(
                 Modifier
                     .fillMaxWidth()
                     .height(90.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                ,
+                    .clip(RoundedCornerShape(20.dp)),
             )
             Spacer(Modifier.height(12.dp))
             Box(
@@ -248,7 +247,7 @@ private fun ShimmerCourseCard(
                         visible = true,
                         color = shimmerHighlight,
                         highlight =
-                        PlaceholderHighlight.shimmer(),
+                            PlaceholderHighlight.shimmer(),
                     ),
             )
             Spacer(Modifier.height(10.dp))

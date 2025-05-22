@@ -141,7 +141,7 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                                         navController.navigate(if (isAuth) "main_flow" else "auth_flow") {
                                             popUpTo("splash") { inclusive = true }
                                         }
-                                    }
+                                    },
                                 )
                             }
                             authNavigationGraph(
