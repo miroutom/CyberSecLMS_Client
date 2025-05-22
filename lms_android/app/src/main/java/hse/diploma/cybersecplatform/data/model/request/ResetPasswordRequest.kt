@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.data.model
+package hse.diploma.cybersecplatform.data.model.request
 
 data class ResetPasswordRequest(
     val tempToken: String,

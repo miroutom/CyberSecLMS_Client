@@ -1,6 +1,6 @@
 package hse.diploma.cybersecplatform.extensions
 
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.utils.logE
 import retrofit2.HttpException
 import java.net.ConnectException

@@ -2,7 +2,7 @@ package hse.diploma.cybersecplatform.ui.screens.otp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.data.model.LoginResponse
+import hse.diploma.cybersecplatform.data.model.response.LoginResponse
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

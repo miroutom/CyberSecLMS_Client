@@ -1,7 +1,7 @@
 package hse.diploma.cybersecplatform.mock
 
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
 private val mockSqlCourse =
     Course(

@@ -1,11 +1,11 @@
-package hse.diploma.cybersecplatform.ui.navigation
+package hse.diploma.cybersecplatform.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
-import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
 import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreen

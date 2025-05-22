@@ -1,5 +1,7 @@
 package hse.diploma.cybersecplatform.domain.model
 
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+
 data class Course(
     val vulnerabilityType: VulnerabilityType,
     val completedTasks: Int = 0,

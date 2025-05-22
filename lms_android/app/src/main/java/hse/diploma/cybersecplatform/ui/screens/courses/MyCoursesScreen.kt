@@ -42,7 +42,7 @@ import hse.diploma.cybersecplatform.ui.components.buttons.TabButton
 import hse.diploma.cybersecplatform.ui.components.cards.CompletedCourseCard
 import hse.diploma.cybersecplatform.ui.components.cards.StartedCourseCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.ConfirmResetProgressDialog
-import hse.diploma.cybersecplatform.ui.navigation.Screen
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.MyCoursesState
 import hse.diploma.cybersecplatform.utils.logD

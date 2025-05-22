@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.domain.model
+package hse.diploma.cybersecplatform.ui.model
 
 import androidx.annotation.StringRes
 import hse.diploma.cybersecplatform.R

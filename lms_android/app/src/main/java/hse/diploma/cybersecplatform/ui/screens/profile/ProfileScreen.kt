@@ -44,7 +44,7 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
-import hse.diploma.cybersecplatform.ui.navigation.Screen
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
