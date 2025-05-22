@@ -6,18 +6,12 @@ on:
     paths:
       - 'lms_android/**'
 
-  pull_request:
+  pull_request_target:
     branches: [ main ]
-    paths:
-      - 'lms_android/**'
 
 jobs:
   check-paths:
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-      contents: write
     outputs:
       android_changed: ${{ steps.filter.outputs.android }}
     steps:
@@ -31,6 +25,8 @@ jobs:
 
   static-code-analysis:
     name: Perform static code analysis
+    needs: check-paths
+    if: needs.check-paths.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -48,6 +44,7 @@ jobs:
     name: Run Unit Tests
     runs-on: ubuntu-latest
     needs: [ static-code-analysis ]
+    if: needs.check-paths.outputs.android_changed == 'true'
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
@@ -77,6 +74,7 @@ jobs:
   jacoco-report:
     name: Jacoco Report
     needs: [ run-tests ]
+    if: needs.check-paths.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -102,6 +100,7 @@ jobs:
   build-debug-apk:
     name: Build Debug APK
     needs: [ static-code-analysis, run-tests ]
+    if: needs.check-paths.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
