@@ -15,7 +15,9 @@ jobs:
   check-paths:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
       pull-requests: write
+      contents: write
     outputs:
       android_changed: ${{ steps.filter.outputs.android }}
     steps:
