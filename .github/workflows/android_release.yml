@@ -1,0 +1,102 @@
+name: Android Release CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Version name'
+        required: true
+        type: string
+      versionCode:
+        description: 'Version code'
+        required: true
+        type: string
+      releaseNotes:
+        description: 'Release notes'
+        required: false
+        type: string
+
+env:
+  BUILD_OUTPUT_DIR: lms_android/app/build/outputs/apk/release
+  ARTIFACT_NAME: app-release
+
+jobs:
+  quality-checks:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Run static analysis
+        run: ./gradlew ktlintCheck lintDebug
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            lms_android/app/build/reports/tests/
+            lms_android/app/build/test-results/
+
+  build-release:
+    name: Build Release APK
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Update version info
+        run: |
+          sed -i "s/versionCode = .*/versionCode = ${{ github.event.inputs.versionCode }}/" lms_android/app/build.gradle.kts
+          sed -i "s/versionName = .*/versionName = \"${{ github.event.inputs.versionName }}\"/" lms_android/app/build.gradle.kts
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
+
+      - name: Rename APK with version
+        run: |
+          mv "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME.apk" "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ github.event.inputs.versionName }}.apk"
+          echo "APK_VERSION=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: |
+            $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
+            $BUILD_OUTPUT_DIR/output-metadata.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.APK_VERSION }}
+          name: Release v${{ env.APK_VERSION }}
+          body: |
+            ### Version ${{ env.APK_VERSION }}
+            
+            **Release Notes:**
+            ${{ github.event.inputs.releaseNotes }}
+
+            **Build Details:**
+            - Build Number: ${{ github.run_number }}
+            - Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+          files: $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
@@ -37,8 +39,8 @@ android {
         applicationId = "hse.diploma.cybersecplatform"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = generateVersionCode()
+        versionName = generateVersionName()
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -46,7 +48,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -60,6 +63,7 @@ android {
             buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -109,7 +113,6 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
 
     // --- Testing ---
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -126,6 +129,18 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockk)
+}
+
+fun generateVersionCode(): Int {
+    val formatter = DateTimeFormatter.ofPattern("yyMMdd")
+    val dateCode = LocalDateTime.now().format(formatter).toInt()
+    return dateCode * 10
+}
+
+fun generateVersionName(): String {
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+    val datePart = LocalDateTime.now().format(dateFormatter)
+    return "$datePart.${System.getenv("GITHUB_RUN_NUMBER") ?: "1"}"
 }
 
 tasks.register("pullRequestCheck") {

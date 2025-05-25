@@ -101,6 +101,7 @@ jobs:
         with:
           paths: lms_android/app/build/reports/jacoco/jacocoDebugTestReport/jacocoDebugTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 50
 
   build-debug-apk:
     name: Build Debug APK
