@@ -1,0 +1,61 @@
+name: Android Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Version name (e.g. 1.0.0)'
+        required: true
+        type: string
+      versionCode:
+        description: 'Version code (integer)'
+        required: true
+        type: string
+      releaseNotes:
+        description: 'Release notes'
+        required: false
+        type: string
+
+env:
+  BASE_URL: ${{ secrets.PRODUCTION_BASE_URL }}
+  UPLOADS_URL: ${{ secrets.PRODUCTION_UPLOADS_URL }}
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Update version info
+        run: |
+          sed -i "s/versionCode = .*/versionCode = ${{ github.event.inputs.versionCode }}/" lms_android/app/build.gradle.kts
+          sed -i "s/versionName = .*/versionName = \"${{ github.event.inputs.versionName }}\"/" lms_android/app/build.gradle.kts
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release
+          path: lms_android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.versionName }}
+          name: Release v${{ github.event.inputs.versionName }}
+          body: ${{ github.event.inputs.releaseNotes }}
+          files: lms_android/app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
