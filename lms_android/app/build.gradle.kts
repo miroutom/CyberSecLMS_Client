@@ -39,8 +39,8 @@ android {
         applicationId = "hse.diploma.cybersecplatform"
         minSdk = 24
         targetSdk = 35
-        versionCode = generateVersionCode()
-        versionName = generateVersionName()
+        versionCode = 1
+        versionName = "1.0"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -144,18 +144,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockk)
-}
-
-fun generateVersionCode(): Int {
-    val formatter = DateTimeFormatter.ofPattern("yyMMdd")
-    val dateCode = LocalDateTime.now().format(formatter).toInt()
-    return dateCode * 10
-}
-
-fun generateVersionName(): String {
-    val dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-    val datePart = LocalDateTime.now().format(dateFormatter)
-    return "$datePart.${System.getenv("GITHUB_RUN_NUMBER") ?: "1"}"
 }
 
 tasks.register("pullRequestCheck") {
