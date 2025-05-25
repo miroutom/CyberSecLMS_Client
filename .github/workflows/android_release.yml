@@ -4,21 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       versionName:
-        description: 'Version name'
+        description: 'Version name (e.g., 1.0.0)'
         required: true
         type: string
       versionCode:
-        description: 'Version code'
+        description: 'Version code (e.g., 100)'
         required: true
         type: string
       releaseNotes:
         description: 'Release notes'
         required: false
         type: string
+        default: ''
 
 env:
-  BUILD_OUTPUT_DIR: lms_android/app/build/outputs/apk/release
-  ARTIFACT_NAME: app-release
+  BUILD_OUTPUT_DIR: lms_android/app/build/outputs
+  ARTIFACT_PREFIX: app-release
 
 jobs:
   quality-checks:
@@ -40,18 +41,12 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: |
-            lms_android/app/build/reports/tests/
-            lms_android/app/build/test-results/
-
   build-release:
-    name: Build Release APK
+    name: Build Release
     needs: quality-checks
     runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.set_version.outputs.release_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,41 +57,76 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Configure Keystore
+        run: |
+          mkdir -p keystore
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > keystore/cybersec-release.jks
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > keystore/cybersec-release.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore/cybersec-release.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore/cybersec-release.properties
+
       - name: Update version info
+        id: set_version
         run: |
           sed -i "s/versionCode = .*/versionCode = ${{ github.event.inputs.versionCode }}/" lms_android/app/build.gradle.kts
           sed -i "s/versionName = .*/versionName = \"${{ github.event.inputs.versionName }}\"/" lms_android/app/build.gradle.kts
-
-      - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace --no-daemon
-
-      - name: Rename APK with version
-        run: |
-          mv "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME.apk" "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ github.event.inputs.versionName }}.apk"
+          echo "release_tag=v${{ github.event.inputs.versionName }}" >> $GITHUB_OUTPUT
           echo "APK_VERSION=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
 
-      - name: Upload APK artifact
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
+        working-directory: lms_android
+
+      - name: Build App Bundle
+        run: ./gradlew bundleRelease --stacktrace --no-daemon
+        working-directory: lms_android
+
+      - name: Rename artifacts
+        run: |
+          mv "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX.apk" "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk"
+          mv "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX.aab" "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab"
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: release-apk
+          name: release-artifacts-${{ env.APK_VERSION }}
           path: |
-            $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
-            $BUILD_OUTPUT_DIR/output-metadata.json
+            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk
+            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
+            $BUILD_OUTPUT_DIR/**/output-metadata.json
+
+      - name: Create Git tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/v${{ github.event.inputs.versionName }}`,
+              sha: context.sha
+            })
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ env.APK_VERSION }}
-          name: Release v${{ env.APK_VERSION }}
+          tag_name: v${{ github.event.inputs.versionName }}
+          name: Release v${{ github.event.inputs.versionName }}
           body: |
-            ### Version ${{ env.APK_VERSION }}
+            ### Version ${{ github.event.inputs.versionName }}
             
             **Release Notes:**
             ${{ github.event.inputs.releaseNotes }}
-
+            
             **Build Details:**
             - Build Number: ${{ github.run_number }}
             - Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
-          files: $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
+          files: |
+            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk
+            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
