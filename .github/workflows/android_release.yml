@@ -1,14 +1,14 @@
-name: Android Release Build
+name: Android Release CI
 
 on:
   workflow_dispatch:
     inputs:
       versionName:
-        description: 'Version name (e.g. 1.0.0)'
+        description: 'Version name'
         required: true
         type: string
       versionCode:
-        description: 'Version code (integer)'
+        description: 'Version code'
         required: true
         type: string
       releaseNotes:
@@ -17,11 +17,12 @@ on:
         type: string
 
 env:
-  BASE_URL: ${{ secrets.PRODUCTION_BASE_URL }}
-  UPLOADS_URL: ${{ secrets.PRODUCTION_UPLOADS_URL }}
+  BUILD_OUTPUT_DIR: lms_android/app/build/outputs/apk/release
+  ARTIFACT_NAME: app-release
 
 jobs:
-  build-and-release:
+  quality-checks:
+    name: Code Quality Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -33,8 +34,33 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+      - name: Run static analysis
+        run: ./gradlew ktlintCheck lintDebug
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            lms_android/app/build/reports/tests/
+            lms_android/app/build/test-results/
+
+  build-release:
+    name: Build Release APK
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Update version info
         run: |
@@ -44,18 +70,33 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
 
+      - name: Rename APK with version
+        run: |
+          mv "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME.apk" "$BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ github.event.inputs.versionName }}.apk"
+          echo "APK_VERSION=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-release
-          path: lms_android/app/build/outputs/apk/release/app-release.apk
+          name: release-apk
+          path: |
+            $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
+            $BUILD_OUTPUT_DIR/output-metadata.json
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.event.inputs.versionName }}
-          name: Release v${{ github.event.inputs.versionName }}
-          body: ${{ github.event.inputs.releaseNotes }}
-          files: lms_android/app/build/outputs/apk/release/app-release.apk
+          tag_name: v${{ env.APK_VERSION }}
+          name: Release v${{ env.APK_VERSION }}
+          body: |
+            ### Version ${{ env.APK_VERSION }}
+            
+            **Release Notes:**
+            ${{ github.event.inputs.releaseNotes }}
+
+            **Build Details:**
+            - Build Number: ${{ github.run_number }}
+            - Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+          files: $BUILD_OUTPUT_DIR/$ARTIFACT_NAME-${{ env.APK_VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
