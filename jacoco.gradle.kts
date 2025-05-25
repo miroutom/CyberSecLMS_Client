@@ -78,7 +78,7 @@ afterEvaluate {
                         enabled = true
                         element = "BUNDLE"
                         limit {
-                            counter = "BRANCH"
+                            counter = "INSTRUCTION"
                             value = "COVEREDRATIO"
                             minimum = "0.50".toBigDecimal()
                         }
