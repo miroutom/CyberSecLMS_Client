@@ -4,17 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       versionName:
-        description: 'Version name'
+        description: 'Version name (e.g., 1.0.0)'
         required: true
         type: string
       versionCode:
-        description: 'Version code'
+        description: 'Version code (e.g., 100)'
         required: true
         type: string
       releaseNotes:
         description: 'Release notes'
         required: false
         type: string
+        default: ''
 
 env:
   BUILD_OUTPUT_DIR: lms_android/app/build/outputs
@@ -43,9 +44,9 @@ jobs:
   build-release:
     name: Build Release
     needs: quality-checks
+    runs-on: ubuntu-latest
     outputs:
       release_tag: ${{ steps.set_version.outputs.release_tag }}
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,17 +63,18 @@ jobs:
       - name: Configure Keystore
         run: |
           mkdir -p keystore
-          
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > keystore/cybersec-release.jks
-          
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > keystore/cybersec-release.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore/cybersec-release.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore/cybersec-release.properties
 
       - name: Update version info
+        id: set_version
         run: |
           sed -i "s/versionCode = .*/versionCode = ${{ github.event.inputs.versionCode }}/" lms_android/app/build.gradle.kts
           sed -i "s/versionName = .*/versionName = \"${{ github.event.inputs.versionName }}\"/" lms_android/app/build.gradle.kts
+          echo "release_tag=v${{ github.event.inputs.versionName }}" >> $GITHUB_OUTPUT
+          echo "APK_VERSION=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
 
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
@@ -84,14 +86,13 @@ jobs:
 
       - name: Rename artifacts
         run: |
-          mv "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX.apk" "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.apk"
-          mv "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX.aab" "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.aab"
-          echo "APK_VERSION=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
+          mv "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX.apk" "$BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk"
+          mv "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX.aab" "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: release-artifacts
+          name: release-artifacts-${{ env.APK_VERSION }}
           path: |
             $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk
             $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
@@ -102,10 +103,10 @@ jobs:
         with:
           script: |
             await github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `refs/tags/v${{ github.event.inputs.versionName }}`,
-            sha: context.sha
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/v${{ github.event.inputs.versionName }}`,
+              sha: context.sha
             })
 
       - name: Create GitHub Release
@@ -123,8 +124,8 @@ jobs:
             - Build Number: ${{ github.run_number }}
             - Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
           files: |
-            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.apk
-            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.aab
+            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk
+            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
           draft: false
           prerelease: false
         env:
