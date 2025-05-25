@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.components.OutlinedLinearProgressBar
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 

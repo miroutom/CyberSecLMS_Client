@@ -11,9 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.utils.logD
-
-private const val TAG = "AppScaffold"
 
 @Composable
 fun AppScaffold(
@@ -29,12 +26,6 @@ fun AppScaffold(
             CustomNavigationBar(navController)
         },
         content = { paddingValues ->
-            logD(
-                TAG,
-                "paddingValues " +
-                    "top = ${paddingValues.calculateTopPadding()}, " +
-                    "bottom = ${paddingValues.calculateBottomPadding()}",
-            )
             content(
                 Modifier
                     .padding(

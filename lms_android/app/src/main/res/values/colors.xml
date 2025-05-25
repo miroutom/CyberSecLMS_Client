@@ -14,12 +14,6 @@
     <color name="xss_card_color">#F2F2FF</color>
     <color name="xss_signature_color">#3764ED</color>
 
-    <color name="sql_card_color">#FEF3E9</color>
-    <color name="sql_signature_color">#F9A866</color>
-
-    <color name="csrf_card_color">#F1FFFF</color>
-    <color name="csrf_signature_color">#3AE8C5</color>
-
     <color name="dialog_color">#F5FAFF</color>
 
     <color name="icon_black_tint">#484848</color>
