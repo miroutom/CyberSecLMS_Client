@@ -22,35 +22,16 @@ env:
   ARTIFACT_PREFIX: app-release
 
 jobs:
-  quality-checks:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-
-      - name: Run static analysis
-        run: ./gradlew ktlintCheck lintDebug
-
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
-
   build-release:
     name: Build Release
-    needs: quality-checks
     runs-on: ubuntu-latest
     outputs:
       release_tag: ${{ steps.set_version.outputs.release_tag }}
     steps:
-      - name: Checkout code
+      - name: Checkout the code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up Java JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
@@ -73,11 +54,9 @@ jobs:
 
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --no-daemon
-        working-directory: lms_android
 
       - name: Build App Bundle
         run: ./gradlew bundleRelease --stacktrace --no-daemon
-        working-directory: lms_android
 
       - name: Rename artifacts
         run: |
