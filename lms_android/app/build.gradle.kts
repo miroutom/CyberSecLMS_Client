@@ -46,10 +46,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        register("release") {
+            val keystorePropertiesFile = rootProject.file("../../keystore/cybersec-release.properties")
+            val keystoreProperties = Properties()
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(keystorePropertiesFile.inputStream())
+            }
+
+            storeFile = rootProject.file("../../keystore/cybersec-release.jks")
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -68,9 +85,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
@@ -120,6 +139,7 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
+    androidTestImplementation(libs.mockito.kotlin)
 
     debugImplementation(libs.ui.test.manifest)
     debugImplementation(libs.androidx.ui.tooling)
