@@ -1,4 +1,4 @@
-# CyberSec Platform ![Work in Progress](https://img.shields.io/badge/status-WIP-yellow)
+# CyberSec Platform
 [![English](https://img.shields.io/badge/lang-English-blue)](README.md) [![Русский](https://img.shields.io/badge/lang-Russian-red)](README.ru.md)
 
 CyberSec Platform is a comprehensive platform for cybersecurity educational purposes, featuring a web page and an LMS Android application. 
@@ -14,10 +14,23 @@ CyberSec Platform is a comprehensive platform for cybersecurity educational purp
 not implemented
 
 ## 🖥️ Web Application 
-not implemented
+Access the web platform at:
+👉 https://kolyanok.ru:8043
+Web Stack:
+- Frontend: Vue.js 3, Axios
+- Authentication: JWT
 
 ## 📱 Android Application
-not implemented
+Download the latest release:
+👉 GitHub Releases
+
+Mobile Stack:
+UI: Jetpack Compose, Material Design 3
+Architecture: Clean Architecture, MVVM
+Networking: Retrofit, OkHttp
+DI: Dagger 2
+Database: Room
+CI/CD: GitHub Actions (automatic APK/AAB builds)
 
 ## 🔧 Technology Stack
 
