@@ -56,7 +56,7 @@ android {
 
             storeFile = rootProject.file("keystore/cybersec-release.jks")
             storePassword = System.getenv("STORE_PASSWORD") ?: keystoreProperties.getProperty("storePassword")
-            keyAlias = System.getenv("KEY_ALIAS") ?: keystoreProperties.getProperty("keyAlias")
+            keyAlias = "cybersec"
             keyPassword = System.getenv("KEY_PASSWORD") ?: keystoreProperties.getProperty("keyPassword")
         }
     }
