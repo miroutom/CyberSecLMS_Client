@@ -50,8 +50,7 @@ services:
   executor-svc:
     image: ${DOCKER_HUB_USERNAME}/code-executor:latest
     build:
-      context: ./external_engine/platform_backend_python/app/development_env-svc
-    container_name: code_executor
+      context: https://github.com/CyberSecurityLMS/CyberSecurityEngine.git#main:platform_backend_python/app/development_env-svc
     ports:
       - "5000:5000"
     volumes:
