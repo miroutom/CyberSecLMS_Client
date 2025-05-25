@@ -47,17 +47,12 @@ android {
     }
 
     signingConfigs {
-        register("release") {
-            val keystorePropertiesFile = rootProject.file("keystore/cybersec-release.properties")
-            val keystoreProperties = Properties()
-            if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(keystorePropertiesFile.inputStream())
-            }
-
-            storeFile = rootProject.file("keystore/cybersec-release.jks")
-            storePassword = System.getenv("STORE_PASSWORD") ?: keystoreProperties.getProperty("storePassword")
+        create("release") {
+            storeFile =
+                file("${rootDir}/cybersec-release.jks")
+            storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = "cybersec"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: keystoreProperties.getProperty("keyPassword")
+            keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
 
