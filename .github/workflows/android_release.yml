@@ -30,10 +30,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v1
         with:
           java-version: '17'
-          distribution: 'temurin'
 
       - name: Run static analysis
         run: ./gradlew ktlintCheck lintDebug
@@ -52,13 +51,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v1
         with:
           java-version: '17'
-          distribution: 'temurin'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
 
       - name: Configure Keystore
         run: |
@@ -90,7 +85,7 @@ jobs:
           mv "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX.aab" "$BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-artifacts-${{ env.APK_VERSION }}
           path: |
