@@ -93,7 +93,7 @@ fun PasswordChangeDialog(
                     when {
                         currentPassword.text.isBlank() -> error = currentPasswordRequired
                         newPassword.text.isBlank() -> error = newPasswordRequired
-                        !яisPasswordValid(newPassword.text) -> {
+                        !isPasswordValid(newPassword.text) -> {
                             error = null
                         }
                         currentPassword == newPassword -> error = currentAndNewPasswordsAreEqual
