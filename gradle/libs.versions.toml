@@ -16,7 +16,8 @@ navigationCompose = "2.8.9"
 runtimeAndroid = "1.7.8"
 
 # Ktlint Check
-ktlint = "12.1.0"
+ktlint = "0.50.0"
+ktlint_gradle = "12.1.0"
 
 # DI
 dagger = "2.52"
@@ -81,5 +82,5 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint_gradle" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
