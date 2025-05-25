@@ -99,7 +99,7 @@ jobs:
       - name: Jacoco Coverage Summary
         uses: madrapps/jacoco-report@v1.6.1
         with:
-          paths: lms_android/app/build/reports/jacoco/debug/xml/*.xml
+          paths: lms_android/app/build/reports/jacoco/jacocoDebugTestReport/jacocoDebugTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build-debug-apk:

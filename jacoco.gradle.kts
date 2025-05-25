@@ -47,8 +47,8 @@ afterEvaluate {
 
                 reports {
                     html.required.set(true)
+                    xml.required.set(true)
                     html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/$variant"))
-                    xml.required.set(false)
                 }
 
                 sourceDirectories.from(
