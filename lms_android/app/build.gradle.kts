@@ -46,10 +46,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        register("release") {
+            val keystorePropertiesFile = rootProject.file("../../keystore/cybersec-release.properties")
+            val keystoreProperties = Properties()
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(keystorePropertiesFile.inputStream())
+            }
+
+            storeFile = rootProject.file("../../keystore/cybersec-release.jks")
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -61,21 +78,6 @@ android {
         debug {
             buildConfigField("String", "BASE_URL", baseUrl)
             buildConfigField("String", "UPLOADS_URL", uploadsUrl)
-        }
-    }
-
-    signingConfigs {
-        create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore/cybersec-release.properties")
-            val keystoreProperties = Properties()
-            if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(keystorePropertiesFile.inputStream())
-            }
-
-            storeFile = rootProject.file("keystore/cybersec-release.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: keystoreProperties.getProperty("storePassword")
-            keyAlias = System.getenv("KEY_ALIAS") ?: keystoreProperties.getProperty("keyAlias")
-            keyPassword = System.getenv("KEY_PASSWORD") ?: keystoreProperties.getProperty("keyPassword")
         }
     }
 
