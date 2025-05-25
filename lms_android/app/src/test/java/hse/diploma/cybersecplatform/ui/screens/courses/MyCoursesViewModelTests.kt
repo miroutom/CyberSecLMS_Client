@@ -19,7 +19,7 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MyCoursesViewModelTest {
+class MyCoursesViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var coursesRepo: CoursesRepo
     private lateinit var viewModel: MyCoursesViewModel

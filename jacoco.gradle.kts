@@ -19,15 +19,26 @@ afterEvaluate {
             val execDataPath =
                 "outputs/unit_test_code_coverage/${variant}UnitTest/test${variantCap}UnitTest.exec"
 
-            val fileFilter = listOf(
+            val filesToExclude = listOf(
                 "**/R.class",
                 "**/R$*.class",
                 "**/BuildConfig.*",
                 "**/Manifest*.*",
                 "**/*Test*.*",
-                "android/**/*.*",
-                "**/*Composable*.*",
-                "**/*Preview*.*"
+                "**/*Test\$*.class",
+                "**/di/**",
+                "**/*Module*",
+                "**/*Component*",
+                "**/*Composable*",
+                "**/*Preview*",
+                "**/ui/components/**",
+                "**/ui/screens/**/*Screen*.*"
+            )
+
+            val filesToInclude = listOf(
+                "**/domain/**",
+                "**/data/**",
+                "**/ui/screens/**/*ViewModel*.*"
             )
 
             tasks.register<JacocoReport>(reportTaskName) {
@@ -45,7 +56,8 @@ afterEvaluate {
                 )
                 classDirectories.setFrom(
                     fileTree("build/${buildDirVariant}") {
-                        exclude(fileFilter)
+                        exclude(filesToExclude)
+                        include(filesToInclude)
                     }
                 )
                 executionData.from(
@@ -78,7 +90,8 @@ afterEvaluate {
                 )
                 classDirectories.setFrom(
                     fileTree("build/${buildDirVariant}") {
-                        exclude(fileFilter)
+                        exclude(filesToExclude)
+                        include(filesToInclude)
                     }
                 )
                 executionData.from(
