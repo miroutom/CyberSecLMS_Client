@@ -48,13 +48,13 @@ android {
 
     signingConfigs {
         register("release") {
-            val keystorePropertiesFile = rootProject.file("../../keystore/cybersec-release.properties")
+            val keystorePropertiesFile = rootProject.file("keystore/cybersec-release.properties")
             val keystoreProperties = Properties()
             if (keystorePropertiesFile.exists()) {
                 keystoreProperties.load(keystorePropertiesFile.inputStream())
             }
 
-            storeFile = rootProject.file("../../keystore/cybersec-release.jks")
+            storeFile = rootProject.file("keystore/cybersec-release.jks")
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
