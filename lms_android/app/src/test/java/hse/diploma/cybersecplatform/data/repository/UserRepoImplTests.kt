@@ -61,4 +61,3 @@ class UserRepoImplTests {
             assertEquals("Can't open image stream", result.exceptionOrNull()?.message)
         }
 }
-

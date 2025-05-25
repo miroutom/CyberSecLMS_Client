@@ -68,4 +68,3 @@ class CoursesRepoImplTests {
             assertEquals("Error", result.exceptionOrNull()?.message)
         }
 }
-

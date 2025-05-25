@@ -78,7 +78,7 @@ interface ApiService {
         @Body request: VerifyOtpRequest,
     ): Response<MessageResponse>
 
-     // TODO: replace with real data
+    // TODO: replace with real data
     suspend fun getAllCourses(): Response<AllCoursesResponse> {
         return Response.success(AllCoursesResponse(mockAllCourses))
     }

@@ -55,10 +55,11 @@ class SettingsRepoImplTests {
     @Test
     fun `initiatePasswordUpdate should return temp token on success`() =
         runTest {
-            val mockResponse = mockk<Response<Map<String, String>>> {
-                every { isSuccessful } returns true
-                every { body() } returns mapOf("tempToken" to "temp_123")
-            }
+            val mockResponse =
+                mockk<Response<Map<String, String>>> {
+                    every { isSuccessful } returns true
+                    every { body() } returns mapOf("tempToken" to "temp_123")
+                }
             coEvery { apiService.changePassword(any()) } returns mockResponse
 
             val result = settingsRepo.initiatePasswordUpdate("old", "new")
@@ -70,10 +71,11 @@ class SettingsRepoImplTests {
     @Test
     fun `confirmPasswordUpdate should return success message`() =
         runTest {
-            val mockResponse = mockk<Response<LoginResponse>> {
-                every { isSuccessful } returns true
-                every { body() } returns LoginResponse("token", UserData("u", "f", "e", null))
-            }
+            val mockResponse =
+                mockk<Response<LoginResponse>> {
+                    every { isSuccessful } returns true
+                    every { body() } returns LoginResponse("token", UserData("u", "f", "e", null))
+                }
             coEvery { apiService.verifyOtp(any()) } returns mockResponse
 
             val result = settingsRepo.confirmPasswordUpdate("123456", "temp_123")
@@ -82,4 +84,3 @@ class SettingsRepoImplTests {
             assertEquals("Password updated successfully", result.getOrNull()?.message)
         }
 }
-

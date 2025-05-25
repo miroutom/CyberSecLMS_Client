@@ -70,4 +70,3 @@ class AppPreferencesManagerTests {
             assertEquals(Language.RUSSIAN, prefsManager.languageFlow.value)
         }
 }
-

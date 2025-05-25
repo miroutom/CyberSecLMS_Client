@@ -57,4 +57,3 @@ class TokenManagerTests {
         assertFalse(tokenManager.hasToken())
     }
 }
-
