@@ -30,9 +30,9 @@ import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 @Composable
 fun TasksScreen(
     vulnerabilityType: VulnerabilityType,
-    viewModel: TasksViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
+    val viewModel: TasksViewModel = viewModel(factory = LocalViewModelFactory.current)
     val searchQuery by viewModel.searchQuery.collectAsState()
     val tasks by viewModel.tasks.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
