@@ -27,29 +27,21 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Configure Keystore
+      - name: Decode keystore file
         env:
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          echo "STORE_PASSWORD=$STORE_PASSWORD" >> $GITHUB_ENV
-          echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
-          echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
-
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE }}
+        run: echo "$ANDROID_KEYSTORE" | base64 --decode > cybersec-release.jks
 
       - name: Build Release APK
         env:
-          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease --stacktrace --no-daemon
 
       - name: Build App Bundle
         env:
-          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease --stacktrace --no-daemon
 
       - name: Create GitHub Release
