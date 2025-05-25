@@ -43,6 +43,8 @@ jobs:
   build-release:
     name: Build Release
     needs: quality-checks
+    outputs:
+      release_tag: ${{ steps.set_version.outputs.release_tag }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -59,13 +61,13 @@ jobs:
 
       - name: Configure Keystore
         run: |
-            mkdir -p keystore
-            
-            echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > keystore/cybersec-release.jks
+          mkdir -p keystore
           
-            echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > keystore/cybersec-release.properties
-            echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore/cybersec-release.properties
-            echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore/cybersec-release.properties
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > keystore/cybersec-release.jks
+          
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > keystore/cybersec-release.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore/cybersec-release.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore/cybersec-release.properties
 
       - name: Update version info
         run: |
@@ -95,22 +97,35 @@ jobs:
             $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
             $BUILD_OUTPUT_DIR/**/output-metadata.json
 
+      - name: Create Git tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/v${{ github.event.inputs.versionName }}`,
+            sha: context.sha
+            })
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ env.APK_VERSION }}
-          name: Release v${{ env.APK_VERSION }}
+          tag_name: v${{ github.event.inputs.versionName }}
+          name: Release v${{ github.event.inputs.versionName }}
           body: |
-            ### Version ${{ env.APK_VERSION }}
+            ### Version ${{ github.event.inputs.versionName }}
             
             **Release Notes:**
             ${{ github.event.inputs.releaseNotes }}
-
+            
             **Build Details:**
             - Build Number: ${{ github.run_number }}
             - Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
           files: |
-            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.apk
-            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ env.APK_VERSION }}.aab
+            $BUILD_OUTPUT_DIR/apk/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.apk
+            $BUILD_OUTPUT_DIR/bundle/release/$ARTIFACT_PREFIX-${{ github.event.inputs.versionName }}.aab
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
