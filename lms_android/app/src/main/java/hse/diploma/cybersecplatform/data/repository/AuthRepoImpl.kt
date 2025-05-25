@@ -50,7 +50,6 @@ class AuthRepoImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
-                    // Сохраняем токен для автоматической авторизации
                     tokenManager.saveToken(registerResponse.token)
                     Result.success(registerResponse)
                 } ?: Result.failure(Exception("Empty response body"))

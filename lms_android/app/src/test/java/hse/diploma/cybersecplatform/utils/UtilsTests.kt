@@ -5,7 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class UtilsTest {
+class UtilsTests {
     @Test
     fun `isPasswordValid returns true for strong password`() {
         assertTrue(isPasswordValid("Strong1!"))

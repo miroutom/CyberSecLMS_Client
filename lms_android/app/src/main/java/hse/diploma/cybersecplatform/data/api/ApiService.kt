@@ -7,10 +7,14 @@ import hse.diploma.cybersecplatform.data.model.request.LoginRequest
 import hse.diploma.cybersecplatform.data.model.request.RegisterRequest
 import hse.diploma.cybersecplatform.data.model.request.ResetPasswordRequest
 import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
+import hse.diploma.cybersecplatform.data.model.response.AllCoursesResponse
 import hse.diploma.cybersecplatform.data.model.response.LoginResponse
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.MyCoursesResponse
 import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
+import hse.diploma.cybersecplatform.mock.mockAllCourses
+import hse.diploma.cybersecplatform.mock.mockCourses
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -73,4 +77,14 @@ interface ApiService {
     suspend fun confirmDeleteAccount(
         @Body request: VerifyOtpRequest,
     ): Response<MessageResponse>
+
+     // TODO: replace with real data
+    suspend fun getAllCourses(): Response<AllCoursesResponse> {
+        return Response.success(AllCoursesResponse(mockAllCourses))
+    }
+
+    // TODO: replace with real data
+    suspend fun getMyCourses(): Response<MyCoursesResponse> {
+        return Response.success(MyCoursesResponse(mockCourses))
+    }
 }
