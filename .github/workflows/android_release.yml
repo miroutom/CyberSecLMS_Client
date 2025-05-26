@@ -27,7 +27,7 @@ jobs:
 
       - name: Set up keystore file
         env:
-          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
         run: echo "$ANDROID_KEYSTORE" | base64 --decode > cybersec-release.jks
 
       - name: Build release apk
