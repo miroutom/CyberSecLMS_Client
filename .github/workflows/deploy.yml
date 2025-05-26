@@ -157,7 +157,7 @@ jobs:
             sleep 5
             docker compose run --rm migrate
             docker compose pull
-            docker compose up -d api-gateway backend-svc nginx frontend-svc discovery-server
+            docker compose up -d
 
       - name: Check service health
         uses: appleboy/ssh-action@v0.1.5
