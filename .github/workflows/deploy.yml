@@ -59,15 +59,6 @@ jobs:
           path: CyberSecurityEngine
           token: ${{ secrets.GH_PAT }}
 
-      - name: Build and push executor
-        if: github.event_name != 'pull_request_target'
-        uses: docker/build-push-action@v4
-        with:
-          context: ./CyberSecurityEngine/platform_backend_python/app
-          file: ./CyberSecurityEngine/platform_backend_python/app/development_env-svc/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/code-executor:latest
-
       - name: Build and push frontend
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
