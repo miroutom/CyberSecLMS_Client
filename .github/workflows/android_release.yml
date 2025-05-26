@@ -48,7 +48,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: lms_android/app/build/outputs/apk/release/app-release.apk
+          files: |
+            lms_android/app/build/outputs/apk/release/app-release.apk
+            lms_android/app/build/outputs/bundle/release/app-release.aab
           name: "CyberSec Android Release ${{ github.event.inputs.versionName }}"
           tag_name: ${{ github.event.inputs.versionName }}
           draft: false
