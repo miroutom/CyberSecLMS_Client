@@ -49,7 +49,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: app/build/outputs/apk/release/app-release.apk
-          name: "CyberSec Android Release ${{ github.event.inputs.version_tag }}"
-          tag_name: ${{ github.event.inputs.version_tag }}
+          name: "CyberSec Android Release ${{ github.event.inputs.versionName }}"
+          tag_name: ${{ github.event.inputs.versionName }}
           draft: false
           prerelease: false
