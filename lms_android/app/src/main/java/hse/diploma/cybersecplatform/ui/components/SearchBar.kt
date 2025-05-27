@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -41,12 +42,12 @@ fun SearchBar(
                 Modifier
                     .fillMaxWidth()
                     .background(
-                        color = Color(0xFFFAFAFA),
+                        color = colorResource(R.color.search_bar_background),
                         shape = RoundedCornerShape(50.dp),
                     )
                     .border(
                         width = 1.dp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         shape = RoundedCornerShape(50.dp),
                     )
                     .padding(horizontal = 12.dp),
@@ -54,7 +55,7 @@ fun SearchBar(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_search),
-                tint = Color(0xFF5C5C5C),
+                tint = colorResource(R.color.search_icon_tint),
                 contentDescription = "Search Icon",
             )
             TextField(
@@ -83,7 +84,7 @@ fun SearchBar(
             if (enableFiltering) {
                 Icon(
                     painter = painterResource(R.drawable.ic_filter),
-                    tint = Color(0xFF5C5C5C),
+                    tint = colorResource(R.color.search_icon_tint),
                     contentDescription = "Filter Icon",
                     modifier = Modifier.padding(start = 8.dp).clickable(onClick = onFilterClick, enabled = true),
                 )

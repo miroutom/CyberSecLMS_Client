@@ -8,10 +8,14 @@ import dagger.multibindings.IntoMap
 import hse.diploma.cybersecplatform.di.vm.ViewModelFactory
 import hse.diploma.cybersecplatform.di.vm.ViewModelKey
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
-import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenViewModel
-import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenViewModel
-import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenViewModel
-import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenViewModel
+import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationViewModel
+import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationViewModel
+import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesViewModel
+import hse.diploma.cybersecplatform.ui.screens.home.HomeViewModel
+import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
+import hse.diploma.cybersecplatform.ui.screens.settings.SettingsViewModel
+import hse.diploma.cybersecplatform.ui.screens.tasks.TasksViewModel
 
 @Module
 abstract class ViewModelModule {
@@ -25,21 +29,41 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(HomeScreenViewModel::class)
-    abstract fun provideHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
+    @ViewModelKey(OtpViewModel::class)
+    abstract fun provideOtpViewModel(viewModel: OtpViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(TasksScreenViewModel::class)
-    abstract fun provideTasksScreenViewModel(viewModel: TasksScreenViewModel): ViewModel
+    @ViewModelKey(HomeViewModel::class)
+    abstract fun provideHomeViewModel(viewModel: HomeViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(AuthorizationScreenViewModel::class)
-    abstract fun provideAuthorizationScreenViewModel(viewModel: AuthorizationScreenViewModel): ViewModel
+    @ViewModelKey(TasksViewModel::class)
+    abstract fun provideTasksViewModel(viewModel: TasksViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(RegistrationScreenViewModel::class)
-    abstract fun provideRegistrationScreenViewModel(viewModel: RegistrationScreenViewModel): ViewModel
+    @ViewModelKey(AuthorizationViewModel::class)
+    abstract fun provideAuthorizationViewModel(viewModel: AuthorizationViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(RegistrationViewModel::class)
+    abstract fun provideRegistrationViewModel(viewModel: RegistrationViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProfileViewModel::class)
+    abstract fun provideProfileViewModel(viewModel: ProfileViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MyCoursesViewModel::class)
+    abstract fun provideMyCoursesViewModel(viewModel: MyCoursesViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SettingsViewModel::class)
+    abstract fun provideSettingsViewModel(viewModel: SettingsViewModel): ViewModel
 }

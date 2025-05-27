@@ -1,0 +1,1074 @@
+basePath: /api
+definitions:
+  models.ChangePasswordRequest:
+    properties:
+      currentPassword:
+        minLength: 6
+        type: string
+      newPassword:
+        minLength: 6
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
+  models.Course:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      tasksCount:
+        type: integer
+      vulnerabilityType:
+        type: string
+    type: object
+  models.CourseProgress:
+    properties:
+      completedTasks:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      progress:
+        type: number
+      tasksCount:
+        type: integer
+      vulnerabilityType:
+        type: string
+    type: object
+  models.DeleteAccountConfirmRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  models.DeleteAccountInitRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  models.Enable2FARequest:
+    properties:
+      otp:
+        example: "123456"
+        type: string
+    required:
+    - otp
+    type: object
+  models.Enable2FAResponse:
+    properties:
+      status:
+        example: 2FA enabled
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.LoginResponse:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+      userId:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      fullName:
+        example: New User
+        type: string
+      password:
+        example: newpassword123
+        type: string
+      username:
+        example: newuser
+        type: string
+    required:
+    - email
+    - fullName
+    - password
+    - username
+    type: object
+  models.RegisterResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  models.ResetPasswordRequest:
+    properties:
+      code:
+        type: string
+      newPassword:
+        minLength: 6
+        type: string
+      tempToken:
+        type: string
+    required:
+    - code
+    - newPassword
+    - tempToken
+    type: object
+  models.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      courseId:
+        type: integer
+      description:
+        type: string
+      difficulty:
+        description: 'например: "easy", "medium", "hard"'
+        type: string
+      id:
+        type: integer
+      order:
+        description: порядковый номер задания в курсе
+        type: integer
+      title:
+        type: string
+    type: object
+  models.TempTokenResponse:
+    properties:
+      message:
+        type: string
+      tempToken:
+        type: string
+    type: object
+  models.UpdateProfileRequest:
+    properties:
+      email:
+        type: string
+      fullName:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UpdateStatusRequest:
+    properties:
+      isActive:
+        type: boolean
+    required:
+    - isActive
+    type: object
+  models.User:
+    properties:
+      completedTasks:
+        type: integer
+      courses:
+        items:
+          $ref: '#/definitions/models.CourseProgress'
+        type: array
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: integer
+      is2faEnabled:
+        type: boolean
+      isActive:
+        type: boolean
+      isAdmin:
+        type: boolean
+      lastLogin:
+        type: string
+      profileImage:
+        type: string
+      progress:
+        type: number
+      totalTasks:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.UserProgress:
+    properties:
+      completed:
+        additionalProperties:
+          type: boolean
+        description: ключ - ID задания
+        type: object
+      userId:
+        type: integer
+    type: object
+  models.VerifyOTPRequest:
+    properties:
+      otp:
+        type: string
+      tempToken:
+        type: string
+    required:
+    - otp
+    - tempToken
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for Learning Management System
+  title: LMS API
+  version: "1.0"
+paths:
+  /account/2fa/enable:
+    post:
+      consumes:
+      - application/json
+      description: Включает двухфакторную аутентификацию для пользователя после проверки
+        OTP кода
+      parameters:
+      - description: OTP данные для верификации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Enable2FARequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 2FA успешно включена
+          schema:
+            $ref: '#/definitions/models.Enable2FAResponse'
+        "400":
+          description: Неверный запрос или OTP код
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Неавторизованный доступ
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Enable 2FA
+      tags:
+      - Auth
+  /account/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password (requires current password)
+      parameters:
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - Profile
+  /account/delete:
+    post:
+      consumes:
+      - application/json
+      description: Request account deletion (sends verification code)
+      parameters:
+      - description: Password confirmation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteAccountInitRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Initialize account deletion
+      tags:
+      - Account
+  /account/delete/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Delete account permanently using verification code
+      parameters:
+      - description: Verification code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteAccountConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Confirm account deletion
+      tags:
+      - Account
+  /account/profile/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new profile image for the current user
+      parameters:
+      - description: Profile image (JPEG, PNG or GIF, max 2MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload profile image
+      tags:
+      - Profile
+  /admin/reload-templates:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Templates reloaded
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "403":
+          description: Access denied
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Reload email templates
+      tags:
+      - Admin
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all users (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - Admin
+  /admin/users/{id}:
+    get:
+      description: Get user information by ID (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Admin
+  /admin/users/{id}/demote:
+    post:
+      consumes:
+      - application/json
+      description: Demote a user from admin role (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Demote user from admin
+      tags:
+      - Admin
+  /admin/users/{id}/promote:
+    post:
+      consumes:
+      - application/json
+      description: Promote a user to admin role (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Promote user to admin
+      tags:
+      - Admin
+  /admin/users/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the active status of a user (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user status
+      tags:
+      - Admin
+  /admin/users/by-role:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of users with a specific role (admin only)
+      parameters:
+      - description: Admin role flag
+        in: query
+        name: is_admin
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get users by role
+      tags:
+      - Admin
+  /admin/users/search:
+    get:
+      consumes:
+      - application/json
+      description: Search for users by username, email or full name (admin only)
+      parameters:
+      - description: Search query
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Search users
+      tags:
+      - Admin
+  /courses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all courses
+      tags:
+      - Courses
+  /courses/{id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get course by ID
+      tags:
+      - Courses
+  /forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Sends a password reset code to the user's email
+      parameters:
+      - description: Email for password reset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TempTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - Auth
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully (if 2FA disabled)
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: System error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Login
+      tags:
+      - Auth
+  /profile:
+    get:
+      description: Get current user's profile information with courses and progress
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Profile
+    put:
+      consumes:
+      - application/json
+      description: Update current user's profile information (email, full name)
+      parameters:
+      - description: Profile update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Profile
+  /progress/{user_id}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserProgress'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get user progress
+      tags:
+      - Progress
+  /progress/{user_id}/tasks/{task_id}/complete:
+    post:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Complete task
+      tags:
+      - Progress
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created
+          schema:
+            $ref: '#/definitions/models.RegisterResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Register new user
+      tags:
+      - Authentication
+  /reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using the code sent to email
+      parameters:
+      - description: Reset password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Reset password with code
+      tags:
+      - Auth
+  /verify-otp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: OTP data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Invalid token or OTP
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: System error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Verify OTP
+      tags:
+      - Auth
+schemes:
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

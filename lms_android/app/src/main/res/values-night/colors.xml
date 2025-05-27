@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#121212</color>
+    <color name="shimmer_color">#3A3A3C</color>
+    <color name="main_text_color">#FFFFFF</color>
+    <color name="error_text_color">#FF5252</color>
+
+    <color name="button_enabled">#5B7FF5</color>
+    <color name="button_disabled">#3A3A3C</color>
+
+    <color name="text_disabled">#3A3A3C</color>
+    <color name="supporting_text">#A8A8B2</color>
+
+    <color name="xss_card_color">#232342</color>
+    <color name="xss_signature_color">#6887FF</color>
+
+    <color name="dialog_color">#1F2633</color>
+
+    <color name="icon_black_tint">#CFCFCF</color>
+
+    <color name="logout">#F03A3A</color>
+
+    <color name="error_dialog_background">#3D2424</color>
+    <color name="error_dialog_text">#FF5252</color>
+
+    <color name="menu_divider">#4D4D4D</color>
+
+    <color name="tab_button_not_selected_color">#7B7B7B</color>
+
+    <color name="navigation_bar_selected">#F4F3FF</color>
+    <color name="navigation_bar_not_selected">#212121</color>
+
+    <color name="profile_content_background">#D9D9D9</color>
+    <color name="search_bar_background">#FAFAFA</color>
+    <color name="search_icon_tint">#5C5C5C</color>
+
+</resources>

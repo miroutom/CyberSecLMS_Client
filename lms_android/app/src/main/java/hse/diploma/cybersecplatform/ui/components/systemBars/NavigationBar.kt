@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.ui.navigation.Screen
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
 @Composable
@@ -37,7 +38,7 @@ fun CustomNavigationBar(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val items = listOf(Screen.HomeScreen, Screen.Favorites, Screen.Profile)
+    val items = listOf(Screen.HomeScreen, Screen.MyCourses, Screen.Profile)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -48,13 +49,18 @@ fun CustomNavigationBar(
                 .shadow(
                     elevation = 8.dp,
                     shape = RectangleShape,
-                    spotColor = Color.Black.copy(alpha = 0.7f),
+                    spotColor = colorResource(R.color.main_text_color).copy(alpha = 0.7f),
                 ),
-        containerColor = Color.White,
+        containerColor = colorResource(R.color.background),
     ) {
         items.forEach { screen ->
             val selected = currentRoute == screen.route
-            val backgroundColor = if (selected) Color(0xFF060051) else Color(0xFFE1E1E3)
+            val backgroundColor =
+                if (selected) {
+                    colorResource(R.color.navigation_bar_selected)
+                } else {
+                    colorResource(R.color.navigation_bar_not_selected)
+                }
 
             NavigationBarItem(
                 icon = {
@@ -71,7 +77,7 @@ fun CustomNavigationBar(
                                     indication =
                                         ripple(
                                             bounded = true,
-                                            color = Color.White,
+                                            color = colorResource(R.color.background),
                                         ),
                                     onClick = {
                                         if (currentRoute != screen.route) {
@@ -91,11 +97,16 @@ fun CustomNavigationBar(
                             painter =
                                 when (screen) {
                                     Screen.HomeScreen -> painterResource(R.drawable.ic_home)
-                                    Screen.Favorites -> painterResource(R.drawable.ic_favorite)
+                                    Screen.MyCourses -> painterResource(R.drawable.ic_favorite)
                                     else -> painterResource(R.drawable.ic_account)
                                 },
                             contentDescription = screen.titleId?.let { stringResource(it) },
-                            tint = if (selected) Color.White else Color(0xFF060051),
+                            tint =
+                                if (selected) {
+                                    colorResource(R.color.background)
+                                } else {
+                                    colorResource(R.color.navigation_bar_selected)
+                                },
                         )
                     }
                 },

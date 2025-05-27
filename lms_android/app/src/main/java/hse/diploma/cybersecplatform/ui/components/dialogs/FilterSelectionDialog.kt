@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -23,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
-import hse.diploma.cybersecplatform.utils.Difficulty
 
 @Composable
 fun FilterSelectionDialog(
@@ -67,7 +66,7 @@ fun FilterSelectionDialog(
                                 CheckboxDefaults.colors(
                                     checkedColor = colorResource(R.color.button_enabled),
                                     uncheckedColor = colorResource(R.color.button_enabled),
-                                    checkmarkColor = Color.White,
+                                    checkmarkColor = colorResource(R.color.background),
                                 ),
                         )
                         Text(
@@ -87,7 +86,7 @@ fun FilterSelectionDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
             ) {
                 Text(
@@ -107,7 +106,7 @@ fun FilterSelectionDialog(
                 colors =
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = colorResource(R.color.button_enabled),
-                        contentColor = Color.White,
+                        contentColor = colorResource(R.color.background),
                     ),
             ) {
                 Text(
@@ -118,14 +117,14 @@ fun FilterSelectionDialog(
                 )
             }
         },
-        containerColor = colorResource(R.color.xss_card_color),
+        containerColor = colorResource(R.color.dialog_color),
         tonalElevation = 8.dp,
     )
 }
 
 @Preview
 @Composable
-fun FilterSelectionDialogPreview() {
+private fun FilterSelectionDialogPreview() {
     FilterSelectionDialog(
         onFilterSelected = {},
         onDismiss = {},

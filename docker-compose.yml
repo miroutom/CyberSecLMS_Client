@@ -1,0 +1,138 @@
+services:
+  discovery-server:
+    image: steeltoeoss/eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - cybersec
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8761/eureka/apps"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  api-gateway:
+    image: ${DOCKER_HUB_USERNAME}/lms-api-gateway:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_URL=http://discovery-server:8761/eureka
+      - APP_NAME=api-gateway
+      - INSTANCE_IP=api-gateway
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
+  backend-svc:
+    image: ${DOCKER_HUB_USERNAME}/lms-backend:latest
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./uploads:/uploads
+    environment:
+      - EUREKA_URL=http://discovery-server:8761/eureka
+      - APP_NAME=backend-service
+      - INSTANCE_IP=backend-svc
+      - DATABASE_DSN=${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(db:3306)/${MYSQL_DATABASE}?parseTime=true
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
+  executor-svc:
+    image: ${DOCKER_HUB_USERNAME}/code-executor:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
+  labs-app-svc:
+    image: ${DOCKER_HUB_USERNAME}/labs-app:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
+  frontend-svc:
+    image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
+    volumes:
+      - ./frontend-svc/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - cybersec
+    restart: always
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8085:80"
+      - "8043:443"
+    volumes:
+      - ./frontend-svc/nginx/certs:/etc/nginx/certs
+      - ./frontend-svc/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend-svc
+      - api-gateway
+    networks:
+      - cybersec
+    restart: always
+
+  db:
+    image: mysql:8.0
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - cybersec
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - cybersec
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/migrations
+    command:
+      - -path=/migrations
+      - -database=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(db:3306)/${MYSQL_DATABASE}?multiStatements=true
+      - up
+      - "1"
+    restart: "no"
+
+networks:
+  cybersec:
+
+volumes:
+  mysql_data:

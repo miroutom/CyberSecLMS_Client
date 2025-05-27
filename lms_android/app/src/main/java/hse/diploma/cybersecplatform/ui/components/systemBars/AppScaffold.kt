@@ -6,32 +6,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import hse.diploma.cybersecplatform.utils.logD
-
-private const val TAG = "AppScaffold"
+import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 
 @Composable
 fun AppScaffold(
+    profileViewModel: ProfileViewModel,
     navController: NavHostController,
     content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
         topBar = {
-            TopBar(navController)
+            TopBar(profileViewModel, navController)
         },
         bottomBar = {
             CustomNavigationBar(navController)
         },
         content = { paddingValues ->
-            logD(
-                TAG,
-                "paddingValues " +
-                    "top = ${paddingValues.calculateTopPadding()}, " +
-                    "bottom = ${paddingValues.calculateBottomPadding()}",
-            )
             content(
                 Modifier
                     .padding(
@@ -41,7 +35,7 @@ fun AppScaffold(
                         bottom = paddingValues.calculateBottomPadding(),
                     )
                     .fillMaxSize()
-                    .background(Color.White),
+                    .background(colorResource(R.color.background)),
             )
         },
     )

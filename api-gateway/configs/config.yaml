@@ -1,0 +1,17 @@
+port: 8080
+log_level: "INFO"
+
+# Сервисы
+auth_service:
+  url: "http://backend-svc:8081"
+  timeout: 30
+
+course_service:
+  url: "http://backend-svc:8081"
+  timeout: 30
+
+# Service discovery
+eureka:
+  url: "http://discovery-server:8761/eureka"
+  app_name: "api-gateway"
+  instance_ip: "api-gateway"

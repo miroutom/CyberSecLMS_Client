@@ -6,7 +6,7 @@
 
     <string name="auth_label_password">Пароль</string>
     <string name="auth_label_confirm_password">Подтвердите пароль</string>
-    <string name="auth_label_phone_number_email">Номер телефона/e-mail</string>
+    <string name="auth_label_email">E-mail</string>
     <string name="auth_label_full_name">Имя и фамилия</string>
     <string name="auth_label_username">Имя пользователя</string>
     <string name="auth_label_error">Неверный</string>
@@ -24,6 +24,7 @@
     <string name="have_account_button">У меня уже есть аккаунт</string>
     <string name="register_button">Зарегистрироваться</string>
     <string name="skip_button">Пропустить</string>
+    <string name="save_button">Сохранить</string>
 
     <string name="confirmation_and_password_are_not_equal">Пароли не совпадают</string>
 
@@ -36,7 +37,7 @@
     <string name="onboarding_next_page_button">Далее</string>
 
     <string name="homescreen_title">Все курсы</string>
-    <string name="favorites_title">Мои курсы</string>
+    <string name="my_courses_title">Мои курсы</string>
     <string name="profile_title">Профиль</string>
 
     <string name="search_bar_label">Поиск</string>
@@ -52,6 +53,7 @@
     <string name="csrf_tasks_subtitle">Эмуляция действий</string>
 
     <string name="tasks_count">%d заданий</string>
+    <string name="course_progress" translatable="false">%d</string>
 
     <string name="difficulty_number_of_task" translatable="false">%s %d</string>
     <string name="easy_level">Лёгкий</string>
@@ -59,6 +61,70 @@
     <string name="hard_level">Сложный</string>
 
     <string name="filter_selection_dialog_title">Выберите сложность</string>
+
     <string name="reset_button">Сброс</string>
     <string name="confirm_button">Готово</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="ok_button">Ок</string>
+    <string name="restart_course_button">Перепройти</string>
+    <string name="reload_button">Перезагрузить</string>
+    <string name="yes_button">Да</string>
+    <string name="no_button">Нет</string>
+
+    <string name="welcome_text">Привет, %s</string>
+    <string name="email_label" translatable="false">E-mail: %s</string>
+
+    <string name="profile_statistics_section">Статистика</string>
+    <string name="profile_theory_section">Теория</string>
+    <string name="profile_settings_section">Настройки</string>
+    <string name="profile_support_section">Поддержка</string>
+    <string name="profile_logout">Выход</string>
+
+    <string name="otp_dialog_title">Подтвердите, что это вы</string>
+    <string name="otp_sent_to_email">Код отправлен на %1$s</string>
+    <string name="otp_input_label">Введите код</string>
+
+    <string name="error_dialog_title">Ошибка</string>
+    <string name="authorization_error">Ошибка авторизации</string>
+    <string name="registration_error">Ошибка регистрации</string>
+    <string name="otp_error">Ошибка OTP</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+
+    <string name="no_internet_error">Нет интернета</string>
+    <string name="server_error">Сервер упал, но обещал вернуться</string>
+    <string name="other_error">Извините, что-то пошло не так :(</string>
+
+    <string name="started_courses_tab_button">Начатые</string>
+    <string name="completed_courses_tab_button">Завершённые</string>
+
+    <string name="reset_progress_title">Сбросить прогресс по курсу</string>
+    <string name="reset_progress_body">Это действие нельзя отменить.\nХотите продолжить?</string>
+
+    <string name="theme_setting">Тема</string>
+    <string name="language_setting">Язык</string>
+    <string name="update_profile_setting">Редактировать профиль</string>
+    <string name="update_password_setting">Пароль</string>
+    <string name="delete_account">Удалить аккаунт</string>
+
+    <string name="upload_photo">Загрузить фото</string>
+    <string name="choose_source_to_upload">Выберите источник загрузки</string>
+    <string name="camera">Камера</string>
+    <string name="gallery">Галерея</string>
+
+    <string name="current_password">Текущий пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="confirm_new_password">Подтвердить новый пароль</string>
+    <string name="current_password_required">Введите текущий пароль</string>
+
+    <string name="new_password_required">Введите новый пароль</string>
+    <string name="passwords_dont_match">Пароли не совпадают</string>
+    <string name="current_and_new_passwords_are_equal">Новый пароль должен отличаться от текущего</string>
+
+    <string name="delete_button">Удалить</string>
+    <string name="delete_account_confirmation">Это действие нельзя отменить.\nВы точно хотите удалить аккаунт?</string>
+    <string name="delete_account_title">Удаление аккаунта</string>
+    <string name="settings_title">Настройки</string>
+    <string name="otp_sent_general_message">Код подтверждения отправлен на ваш e-mail</string>
+    <string name="camera_permission_required">Отсутствует разрешение на камеру</string>
+    <string name="choose_photo_source">Выберите источник загрузки фото</string>
 </resources>

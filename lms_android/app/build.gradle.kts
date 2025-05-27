@@ -5,8 +5,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
+
+apply(from = "../../jacoco.gradle.kts")
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -18,6 +20,12 @@ val baseUrl: String =
     System.getProperty("BASE_URL")
         ?: System.getenv("BASE_URL")
         ?: localProperties.getProperty("BASE_URL")
+        ?: "\"https://default-url.example.com/api/\""
+
+val uploadsUrl: String =
+    System.getProperty("UPLOADS_URL")
+        ?: System.getenv("UPLOADS_URL")
+        ?: localProperties.getProperty("UPLOADS_URL")
         ?: "\"https://default-url.example.com/api/\""
 
 android {
@@ -36,27 +44,45 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile =
+                file("${rootDir}/cybersec-release.jks")
+            storePassword = System.getenv("STORE_PASSWORD")
+            keyAlias = "cybersec"
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
 
         debug {
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
@@ -79,6 +105,7 @@ dependencies {
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.placeholder)
 
     // --- Kotlin ---
     implementation(platform(libs.kotlin.bom))
@@ -90,7 +117,7 @@ dependencies {
     implementation(libs.dagger)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.fragment)
-    kapt(libs.dagger.compiler)
+    ksp(libs.dagger.compiler)
 
     // --- REST API ---
     implementation(libs.retrofit)
@@ -98,13 +125,23 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
 
     // --- Testing ---
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
+    androidTestImplementation(libs.mockito.kotlin)
+
+    debugImplementation(libs.ui.test.manifest)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockk)
 }
 
 tasks.register("pullRequestCheck") {
