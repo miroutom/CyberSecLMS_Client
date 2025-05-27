@@ -24,9 +24,6 @@
           v-model="currentTask.code"
           :language="currentTask.language"
         />
-        <button class="execute-button" @click="executeCode">
-          Execute Code
-        </button>
       </div>
     </div>
   </div>
@@ -78,11 +75,6 @@ export default {
       this.currentTask.code = data.code;
       this.currentTask.description = data.description; // saving description
     },
-    executeCode() {
-      console.log("Executing code:", this.currentTask.code);
-      // Add your code execution logic here
-      // For example, you might send the code to a backend API
-      alert(`Code executed! Check console for details.\nLanguage: ${this.currentTask.language}
   },
 };
 </script>
@@ -132,25 +124,6 @@ body {
   background-color: #ccc;
   cursor: default;
 }
-
-.execute-button {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.execute-button:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 
 .navigation span {
   font-weight: bold;
