@@ -34,6 +34,9 @@
                 v-model="currentTask.code"
                 :language="currentTask.language"
               />
+              <button class="execute-button" @click="executeCode">
+                Запустить код
+              </button>
             </div>
           </div>
         </template>
@@ -97,6 +100,9 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    executeCode() {
+      console.log("Executing code:", this.currentTask.code)
     },
   },
   async created() {
@@ -209,4 +215,27 @@ export default {
 .error {
   color: #ff4444;
 }
+
+.execute-button {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  z-index: 10; /* Ensure button stays above other elements */
+}
+
+.execute-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 </style>
+
+
