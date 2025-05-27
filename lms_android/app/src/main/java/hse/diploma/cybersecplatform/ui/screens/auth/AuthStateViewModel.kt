@@ -1,7 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
-import hse.diploma.cybersecplatform.domain.AuthRepo
+import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject

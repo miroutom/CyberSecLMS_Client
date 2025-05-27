@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background">#FFFFFF</color>
+    <color name="shimmer_color">#CCCCCC</color>
+    <color name="main_text_color">#121212</color>
+    <color name="error_text_color">#FF0000</color>
+
     <color name="button_enabled">#3764ED</color>
     <color name="button_disabled">#E1E1E3</color>
 
@@ -9,9 +14,23 @@
     <color name="xss_card_color">#F2F2FF</color>
     <color name="xss_signature_color">#3764ED</color>
 
-    <color name="sql_card_color">#FEF3E9</color>
-    <color name="sql_signature_color">#F9A866</color>
+    <color name="dialog_color">#F5FAFF</color>
 
-    <color name="csrf_card_color">#F1FFFF</color>
-    <color name="csrf_signature_color">#3AE8C5</color>
+    <color name="icon_black_tint">#484848</color>
+
+    <color name="logout">#C61414</color>
+
+    <color name="error_dialog_background">#FFF3F3</color>
+    <color name="error_dialog_text">#C61414</color>
+
+    <color name="menu_divider">#BCBCBC</color>
+
+    <color name="tab_button_not_selected_color">#979797</color>
+
+    <color name="navigation_bar_selected">#060051</color>
+    <color name="navigation_bar_not_selected">#E1E1E3</color>
+
+    <color name="profile_content_background">#D9D9D9</color>
+    <color name="search_bar_background">#FAFAFA</color>
+    <color name="search_icon_tint">#5C5C5C</color>
 </resources>

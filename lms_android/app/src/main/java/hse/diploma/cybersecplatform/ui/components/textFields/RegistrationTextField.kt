@@ -13,6 +13,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,7 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
-fun AdditionalTextField(
+fun RegistrationTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     @StringRes labelId: Int,
@@ -45,13 +46,13 @@ fun AdditionalTextField(
                     fontFamily = Montserrat,
                     fontWeight = FontWeight.Normal,
                     fontSize = if (value.text.isEmpty()) 16.sp else 10.sp,
-                    color = Color.Black,
+                    color = colorResource(R.color.main_text_color),
                 )
             },
             colors =
                 TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = colorResource(R.color.background),
+                    unfocusedContainerColor = colorResource(R.color.background),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -60,7 +61,7 @@ fun AdditionalTextField(
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = Color.Black,
+                        color = colorResource(R.color.main_text_color),
                         shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_large)),
                     ),
         )
@@ -74,12 +75,12 @@ fun RegistrationTextFieldPreview() {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            AdditionalTextField(
+            RegistrationTextField(
                 value = TextFieldValue(""),
                 labelId = R.string.auth_label_full_name,
                 onValueChange = {},
             )
-            AdditionalTextField(
+            RegistrationTextField(
                 value = TextFieldValue(""),
                 labelId = R.string.auth_label_username,
                 onValueChange = {},

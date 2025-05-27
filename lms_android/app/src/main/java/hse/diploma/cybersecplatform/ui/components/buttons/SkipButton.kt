@@ -11,7 +11,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,7 +30,7 @@ fun SkipButton(
         enabled = true,
         colors =
             ButtonDefaults.textButtonColors(
-                contentColor = Color.Black,
+                contentColor = colorResource(R.color.main_text_color),
             ),
     ) {
         Row(

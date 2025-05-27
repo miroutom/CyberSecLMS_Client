@@ -14,7 +14,7 @@ private val LightColorScheme =
 
 private val DarkColorScheme =
     darkColorScheme(
-        background = Color.Black,
+        background = Color(0xFF121212),
     )
 
 @Composable
@@ -23,10 +23,9 @@ fun CyberSecPlatformTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme =
-        if (darkTheme) {
-            DarkColorScheme
-        } else {
-            LightColorScheme
+        when {
+            darkTheme -> DarkColorScheme
+            else -> LightColorScheme
         }
 
     MaterialTheme(
