@@ -14,6 +14,15 @@ type Config struct {
 	CourseService Service `yaml:"course_service"`
 }
 
+type CORSConfig struct {
+	AllowOrigins     []string `yaml:"allow_origins"`
+	AllowMethods     []string `yaml:"allow_methods"`
+	AllowHeaders     []string `yaml:"allow_headers"`
+	ExposeHeaders    []string `yaml:"expose_headers"`
+	AllowCredentials bool     `yaml:"allow_credentials"`
+	MaxAge           int      `yaml:"max_age"`
+}
+
 type Service struct {
 	URL     string `yaml:"url"`
 	Timeout int    `yaml:"timeout"`

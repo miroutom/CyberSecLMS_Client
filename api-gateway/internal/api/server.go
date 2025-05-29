@@ -25,6 +25,7 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 	router := gin.New()
 	router.Use(middleware.LoggerMiddleware(logger))
 	router.Use(gin.Recovery())
+	router.Use(middleware.SecurityHeadersMiddleware())
 
 	httpClient := &http.Client{
 		Timeout: time.Duration(30) * time.Second,
