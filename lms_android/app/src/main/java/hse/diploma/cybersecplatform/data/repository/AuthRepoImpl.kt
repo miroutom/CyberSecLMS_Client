@@ -136,9 +136,7 @@ class AuthRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun requestDeleteAccount(
-        password: String,
-    ): Result<TempTokenResponse> {
+    override suspend fun requestDeleteAccount(password: String): Result<TempTokenResponse> {
         return try {
             val request = DeleteAccountInitRequest(password = password)
             val response = apiService.requestDeleteAccount(request)

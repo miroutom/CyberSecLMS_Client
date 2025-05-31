@@ -153,7 +153,10 @@ class SettingsViewModel @Inject constructor(
         _passwordOtpError.value = null
     }
 
-    fun initiateAccountDeletion(password: String, onResult: (Result<String>) -> Unit) {
+    fun initiateAccountDeletion(
+        password: String,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             _isLoading.value = true
             _deleteOtpError.value = null

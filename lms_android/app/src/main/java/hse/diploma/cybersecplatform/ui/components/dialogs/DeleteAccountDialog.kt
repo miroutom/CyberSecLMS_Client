@@ -93,10 +93,11 @@ fun DeleteAccountDialog(
                     }
                 },
                 enabled = !isLoading && password.text.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.error_text_color),
-                    disabledContainerColor = colorResource(R.color.button_disabled),
-                ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.error_text_color),
+                        disabledContainerColor = colorResource(R.color.button_disabled),
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.delete_button),
@@ -108,9 +109,10 @@ fun DeleteAccountDialog(
             Button(
                 onClick = onDismiss,
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.button_enabled),
-                ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.button_enabled),
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.cancel_button),
