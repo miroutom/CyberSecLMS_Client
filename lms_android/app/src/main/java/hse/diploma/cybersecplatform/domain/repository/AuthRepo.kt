@@ -34,7 +34,9 @@ interface AuthRepo {
         newPassword: String,
     ): Result<MessageResponse>
 
-    suspend fun requestDeleteAccount(): Result<TempTokenResponse>
+    suspend fun requestDeleteAccount(
+        password: String,
+    ): Result<TempTokenResponse>
 
     suspend fun confirmDeleteAccount(
         otpValue: String,

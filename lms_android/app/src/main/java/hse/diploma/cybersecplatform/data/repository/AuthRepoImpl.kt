@@ -2,6 +2,8 @@ package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.TokenManager
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountConfirmRequest
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountInitRequest
 import hse.diploma.cybersecplatform.data.model.request.ForgotPasswordRequest
 import hse.diploma.cybersecplatform.data.model.request.LoginRequest
 import hse.diploma.cybersecplatform.data.model.request.RegisterRequest
@@ -134,9 +136,12 @@ class AuthRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun requestDeleteAccount(): Result<TempTokenResponse> {
+    override suspend fun requestDeleteAccount(
+        password: String,
+    ): Result<TempTokenResponse> {
         return try {
-            val response = apiService.requestDeleteAccount()
+            val request = DeleteAccountInitRequest(password = password)
+            val response = apiService.requestDeleteAccount(request)
 
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
@@ -154,11 +159,7 @@ class AuthRepoImpl @Inject constructor(
         tempToken: String,
     ): Result<MessageResponse> {
         return try {
-            val request =
-                VerifyOtpRequest(
-                    otp = otpValue,
-                    tempToken = tempToken,
-                )
+            val request = DeleteAccountConfirmRequest(code = otpValue)
             val response = apiService.confirmDeleteAccount(request)
 
             if (response.isSuccessful && response.body() != null) {

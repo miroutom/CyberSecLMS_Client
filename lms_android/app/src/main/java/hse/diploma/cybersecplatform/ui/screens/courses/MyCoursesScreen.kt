@@ -44,6 +44,7 @@ import hse.diploma.cybersecplatform.ui.components.cards.CompletedCourseCard
 import hse.diploma.cybersecplatform.ui.components.cards.StartedCourseCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.ConfirmResetProgressDialog
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.state.MyCoursesState
 import hse.diploma.cybersecplatform.utils.logD
 
@@ -70,7 +71,7 @@ fun MyCoursesScreen(
     }
 
     when (myCoursesState) {
-        is MyCoursesState.Loading -> CoursesShimmer()
+        is MyCoursesState.Loading -> LoadingScreen()
         is MyCoursesState.Success -> {
             val coursesUiState = (myCoursesState as MyCoursesState.Success).uiState
             Column(modifier = modifier) {

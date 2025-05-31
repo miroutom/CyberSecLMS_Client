@@ -39,6 +39,7 @@ import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.BaseCourseCard
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.state.AllCoursesState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
@@ -59,7 +60,7 @@ fun HomeScreen(
         modifier = modifier,
     ) {
         when (allCoursesState) {
-            is AllCoursesState.Loading -> CoursesContentShimmer()
+            is AllCoursesState.Loading -> LoadingScreen()
 
             is AllCoursesState.Success -> {
                 val coursesUiState = (allCoursesState as AllCoursesState.Success).uiState

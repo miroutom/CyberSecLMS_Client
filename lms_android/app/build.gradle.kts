@@ -47,7 +47,7 @@ android {
     signingConfigs {
         create("release") {
             storeFile =
-                file("${rootDir}/cybersec-release.jks")
+                file("$rootDir/cybersec-release.jks")
             storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = "cybersec"
             keyPassword = System.getenv("KEY_PASSWORD")

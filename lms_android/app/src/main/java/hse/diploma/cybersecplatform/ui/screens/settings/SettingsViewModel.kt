@@ -153,13 +153,13 @@ class SettingsViewModel @Inject constructor(
         _passwordOtpError.value = null
     }
 
-    fun initiateAccountDeletion(onResult: (Result<String>) -> Unit) {
+    fun initiateAccountDeletion(password: String, onResult: (Result<String>) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             _deleteOtpError.value = null
 
             try {
-                authRepo.requestDeleteAccount().onSuccess { response ->
+                authRepo.requestDeleteAccount(password).onSuccess { response ->
                     _deleteTempToken.value = response.tempToken
                     onResult(Result.success("OTP sent to your email"))
                 }.onFailure { error ->

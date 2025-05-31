@@ -81,7 +81,7 @@ fun RegistrationScreen(
                             .padding(horizontal = 16.dp)
                             .padding(bottom = paddingValues.calculateBottomPadding()),
                 ) {
-                    Spacer(modifier = Modifier.height(130.dp))
+                    Spacer(modifier = Modifier.height(100.dp))
                     Text(
                         text = stringResource(R.string.app_name),
                         style =

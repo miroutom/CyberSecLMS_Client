@@ -89,6 +89,10 @@
     <string name="registration_error">Ошибка регистрации</string>
     <string name="otp_error">Ошибка OTP</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="profile_loading_error">Не удалось загрузить профиль</string>
+
+    <string name="loading_dialog_title">Загрузка</string>
+    <string name="loading_profile">Загрузка профиля...</string>
 
     <string name="no_internet_error">Нет интернета</string>
     <string name="server_error">Сервер упал, но обещал вернуться</string>
