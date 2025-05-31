@@ -64,6 +64,7 @@ fun PasswordChangeDialog(
                 PasswordField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
+                    label = stringResource(R.string.new_password),
                     modifier = Modifier.fillMaxWidth(),
                 )
 

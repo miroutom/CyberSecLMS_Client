@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -36,6 +34,7 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.ThemeChooserDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsMenu
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.utils.maskEmail
 import kotlinx.coroutines.delay
@@ -107,17 +106,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         }
 
         if (isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(colorResource(R.color.background).copy(alpha = 0.7f)),
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = colorResource(R.color.button_enabled),
-                )
-            }
+            LoadingScreen()
         }
 
         when (visibleDialog) {
@@ -158,11 +147,12 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     isLoading = isLoading,
                 )
             }
+
             SettingsDialog.DELETE_ACCOUNT -> {
                 DeleteAccountDialog(
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
-                    onConfirm = {
-                        viewModel.initiateAccountDeletion { result ->
+                    onConfirm = { password ->
+                        viewModel.initiateAccountDeletion(password) { result ->
                             result.onSuccess {
                             }.onFailure { error ->
                                 errorMessage = error.message
@@ -172,6 +162,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     isLoading = isLoading,
                 )
             }
+
             SettingsDialog.NONE -> { // do nothing
             }
         }

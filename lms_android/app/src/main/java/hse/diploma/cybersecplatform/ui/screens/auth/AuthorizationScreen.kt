@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +35,7 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
 import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
@@ -172,13 +171,7 @@ fun AuthorizationScreen(
                 }
 
                 if (isLoading) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(colorResource(R.color.background).copy(alpha = 0.7f)),
-                    ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
+                    LoadingScreen()
                 }
 
                 errorDialogMessage?.let { msg ->

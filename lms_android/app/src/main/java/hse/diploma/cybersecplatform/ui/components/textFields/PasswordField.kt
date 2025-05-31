@@ -41,10 +41,9 @@ import hse.diploma.cybersecplatform.utils.isPasswordValid
 fun PasswordField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    label: String = stringResource(R.string.auth_label_password),
     modifier: Modifier = Modifier,
 ) {
-    val label = stringResource(R.string.auth_label_password)
-
     val isPasswordValid = isPasswordValid(value.text)
     val isPasswordVisible = remember { mutableStateOf(false) }
 

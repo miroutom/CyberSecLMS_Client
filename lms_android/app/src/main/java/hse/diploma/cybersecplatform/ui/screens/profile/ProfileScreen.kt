@@ -46,6 +46,7 @@ import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.state.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
@@ -62,7 +63,7 @@ fun ProfileScreen(
 
     when (profileState) {
         is ProfileState.Loading -> {
-            ProfileShimmer(modifier)
+            LoadingScreen()
         }
         is ProfileState.Success -> {
             val uiState = (profileState as ProfileState.Success).uiState
