@@ -20,7 +20,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
 ) : ViewModel() {
-    // TODO: replace with real data
     private val _allCoursesState = MutableStateFlow<AllCoursesState>(AllCoursesState.Loading)
     val allCoursesState: StateFlow<AllCoursesState> = _allCoursesState.asStateFlow()
 

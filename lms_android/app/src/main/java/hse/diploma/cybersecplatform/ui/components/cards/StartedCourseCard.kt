@@ -16,12 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -44,7 +45,8 @@ fun StartedCourseCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .testTag("CourseCard_${course.vulnerabilityType.name}"),
         shape = RoundedCornerShape(32.dp),
         colors =
             CardDefaults.elevatedCardColors(
@@ -110,7 +112,7 @@ fun StartedCourseCard(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun StartedCourseCardPreview() {
     CyberSecPlatformTheme {

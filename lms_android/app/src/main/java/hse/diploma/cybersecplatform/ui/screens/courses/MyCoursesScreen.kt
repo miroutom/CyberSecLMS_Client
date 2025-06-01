@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
@@ -52,10 +53,10 @@ private const val TAG = "MyCoursesScreen"
 
 @Composable
 fun MyCoursesScreen(
+    viewModel: MyCoursesViewModel = viewModel(factory = LocalViewModelFactory.current),
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: MyCoursesViewModel = viewModel(factory = LocalViewModelFactory.current)
     val myCoursesState by viewModel.myCoursesState.collectAsState()
     var isStartedSelected by remember { mutableStateOf(true) }
 
@@ -267,8 +268,11 @@ private fun ShimmerCourseCard(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun MyCoursesScreenPreview() {
-    MyCoursesScreen(navController = rememberNavController())
+    MyCoursesScreen(
+        viewModel = MainApplication.appComponent.viewModelFactory().create(MyCoursesViewModel::class.java),
+        navController = rememberNavController(),
+    )
 }

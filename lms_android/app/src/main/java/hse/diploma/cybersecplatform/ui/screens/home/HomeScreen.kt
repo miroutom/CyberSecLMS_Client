@@ -24,7 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Course
@@ -45,10 +46,10 @@ import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(factory = LocalViewModelFactory.current),
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: HomeViewModel = viewModel(factory = LocalViewModelFactory.current)
     val searchQuery by viewModel.searchQuery.collectAsState()
     val allCoursesState by viewModel.allCoursesState.collectAsState()
 
@@ -195,10 +196,13 @@ private fun CoursesCardShimmer(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun HomeScreenPreview() {
     CyberSecPlatformTheme {
-        HomeScreen(navController = rememberNavController())
+        HomeScreen(
+            viewModel = MainApplication.appComponent.viewModelFactory().create(HomeViewModel::class.java),
+            navController = rememberNavController(),
+        )
     }
 }

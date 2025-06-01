@@ -19,7 +19,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -127,7 +127,7 @@ fun EditProfileDialog(
     )
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun EditProfileDialogPreview() {
     CyberSecPlatformTheme {

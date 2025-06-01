@@ -19,9 +19,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
@@ -35,15 +37,17 @@ import hse.diploma.cybersecplatform.ui.components.menu.SettingsDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsMenu
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
+import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.utils.maskEmail
 import kotlinx.coroutines.delay
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    val viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current)
-    val authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current
-
+fun SettingsScreen(
+    viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current),
+    authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current,
+    modifier: Modifier = Modifier,
+) {
     val isLoading by viewModel.isLoading.collectAsState()
     val theme by viewModel.themePreference.collectAsState()
     val language by viewModel.languagePreference.collectAsState()
@@ -209,5 +213,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 onDismiss = { errorMessage = null },
             )
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun SettingsScreenPreview() {
+    CyberSecPlatformTheme {
+        SettingsScreen(
+            viewModel = MainApplication.appComponent.viewModelFactory().create(SettingsViewModel::class.java),
+        )
     }
 }

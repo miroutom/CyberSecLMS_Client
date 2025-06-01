@@ -31,18 +31,17 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
@@ -305,13 +304,13 @@ private fun ProfileShimmer(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
         ProfileScreen(
-            viewModel(factory = LocalViewModelFactory.current),
-            rememberNavController(),
+            profileViewModel = MainApplication.appComponent.viewModelFactory().create(ProfileViewModel::class.java),
+            navHostController = rememberNavController(),
         )
     }
 }

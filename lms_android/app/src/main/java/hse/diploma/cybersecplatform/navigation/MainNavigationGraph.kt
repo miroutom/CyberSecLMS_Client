@@ -30,10 +30,10 @@ fun MainNavigationGraph() {
             modifier = modifier,
         ) {
             animatedComposable(Screen.HomeScreen.route) {
-                HomeScreen(mainNavController)
+                HomeScreen(navController = mainNavController)
             }
             animatedComposable(Screen.MyCourses.route) {
-                MyCoursesScreen(mainNavController)
+                MyCoursesScreen(navController = mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
                 ProfileScreen(profileViewModel, mainNavController)
@@ -42,7 +42,7 @@ fun MainNavigationGraph() {
             animatedComposable(Screen.TaskScreen.route) { backStackEntry ->
                 val typeString = backStackEntry.arguments?.getString("vulnerabilityType")
                 val type = VulnerabilityType.valueOf(typeString ?: "XSS")
-                TasksScreen(type)
+                TasksScreen(vulnerabilityType = type)
             }
 
             animatedComposable(Screen.Settings.route) {
