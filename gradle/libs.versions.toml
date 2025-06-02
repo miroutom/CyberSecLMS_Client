@@ -41,7 +41,7 @@ shot = "1.6.0"
 uiautomator = "2.3.0"
 uiTestJunit4 = "1.8.2"
 uiTestManifest = "1.8.2"
-screenshot = "0.0.1-alpha07"
+screenshot = "0.0.1-alpha09"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
