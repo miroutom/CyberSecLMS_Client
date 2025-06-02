@@ -130,7 +130,7 @@ jobs:
     name: Run Integration Tests
     needs: [ build-debug-apk ]
     if: needs.check-paths.outputs.android_changed == 'true'
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
@@ -140,8 +140,39 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Run integration tests
-        run: ./gradlew connectedDebugAndroidTest
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-29
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Run Integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
@@ -171,7 +202,7 @@ jobs:
           java-version: '17'
 
       - name: Run screenshot tests
-        run: ./gradlew testDebugScreenshotTest
+        run: ./gradlew validateDebugScreenshotTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
