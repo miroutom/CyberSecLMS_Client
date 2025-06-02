@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 class TasksViewModel @Inject constructor() : ViewModel() {
-    // TODO: replace with real data
+    // TODO: replace with api service
     private val _tasks = MutableStateFlow(mockTasksItems)
     val tasks = _tasks.asStateFlow()
 

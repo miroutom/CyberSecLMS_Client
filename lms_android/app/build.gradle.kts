@@ -36,7 +36,7 @@ android {
 
     defaultConfig {
         applicationId = "hse.diploma.cybersecplatform"
-        minSdk = 28
+        minSdk = 27
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
