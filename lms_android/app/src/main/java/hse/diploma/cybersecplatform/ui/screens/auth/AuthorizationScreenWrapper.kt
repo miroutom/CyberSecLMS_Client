@@ -63,8 +63,9 @@ fun AuthorizationScreenWrapper(
                         tempTokenForOtp = null
                         otpError = null
                         onAuthorized()
-                    }.onFailure { err ->
-                        otpError = err.message ?: "Wrong code"
+                    }.onFailure { error ->
+                        onError(error.message ?: "Authorization error")
+                        errorDialogMessage = error.message ?: "Authorization error"
                     }
                 },
             )

@@ -67,7 +67,7 @@ class MyCoursesScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            MyCoursesScreen(viewModel = viewModel, navController = navController)
+            MyCoursesScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText(getString(R.string.started_courses_tab_button))
@@ -102,7 +102,7 @@ class MyCoursesScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            MyCoursesScreen(viewModel = viewModel, navController = navController)
+            MyCoursesScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText("XSS", substring = true)
@@ -132,7 +132,7 @@ class MyCoursesScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            MyCoursesScreen(viewModel = viewModel, navController = navController)
+            MyCoursesScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText(getString(R.string.completed_courses_tab_button))
@@ -150,7 +150,7 @@ class MyCoursesScreenIntegrationTest {
         every { viewModel.myCoursesState } returns MutableStateFlow(MyCoursesState.Loading)
 
         composeRule.setContent {
-            MyCoursesScreen(viewModel = viewModel, navController = navController)
+            MyCoursesScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithTag("LoadingIndicator").assertIsDisplayed()

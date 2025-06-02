@@ -36,8 +36,8 @@ android {
 
     defaultConfig {
         applicationId = "hse.diploma.cybersecplatform"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 28
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -86,6 +86,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

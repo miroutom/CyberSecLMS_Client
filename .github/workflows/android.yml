@@ -147,14 +147,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-report
-          path: lms_android/app/build/reports/androidTests/connected/
+          path: lms_android/app/build/reports/androidTests/connected/debug
 
       - name: Publish Integration Test Results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Integration Tests
-          path: lms_android/app/build/outputs/androidTest-results/connected/*.xml
+          path: lms_android/app/build/outputs/androidTest-results/connected/debug/*.xml
           reporter: java-junit
 
   run-screenshot-tests:
@@ -177,4 +177,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ScreenshotTest_Reports
-          path: lms_android/app/build/reports/tests/screenshotTests/
+          path: lms_android/app/build/reports/screenshotTests/preview/debug/
+
+      - name: Publish Screenshot Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Screenshot Tests
+          path: lms_android/app/build/outputs/screenshotTest-results/preview/debug/results/*.xml
+          reporter: java-junit

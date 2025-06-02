@@ -15,12 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
+import hse.diploma.cybersecplatform.mock.mockAllCourses
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.BaseCourseCard
+import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
@@ -96,12 +97,11 @@ fun CoursesContent(
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "HomeScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "HomeScreen", showBackground = true, apiLevel = 30)
 fun HomeScreenPreview() {
     CyberSecPlatformTheme {
         HomeScreen(
-            state = AllCoursesState.Loading,
+            state = AllCoursesState.Success(CoursesUiState(mockAllCourses)),
             searchQuery = TextFieldValue(""),
             onSearchQueryChange = {},
             onCourseClick = {},

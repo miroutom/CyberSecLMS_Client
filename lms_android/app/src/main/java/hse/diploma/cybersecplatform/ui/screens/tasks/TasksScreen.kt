@@ -10,16 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Task
+import hse.diploma.cybersecplatform.mock.mockTasksItems
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
@@ -95,12 +93,11 @@ fun TasksContent(
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "TasksScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "TasksScreen", showBackground = true, apiLevel = 30)
 private fun TasksScreenPreview() {
     CyberSecPlatformTheme {
         TasksScreen(
-            state = TasksScreenState(),
+            state = TasksScreenState(tasks = mockTasksItems),
             vulnerabilityType = VulnerabilityType.SQL,
             onSearchQueryChange = {},
             onFilterClick = {},

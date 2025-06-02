@@ -31,12 +31,15 @@ class HomeScreenIntegrationTest {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var navController: NavHostController
+
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Before
     fun setUp() {
         viewModel = mockk(relaxed = true)
         navController = mockk(relaxed = true)
+
+        every { viewModel.searchQuery } returns MutableStateFlow(TextFieldValue(""))
     }
 
     private fun getString(resId: Int): String = context.getString(resId)
@@ -160,6 +163,6 @@ class HomeScreenIntegrationTest {
         composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)
             .performClick()
 
-        verify { navController.navigate("taskScreen/${testCourse.vulnerabilityType.name}") }
+        verify { navController.navigate("task/${testCourse.vulnerabilityType.name}") }
     }
 }

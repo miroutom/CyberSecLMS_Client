@@ -31,10 +31,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.mock.mockUser
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
 import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
@@ -163,12 +163,11 @@ private fun ProfileContent(
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "ProfileScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "ProfileScreen", showBackground = true, apiLevel = 30)
 private fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
         ProfileScreen(
-            state = ProfileState.Loading,
+            state = ProfileState.Success(ProfileUiState(mockUser)),
             onLogoutClick = {},
             onSettingsClick = {},
             onReload = {},

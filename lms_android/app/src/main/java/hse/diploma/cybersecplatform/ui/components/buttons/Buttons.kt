@@ -18,6 +18,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,7 +90,6 @@ fun CustomOutlinedButton(
             style = Typography.bodyMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 8.dp),
-            color = colorResource(R.color.main_text_color),
         )
     }
 }
@@ -107,6 +107,7 @@ fun TextButton(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         textAlign = textAlign,
+        color = colorResource(R.color.main_text_color),
         modifier =
             modifier
                 .clickable(onClick = onClick)
@@ -114,8 +115,9 @@ fun TextButton(
     )
 }
 
-@PreviewLightDark
 @Composable
+@PreviewLightDark
+@Preview(name = "Buttons", showBackground = true, showSystemUi = true)
 fun ButtonsPreview() {
     Column(
         modifier = Modifier.padding(16.dp),

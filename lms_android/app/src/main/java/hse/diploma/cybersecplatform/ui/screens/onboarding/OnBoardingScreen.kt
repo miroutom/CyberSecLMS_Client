@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -164,8 +163,7 @@ private fun currentStepToButtonText(step: Int): String {
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "OnBoardingScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "OnBoardingScreen", showBackground = true, apiLevel = 30)
 private fun OnBoardingScreenPreview() {
     OnBoardingScreen(
         currentStep = 0,

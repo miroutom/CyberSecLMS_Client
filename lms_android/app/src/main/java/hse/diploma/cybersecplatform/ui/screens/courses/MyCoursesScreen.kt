@@ -14,10 +14,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
+import hse.diploma.cybersecplatform.mock.mockAllCourses
+import hse.diploma.cybersecplatform.mock.mockCourses
 import hse.diploma.cybersecplatform.ui.components.buttons.TabButton
 import hse.diploma.cybersecplatform.ui.components.cards.CompletedCourseCard
 import hse.diploma.cybersecplatform.ui.components.cards.StartedCourseCard
@@ -148,11 +149,10 @@ private fun CompletedCoursesScreen(
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "MyCoursesScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "MyCoursesScreen", showBackground = true, apiLevel = 30)
 private fun MyCoursesScreenPreview() {
     MyCoursesScreen(
-        state = MyCoursesState.Success(CoursesUiState(emptyList(), emptyList())),
+        state = MyCoursesState.Success(CoursesUiState(mockCourses, mockAllCourses)),
         isStartedSelected = true,
         onTabChange = {},
         onCourseClick = {},

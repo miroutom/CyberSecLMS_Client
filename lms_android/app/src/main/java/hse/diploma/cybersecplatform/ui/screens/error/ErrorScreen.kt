@@ -19,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -83,8 +82,7 @@ private fun errorImage(errorType: ErrorType): Painter {
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "ErrorScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "ErrorScreen", showBackground = true, apiLevel = 30)
 private fun ErrorScreenPreview() {
     ErrorScreen(
         errorType = ErrorType.Other,

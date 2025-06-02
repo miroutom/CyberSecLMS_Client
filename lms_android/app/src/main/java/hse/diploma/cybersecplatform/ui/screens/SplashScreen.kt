@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
@@ -58,10 +58,10 @@ fun SplashScreen(
     }
 }
 
-@PreviewLightDark
 @Composable
+@Preview(name = "SplashScreen", showBackground = true, apiLevel = 30)
 private fun SplashScreenPreview() {
     CyberSecPlatformTheme {
-        SplashScreen(isAuthorized = false, {})
+        SplashScreen(isAuthorized = false) {}
     }
 }

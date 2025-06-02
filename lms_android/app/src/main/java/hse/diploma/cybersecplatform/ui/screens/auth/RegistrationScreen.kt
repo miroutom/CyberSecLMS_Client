@@ -21,7 +21,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
@@ -138,8 +137,7 @@ fun RegistrationScreen(
 }
 
 @Composable
-@PreviewLightDark
-@Preview(name = "RegistrationScreen", showSystemUi = true, showBackground = true)
+@Preview(name = "RegistrationScreen", showBackground = true, apiLevel = 30)
 fun RegistrationScreenPreview() {
     val previewState =
         RegistrationScreenState(

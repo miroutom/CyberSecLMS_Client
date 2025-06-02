@@ -228,6 +228,6 @@ class AuthorizationScreenIntegrationTest {
         composeRule.onNodeWithText(getString(R.string.auth_button))
             .performClick()
 
-        verify { onError.invoke("Authentication failed") }
+        composeRule.onNodeWithText("Authentication failed").assertIsDisplayed()
     }
 }
