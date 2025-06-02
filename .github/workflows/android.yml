@@ -41,6 +41,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Pull Request Check (ktlint, lint)
         run: ./gradlew pullRequestCheck
@@ -58,6 +60,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
@@ -86,6 +90,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Generate Jacoco report
         run: ./gradlew testDebugUnitTest jacocoDebugTestReport
@@ -116,6 +122,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
@@ -139,16 +147,22 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'gradle'
 
       - name: Run Integration tests
+        id: run_emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
           target: google_apis
-          arch: x86_64
+          arch: arm64-v8a
+          profile: pixel_5
           script: ./gradlew connectedDebugAndroidTest
+
+      - name: Show emulator step outputs
+        if: always()
+        run: echo "Emulator outputs ${{ toJson(steps.run_emulator.outputs) }}"
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
@@ -176,6 +190,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Run screenshot tests
         run: ./gradlew validateDebugScreenshotTest
@@ -184,7 +200,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ScreenshotTest_Reports
-          path: lms_android/app/build/reports/screenshotTests/preview/debug/
+          path: lms_android/app/build/reports/screenshotTests/
 
       - name: Publish Screenshot Test Results
         uses: dorny/test-reporter@v1
