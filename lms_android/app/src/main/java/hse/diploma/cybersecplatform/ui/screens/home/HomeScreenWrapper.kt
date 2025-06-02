@@ -22,7 +22,7 @@ fun HomeScreenWrapper(
         searchQuery = searchQuery,
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onCourseClick = { vulnerabilityType ->
-            navController.navigate("task/${vulnerabilityType}")
+            navController.navigate("task/$vulnerabilityType")
         },
         onReload = { viewModel.loadCourses() },
         modifier = modifier,
