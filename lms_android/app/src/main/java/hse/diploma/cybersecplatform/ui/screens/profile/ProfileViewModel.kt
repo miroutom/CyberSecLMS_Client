@@ -8,7 +8,7 @@ import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.utils.logD
 import hse.diploma.cybersecplatform.utils.logE
 import hse.diploma.cybersecplatform.utils.retry

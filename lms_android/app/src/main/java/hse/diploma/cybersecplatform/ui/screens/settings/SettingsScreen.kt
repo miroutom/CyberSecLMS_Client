@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,12 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
+import hse.diploma.cybersecplatform.domain.model.AppTheme
+import hse.diploma.cybersecplatform.domain.model.Language
 import hse.diploma.cybersecplatform.ui.components.dialogs.DeleteAccountDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.LanguageChooserDialog
@@ -33,47 +32,34 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.PasswordChangeDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.ThemeChooserDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsMenu
-import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
+import hse.diploma.cybersecplatform.ui.state.screen_state.SettingsScreenState
+import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.utils.maskEmail
 import kotlinx.coroutines.delay
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    val viewModel: SettingsViewModel = viewModel(factory = LocalViewModelFactory.current)
-    val authStateViewModel: AuthStateViewModel = LocalAuthStateViewModel.current
-
-    val isLoading by viewModel.isLoading.collectAsState()
-    val theme by viewModel.themePreference.collectAsState()
-    val language by viewModel.languagePreference.collectAsState()
-    val user by viewModel.user.collectAsState()
-
-    val passwordTempToken by viewModel.passwordTempToken.collectAsState()
-    val deleteTempToken by viewModel.deleteTempToken.collectAsState()
-    val passwordOtpError by viewModel.passwordOtpError.collectAsState()
-    val deleteOtpError by viewModel.deleteOtpError.collectAsState()
-
+fun SettingsScreen(
+    state: SettingsScreenState,
+    onThemeSelected: (AppTheme) -> Unit,
+    onLanguageSelected: (Language) -> Unit,
+    onPasswordChangeInitiated: (String, String, (Result<String>) -> Unit) -> Unit,
+    onDeleteAccountInitiated: (String, (Result<String>) -> Unit) -> Unit,
+    onPasswordOtpSubmitted: (String, (Result<String>) -> Unit) -> Unit,
+    onDeleteOtpSubmitted: (String, (Result<String>) -> Unit) -> Unit,
+    onPasswordOtpDismissed: () -> Unit,
+    onDeleteOtpDismissed: () -> Unit,
+    onErrorDismissed: () -> Unit,
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var visibleDialog by remember { mutableStateOf(SettingsDialog.NONE) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var successMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(passwordTempToken) {
-        if (passwordTempToken != null) {
-            visibleDialog = SettingsDialog.NONE
-        }
-    }
-
-    LaunchedEffect(deleteTempToken) {
-        if (deleteTempToken != null) {
-            visibleDialog = SettingsDialog.NONE
-        }
-    }
-
-    LaunchedEffect(successMessage) {
-        if (successMessage != null) {
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage != null) {
             delay(3000)
-            successMessage = null
+            onErrorDismissed()
         }
     }
 
@@ -93,7 +79,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 onDeleteClick = { visibleDialog = SettingsDialog.DELETE_ACCOUNT },
             )
 
-            successMessage?.let {
+            state.successMessage?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = it,
@@ -105,109 +91,117 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        if (isLoading) {
+        if (state.isLoading) {
             LoadingScreen()
         }
 
         when (visibleDialog) {
-            SettingsDialog.THEME -> {
+            SettingsDialog.THEME ->
                 ThemeChooserDialog(
-                    currentTheme = theme,
+                    currentTheme = state.theme,
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
-                    onThemeSelected = { selectedTheme ->
-                        viewModel.setThemePreference(selectedTheme)
+                    onThemeSelected = {
+                        onThemeSelected(it)
                         visibleDialog = SettingsDialog.NONE
                     },
                 )
-            }
-            SettingsDialog.LANGUAGE -> {
+
+            SettingsDialog.LANGUAGE ->
                 LanguageChooserDialog(
-                    currentLanguage = language,
+                    currentLanguage = state.language,
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
-                    onLanguageSelected = { selectedLanguage ->
-                        viewModel.setLanguagePreference(selectedLanguage)
+                    onLanguageSelected = {
+                        onLanguageSelected(it)
                         visibleDialog = SettingsDialog.NONE
                     },
                 )
-            }
-            SettingsDialog.PASSWORD -> {
+
+            SettingsDialog.PASSWORD ->
                 PasswordChangeDialog(
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
                     onSubmit = { currentPassword, newPassword ->
-                        viewModel.initiatePasswordChange(
-                            currentPassword = currentPassword,
-                            newPassword = newPassword,
-                        ) { result ->
-                            result.onSuccess {
-                            }.onFailure { error ->
-                                errorMessage = error.message
+                        onPasswordChangeInitiated(currentPassword, newPassword) { result ->
+                            result.onFailure { error ->
+                                // Ошибка будет обработана в ViewModel
                             }
                         }
                     },
-                    isLoading = isLoading,
+                    isLoading = state.isLoading,
                 )
-            }
 
-            SettingsDialog.DELETE_ACCOUNT -> {
+            SettingsDialog.DELETE_ACCOUNT ->
                 DeleteAccountDialog(
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
                     onConfirm = { password ->
-                        viewModel.initiateAccountDeletion(password) { result ->
-                            result.onSuccess {
-                            }.onFailure { error ->
-                                errorMessage = error.message
+                        onDeleteAccountInitiated(password) { result ->
+                            result.onFailure { error ->
+                                // Ошибка будет обработана в ViewModel
                             }
                         }
                     },
-                    isLoading = isLoading,
+                    isLoading = state.isLoading,
                 )
-            }
 
-            SettingsDialog.NONE -> { // do nothing
-            }
+            SettingsDialog.NONE -> {}
         }
 
-        if (passwordTempToken != null) {
+        state.passwordTempToken?.let {
             OtpDialog(
-                email = user?.email?.let { maskEmail(it) } ?: "",
-                isLoading = isLoading,
-                error = passwordOtpError,
+                email = state.user?.email?.let { maskEmail(it) } ?: "",
+                isLoading = state.isLoading,
+                error = state.passwordOtpError,
                 onOtpSubmit = { otpCode ->
-                    viewModel.verifyPasswordOtp(otpCode) { result ->
+                    onPasswordOtpSubmitted(otpCode) { result ->
                         result.onSuccess { message ->
-                            successMessage = message
+                            // Успех будет обработан в ViewModel
                         }
                     }
                 },
-                onDismiss = {
-                    viewModel.cancelPasswordOtp()
-                },
+                onDismiss = onPasswordOtpDismissed,
             )
         }
 
-        if (deleteTempToken != null) {
+        state.deleteTempToken?.let {
             OtpDialog(
-                email = user?.email?.let { maskEmail(it) } ?: "",
-                isLoading = isLoading,
-                error = deleteOtpError,
+                email = state.user?.email?.let { maskEmail(it) } ?: "",
+                isLoading = state.isLoading,
+                error = state.deleteOtpError,
                 onOtpSubmit = { otpCode ->
-                    viewModel.confirmAccountDeletion(otpCode) { result ->
+                    onDeleteOtpSubmitted(otpCode) { result ->
                         result.onSuccess {
-                            authStateViewModel.logout()
+                            onLogout()
                         }
                     }
                 },
-                onDismiss = {
-                    viewModel.cancelDeleteOtp()
-                },
+                onDismiss = onDeleteOtpDismissed,
             )
         }
 
-        errorMessage?.let { error ->
+        state.errorMessage?.let { error ->
             ErrorDialog(
                 errorMessage = error,
-                onDismiss = { errorMessage = null },
+                onDismiss = onErrorDismissed,
             )
         }
+    }
+}
+
+@Composable
+@Preview(name = "SettingsScreen", showBackground = true, apiLevel = 30)
+private fun SettingsScreenPreview() {
+    CyberSecPlatformTheme {
+        SettingsScreen(
+            state = SettingsScreenState(),
+            onThemeSelected = {},
+            onLanguageSelected = {},
+            onPasswordChangeInitiated = { _, _, _ -> },
+            onDeleteAccountInitiated = { _, _ -> },
+            onPasswordOtpSubmitted = { _, _ -> },
+            onDeleteOtpSubmitted = { _, _ -> },
+            onPasswordOtpDismissed = {},
+            onDeleteOtpDismissed = {},
+            onErrorDismissed = {},
+            onLogout = {},
+        )
     }
 }

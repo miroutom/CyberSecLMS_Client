@@ -8,12 +8,13 @@ import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
-import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreen
+import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
-import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreen
+import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.ui.screens.settings.SettingsScreen
-import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreen
+import hse.diploma.cybersecplatform.ui.screens.settings.SettingsScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenWrapper
 
 @Composable
 fun MainNavigationGraph() {
@@ -30,23 +31,23 @@ fun MainNavigationGraph() {
             modifier = modifier,
         ) {
             animatedComposable(Screen.HomeScreen.route) {
-                HomeScreen(mainNavController)
+                HomeScreenWrapper(navController = mainNavController)
             }
             animatedComposable(Screen.MyCourses.route) {
-                MyCoursesScreen(mainNavController)
+                MyCoursesScreenWrapper(navController = mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
-                ProfileScreen(profileViewModel, mainNavController)
+                ProfileScreenWrapper(profileViewModel, mainNavController)
             }
 
             animatedComposable(Screen.TaskScreen.route) { backStackEntry ->
                 val typeString = backStackEntry.arguments?.getString("vulnerabilityType")
                 val type = VulnerabilityType.valueOf(typeString ?: "XSS")
-                TasksScreen(type)
+                TasksScreenWrapper(vulnerabilityType = type)
             }
 
             animatedComposable(Screen.Settings.route) {
-                SettingsScreen()
+                SettingsScreenWrapper()
             }
         }
     }

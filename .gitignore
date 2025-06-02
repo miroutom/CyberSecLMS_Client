@@ -18,6 +18,7 @@ output.json
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
+.kotlin/
 
 # Keystore
 *.jks
