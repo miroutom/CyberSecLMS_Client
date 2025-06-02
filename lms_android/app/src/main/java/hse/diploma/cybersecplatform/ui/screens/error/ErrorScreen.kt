@@ -1,6 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.error
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +37,8 @@ fun ErrorScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(32.dp)
+                .background(color = colorResource(R.color.background)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -49,6 +53,7 @@ fun ErrorScreen(
             fontFamily = Montserrat,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
+            color = colorResource(R.color.main_text_color),
         )
         Spacer(Modifier.height(32.dp))
         CustomOutlinedButton(
@@ -77,8 +82,9 @@ private fun errorImage(errorType: ErrorType): Painter {
     }
 }
 
-@PreviewLightDark
 @Composable
+@PreviewLightDark
+@Preview(name = "ErrorScreen", showSystemUi = true, showBackground = true)
 private fun ErrorScreenPreview() {
     ErrorScreen(
         errorType = ErrorType.Other,

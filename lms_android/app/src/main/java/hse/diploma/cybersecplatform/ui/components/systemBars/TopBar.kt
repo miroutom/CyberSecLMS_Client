@@ -30,7 +30,7 @@ import hse.diploma.cybersecplatform.extensions.toAbsoluteUrl
 import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.EditProfile
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.utils.logD

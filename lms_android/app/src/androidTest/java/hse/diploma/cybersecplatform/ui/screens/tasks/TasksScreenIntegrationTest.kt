@@ -52,7 +52,7 @@ class TasksScreenIntegrationTest {
     @Test
     fun tasksScreen_displaysTasksForVulnerabilityType() {
         composeRule.setContent {
-            TasksScreen(
+            TasksScreenWrapper(
                 viewModel = viewModel,
                 vulnerabilityType = testVulnerabilityType,
             )
@@ -69,7 +69,7 @@ class TasksScreenIntegrationTest {
     @Test
     fun searchFunctionality_filtersTasks() {
         composeRule.setContent {
-            TasksScreen(
+            TasksScreenWrapper(
                 viewModel = viewModel,
                 vulnerabilityType = testVulnerabilityType,
             )
@@ -90,7 +90,7 @@ class TasksScreenIntegrationTest {
     @Test
     fun filterDialog_displaysWhenFilterButtonClicked() {
         composeRule.setContent {
-            TasksScreen(
+            TasksScreenWrapper(
                 viewModel = viewModel,
                 vulnerabilityType = testVulnerabilityType,
             )

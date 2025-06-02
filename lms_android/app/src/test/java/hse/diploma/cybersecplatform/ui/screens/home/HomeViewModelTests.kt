@@ -4,7 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
-import hse.diploma.cybersecplatform.ui.state.AllCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

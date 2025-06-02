@@ -11,7 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
-import hse.diploma.cybersecplatform.ui.state.MyCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.MyCoursesState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

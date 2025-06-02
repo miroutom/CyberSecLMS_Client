@@ -15,47 +15,39 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.textFields.AuthorizationTextField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordConfirmationField
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
 import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
+import hse.diploma.cybersecplatform.ui.state.screen_state.RegistrationScreenState
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
-import hse.diploma.cybersecplatform.utils.logD
 
 private const val TAG = "RegistrationScreen"
 
 @Composable
 fun RegistrationScreen(
+    state: RegistrationScreenState,
+    onFullNameChange: (TextFieldValue) -> Unit,
+    onUsernameChange: (TextFieldValue) -> Unit,
+    onLoginChange: (TextFieldValue) -> Unit,
+    onPasswordChange: (TextFieldValue) -> Unit,
+    onConfirmPasswordChange: (TextFieldValue) -> Unit,
+    onRegisterClick: () -> Unit,
     onNavigateToAuthorization: () -> Unit,
-    onRegistered: () -> Unit,
-    onError: (String) -> Unit,
-    viewModel: RegistrationViewModel = viewModel(factory = LocalViewModelFactory.current),
     modifier: Modifier = Modifier,
 ) {
-    val login by viewModel.login.collectAsState()
-    val password by viewModel.password.collectAsState()
-    val username by viewModel.username.collectAsState()
-    val fullName by viewModel.fullName.collectAsState()
-
-    val passwordConfirmation by viewModel.passwordConfirmation.collectAsState()
-    val isRegistrationEnabled by viewModel.isRegistrationEnabled.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         content = { paddingValues ->
@@ -66,7 +58,7 @@ fun RegistrationScreen(
                         .background(colorResource(R.color.background))
                         .padding(paddingValues),
             ) {
-                if (isLoading) {
+                if (state.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                     )
@@ -99,53 +91,39 @@ fun RegistrationScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         RegistrationTextField(
-                            value = fullName,
-                            onValueChange = viewModel::onFullNameChange,
+                            value = state.fullName,
+                            onValueChange = onFullNameChange,
                             labelId = R.string.auth_label_full_name,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         RegistrationTextField(
-                            value = username,
-                            onValueChange = viewModel::onUsernameChange,
+                            value = state.username,
+                            onValueChange = onUsernameChange,
                             labelId = R.string.auth_label_username,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         AuthorizationTextField(
-                            value = login,
-                            onValueChange = viewModel::onLoginChange,
+                            value = state.login,
+                            onValueChange = onLoginChange,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordField(
-                            value = password,
-                            onValueChange = viewModel::onPasswordChange,
+                            value = state.password,
+                            onValueChange = onPasswordChange,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordConfirmationField(
-                            value = passwordConfirmation,
-                            passwordValue = password,
-                            onValueChange = viewModel::onConfirmPasswordChange,
+                            value = state.passwordConfirmation,
+                            passwordValue = state.password,
+                            onValueChange = onConfirmPasswordChange,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
                     Spacer(modifier = Modifier.height(32.dp))
                     FilledButton(
                         text = stringResource(R.string.register_button),
-                        onClick = {
-                            logD(TAG, "onRegisterClicked register")
-                            viewModel.register(
-                                username = username.text,
-                                password = password.text,
-                                email = login.text,
-                                fullName = fullName.text,
-                            ) { result ->
-                                result.onSuccess {
-                                    onRegistered()
-                                }.onFailure { error ->
-                                    onError(error.message ?: "Ошибка регистрации")
-                                }
-                            }
-                        },
-                        enabled = isRegistrationEnabled,
+                        onClick = onRegisterClick,
+                        enabled = state.isRegistrationEnabled,
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     TextButton(
@@ -159,13 +137,28 @@ fun RegistrationScreen(
     )
 }
 
-@PreviewLightDark
 @Composable
+@PreviewLightDark
+@Preview(name = "RegistrationScreen", showSystemUi = true, showBackground = true)
 fun RegistrationScreenPreview() {
+    val previewState =
+        RegistrationScreenState(
+            login = TextFieldValue("test@example.com"),
+            password = TextFieldValue("password123"),
+            username = TextFieldValue("testuser"),
+            fullName = TextFieldValue("Test User"),
+            passwordConfirmation = TextFieldValue("password123"),
+            isRegistrationEnabled = true,
+        )
+
     RegistrationScreen(
+        state = previewState,
+        onFullNameChange = {},
+        onUsernameChange = {},
+        onLoginChange = {},
+        onPasswordChange = {},
+        onConfirmPasswordChange = {},
+        onRegisterClick = {},
         onNavigateToAuthorization = {},
-        onRegistered = {},
-        onError = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(RegistrationViewModel::class.java),
     )
 }

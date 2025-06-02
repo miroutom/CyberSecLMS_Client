@@ -8,7 +8,7 @@ import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
-import hse.diploma.cybersecplatform.ui.state.AllCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

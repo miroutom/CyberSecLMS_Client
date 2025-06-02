@@ -15,7 +15,7 @@ import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.isCircularProgressIndicator
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -51,7 +51,7 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreen(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
             }
         }
 
@@ -66,7 +66,7 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreen(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
             }
         }
 
@@ -85,7 +85,7 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreen(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
             }
         }
 
@@ -111,7 +111,7 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreen(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
             }
         }
 
@@ -132,7 +132,7 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreen(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
             }
         }
 

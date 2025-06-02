@@ -56,7 +56,7 @@ class SettingsScreenIntegrationTest {
     @Test
     fun settingsMenu_displaysAllOptions() {
         composeRule.setContent {
-            SettingsScreen(viewModel = viewModel, authStateViewModel = authStateViewModel)
+            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
         }
 
         composeRule.onNodeWithText(getString(R.string.theme_setting))
@@ -72,7 +72,7 @@ class SettingsScreenIntegrationTest {
     @Test
     fun themeDialog_displaysWhenThemeOptionClicked() {
         composeRule.setContent {
-            SettingsScreen(viewModel = viewModel, authStateViewModel = authStateViewModel)
+            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
         }
 
         composeRule.onNodeWithText(getString(R.string.theme_setting))
@@ -85,7 +85,7 @@ class SettingsScreenIntegrationTest {
     @Test
     fun languageDialog_displaysWhenLanguageOptionClicked() {
         composeRule.setContent {
-            SettingsScreen(viewModel = viewModel, authStateViewModel = authStateViewModel)
+            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
         }
 
         composeRule.onNodeWithText(getString(R.string.language_setting))
@@ -98,7 +98,7 @@ class SettingsScreenIntegrationTest {
     @Test
     fun passwordDialog_displaysWhenPasswordOptionClicked() {
         composeRule.setContent {
-            SettingsScreen(viewModel = viewModel, authStateViewModel = authStateViewModel)
+            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
         }
 
         composeRule.onNodeWithText(getString(R.string.update_password_setting))
@@ -111,7 +111,7 @@ class SettingsScreenIntegrationTest {
     @Test
     fun deleteDialog_displaysWhenDeleteOptionClicked() {
         composeRule.setContent {
-            SettingsScreen(viewModel = viewModel, authStateViewModel = authStateViewModel)
+            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
         }
 
         composeRule.onNodeWithText(getString(R.string.delete_account))

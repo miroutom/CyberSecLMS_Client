@@ -14,7 +14,7 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.mock.mockAllCourses
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
-import hse.diploma.cybersecplatform.ui.state.AllCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -46,7 +46,7 @@ class HomeScreenIntegrationTest {
         every { viewModel.allCoursesState } returns MutableStateFlow(AllCoursesState.Loading)
 
         composeRule.setContent {
-            HomeScreen(viewModel = viewModel, navController = navController)
+            HomeScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithTag("LoadingIndicator").assertIsDisplayed()
@@ -58,7 +58,7 @@ class HomeScreenIntegrationTest {
             MutableStateFlow(AllCoursesState.Error(ErrorType.NoInternet))
 
         composeRule.setContent {
-            HomeScreen(viewModel = viewModel, navController = navController)
+            HomeScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText(getString(R.string.no_internet_error))
@@ -83,7 +83,7 @@ class HomeScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            HomeScreen(viewModel = viewModel, navController = navController)
+            HomeScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         testCourses.forEach { course ->
@@ -117,7 +117,7 @@ class HomeScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            HomeScreen(viewModel = viewModel, navController = navController)
+            HomeScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText(getString(R.string.search_bar_label))
@@ -154,7 +154,7 @@ class HomeScreenIntegrationTest {
             )
 
         composeRule.setContent {
-            HomeScreen(viewModel = viewModel, navController = navController)
+            HomeScreenWrapper(viewModel = viewModel, navController = navController)
         }
 
         composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)

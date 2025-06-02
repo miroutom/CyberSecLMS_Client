@@ -11,9 +11,9 @@ import androidx.navigation.navigation
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
 import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
-import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreen
-import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreen
-import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreen
+import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingScreenWrapper
 import hse.diploma.cybersecplatform.utils.logD
 
 private const val TAG = "AuthNavigationGraph"
@@ -36,7 +36,7 @@ fun NavGraphBuilder.authNavigationGraph(
         route = "auth_flow",
     ) {
         animatedComposable(Screen.Onboarding.route) {
-            OnBoardingScreen(
+            OnBoardingScreenWrapper(
                 onNavigateToAuthorization = {
                     appPreferencesManager.markAppLaunched()
                     navController.navigate(Screen.Authorization.route) {
@@ -56,7 +56,7 @@ fun NavGraphBuilder.authNavigationGraph(
         animatedComposable(Screen.Authorization.route) {
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
                 },
@@ -79,7 +79,7 @@ fun NavGraphBuilder.authNavigationGraph(
         animatedComposable(Screen.Registration.route) {
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = {
                     navController.navigate(Screen.Authorization.route)
                 },

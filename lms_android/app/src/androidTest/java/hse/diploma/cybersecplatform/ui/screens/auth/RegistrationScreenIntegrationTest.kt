@@ -22,7 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class RegistrationIntegrationTest {
+class RegistrationScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -56,7 +56,7 @@ class RegistrationIntegrationTest {
     @Test
     fun registrationScreen_displaysAllFields() {
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -83,7 +83,7 @@ class RegistrationIntegrationTest {
         every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -103,7 +103,7 @@ class RegistrationIntegrationTest {
         every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(false)
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -130,7 +130,7 @@ class RegistrationIntegrationTest {
         every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -180,7 +180,7 @@ class RegistrationIntegrationTest {
         }
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -223,7 +223,7 @@ class RegistrationIntegrationTest {
         }
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -239,7 +239,7 @@ class RegistrationIntegrationTest {
     @Test
     fun clickingHaveAccountButton_navigatesToAuthorization() {
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
@@ -258,7 +258,7 @@ class RegistrationIntegrationTest {
         every { registrationViewModel.isLoading } returns MutableStateFlow(true)
 
         composeRule.setContent {
-            RegistrationScreen(
+            RegistrationScreenWrapper(
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,

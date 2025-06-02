@@ -89,6 +89,7 @@ fun CustomOutlinedButton(
             style = Typography.bodyMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 8.dp),
+            color = colorResource(R.color.main_text_color),
         )
     }
 }

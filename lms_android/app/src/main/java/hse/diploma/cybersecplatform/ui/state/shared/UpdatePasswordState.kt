@@ -1,4 +1,4 @@
-package hse.diploma.cybersecplatform.ui.state
+package hse.diploma.cybersecplatform.ui.state.shared
 
 import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.ui.screens.settings.UpdatePasswordUiState

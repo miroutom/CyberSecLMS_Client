@@ -10,62 +10,58 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.domain.model.Task
 import hse.diploma.cybersecplatform.ui.components.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
+import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.state.screen_state.TasksScreenState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
 @Composable
 fun TasksScreen(
-    viewModel: TasksViewModel = viewModel(factory = LocalViewModelFactory.current),
+    state: TasksScreenState,
     vulnerabilityType: VulnerabilityType,
+    onSearchQueryChange: (TextFieldValue) -> Unit,
+    onFilterClick: () -> Unit,
+    onFilterSelected: (List<Difficulty>) -> Unit,
+    onDismissFilter: () -> Unit,
+    onClearFilters: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val tasks by viewModel.tasks.collectAsState()
-    var showFilterDialog by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier,
     ) {
         SearchBar(
-            searchQuery = searchQuery,
-            onSearchQueryChange = viewModel::onSearchQueryChange,
-            onFilterClick = { showFilterDialog = true },
+            searchQuery = state.searchQuery,
+            onSearchQueryChange = onSearchQueryChange,
+            onFilterClick = onFilterClick,
             modifier = Modifier.background(colorResource(R.color.background)),
         )
 
-        TasksContent(tasks, vulnerabilityType)
+        TasksContent(
+            items = state.tasks,
+            vulnerabilityType = vulnerabilityType,
+        )
     }
 
-    if (showFilterDialog) {
+    if (state.showFilterDialog) {
         FilterSelectionDialog(
             onFilterSelected = { selectedDifficulties ->
-                viewModel.filterTaskByDifficulty(selectedDifficulties)
-                showFilterDialog = false
+                onFilterSelected(selectedDifficulties)
             },
-            onDismiss = {
-                showFilterDialog = false
-            },
-            onClearFilters = {
-                showFilterDialog = false
-                viewModel.resetFilters()
-            },
+            onDismiss = onDismissFilter,
+            onClearFilters = onClearFilters,
         )
     }
 }
@@ -88,7 +84,7 @@ fun TasksContent(
         items(filteredItems) { item ->
             TaskCard(
                 task = item,
-                onClick = { },
+                onClick = {},
             )
         }
 
@@ -98,13 +94,19 @@ fun TasksContent(
     }
 }
 
-@PreviewLightDark
 @Composable
-fun TasksScreenPreview() {
+@PreviewLightDark
+@Preview(name = "TasksScreen", showSystemUi = true, showBackground = true)
+private fun TasksScreenPreview() {
     CyberSecPlatformTheme {
         TasksScreen(
-            viewModel = MainApplication.appComponent.viewModelFactory().create(TasksViewModel::class.java),
+            state = TasksScreenState(),
             vulnerabilityType = VulnerabilityType.SQL,
+            onSearchQueryChange = {},
+            onFilterClick = {},
+            onFilterSelected = {},
+            onDismissFilter = {},
+            onClearFilters = {},
         )
     }
 }

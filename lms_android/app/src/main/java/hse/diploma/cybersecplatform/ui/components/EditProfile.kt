@@ -38,7 +38,7 @@ import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.dialogs.AvatarChooserDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.EditProfileDialog
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.utils.UnsafeOkHttpClient
 import hse.diploma.cybersecplatform.utils.logE

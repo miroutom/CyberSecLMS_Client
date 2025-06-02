@@ -24,7 +24,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class AuthorizationIntegrationTest {
+class AuthorizationScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -73,7 +73,7 @@ class AuthorizationIntegrationTest {
         every { authViewModel.isAuthorizationEnabled } returns isAuthEnabledState
 
         composeRule.setContent {
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = onNavigateToRegistration,
                 onAuthorized = onAuthorized,
                 onError = onError,
@@ -115,7 +115,7 @@ class AuthorizationIntegrationTest {
         every { authViewModel.isAuthorizationEnabled } returns isAuthEnabledState
 
         composeRule.setContent {
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = onNavigateToRegistration,
                 onAuthorized = onAuthorized,
                 onError = onError,
@@ -139,7 +139,7 @@ class AuthorizationIntegrationTest {
     @Test
     fun clickingRegistrationLinkNavigatesToRegistration() {
         composeRule.setContent {
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = onNavigateToRegistration,
                 onAuthorized = onAuthorized,
                 onError = onError,
@@ -176,7 +176,7 @@ class AuthorizationIntegrationTest {
         }
 
         composeRule.setContent {
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = onNavigateToRegistration,
                 onAuthorized = onAuthorized,
                 onError = onError,
@@ -216,7 +216,7 @@ class AuthorizationIntegrationTest {
         }
 
         composeRule.setContent {
-            AuthorizationScreen(
+            AuthorizationScreenWrapper(
                 onNavigateToRegistration = onNavigateToRegistration,
                 onAuthorized = onAuthorized,
                 onError = onError,
