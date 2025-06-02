@@ -150,11 +150,13 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Run Integration tests
-        id: run_emulator
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Download Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Run Integration Tests
+        uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 33
           target: google_apis
           arch: arm64-v8a
           profile: pixel_5
