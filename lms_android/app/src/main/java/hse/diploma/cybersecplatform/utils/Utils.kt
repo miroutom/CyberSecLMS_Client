@@ -5,12 +5,12 @@ import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
 
 enum class PasswordError {
+    NONE,
     LENGTH,
     NO_NUMBERS,
     NO_LOWERCASE,
     NO_UPPERCASE,
     NO_SYMBOLS,
-    NONE,
 }
 
 fun isEmailValid(login: String): Boolean {
