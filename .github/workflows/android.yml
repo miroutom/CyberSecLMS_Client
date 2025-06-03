@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ScreenshotTest_Reports
-          path: lms_android/app/build/reports/screenshotTests/preview/debug/index.html
+          path: lms_android/app/build/reports/screenshotTest/preview/debug/index.html
 
       - name: Publish Screenshot Test Results
         uses: dorny/test-reporter@v1
