@@ -234,8 +234,6 @@ export default {
 .execute-button:hover {
   background-color: #218838;
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
-
-
