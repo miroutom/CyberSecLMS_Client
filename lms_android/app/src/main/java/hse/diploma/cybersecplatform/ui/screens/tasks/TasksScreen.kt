@@ -65,7 +65,7 @@ fun TasksScreen(
 }
 
 @Composable
-fun TasksContent(
+private fun TasksContent(
     items: List<Task>,
     vulnerabilityType: VulnerabilityType,
     modifier: Modifier = Modifier,
