@@ -83,7 +83,7 @@ var (
 		2: {
 			ID:             2,
 			Username:       "user123",
-			PasswordHash:   "$2a$10$qJ7EYH.1r9kQQBqS7iPFm.LoTJHEbzGP4.94a8QCbeHEFjyFsHoKG",
+			PasswordHash:   "$2a$10$mY1j/T1JlJ7H50omhthPluBS2qYiU/r64X8C6UXEkbobiEDC9UZ62",
 			Email:          "user@example.com",
 			FullName:       "Regular User",
 			ProfileImage:   "",

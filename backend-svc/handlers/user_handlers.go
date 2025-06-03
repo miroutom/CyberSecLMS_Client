@@ -386,7 +386,7 @@ func ForgotPassword(c *gin.Context) {
 		fmt.Printf("Error sending reset code email: %v\n", err)
 	}
 
-	tempToken, err := createTempToken(user.ID)
+	tempToken, err := CreateTempToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
 		return
