@@ -3,7 +3,6 @@ package hse.diploma.cybersecplatform.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
-import kotlinx.coroutines.delay
 
 enum class PasswordError {
     LENGTH,
