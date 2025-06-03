@@ -32,7 +32,10 @@ func TestGetUserProfile(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var user models.User
-	json.Unmarshal(w.Body.Bytes(), &user)
+	err := json.Unmarshal(w.Body.Bytes(), &user)
+	if err != nil {
+		t.Errorf("json.Unmarshal failed: %v", err)
+	}
 	assert.Equal(t, 1, user.ID)
 	assert.Empty(t, user.PasswordHash)
 	assert.Empty(t, user.TOTPSecret)
@@ -62,7 +65,10 @@ func TestUpdateUserProfile(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var response map[string]string
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Profile updated successfully", response["message"])
 	})
 
@@ -107,7 +113,10 @@ func TestConfirmDeleteAccount(t *testing.T) {
 	})
 
 	t.Run("Valid request", func(t *testing.T) {
-		mockStorage.SaveOTPCode(1, "123456")
+		err := mockStorage.SaveOTPCode(1, "123456")
+		if err != nil {
+			t.Errorf("SaveOTPCode failed: %v", err)
+		}
 
 		confirmReq := models.DeleteAccountConfirmRequest{
 			Code: "123456",
@@ -120,7 +129,10 @@ func TestConfirmDeleteAccount(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var response models.SuccessResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err = json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Contains(t, response.Message, "successfully deleted")
 	})
 }
@@ -141,7 +153,10 @@ func TestGetUserByID(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Invalid user ID", response.Error)
 	})
 }
@@ -161,7 +176,10 @@ func TestGetAllUsers(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var users []models.User
-	json.Unmarshal(w.Body.Bytes(), &users)
+	err := json.Unmarshal(w.Body.Bytes(), &users)
+	if err != nil {
+		t.Errorf("json.Unmarshal failed: %v", err)
+	}
 
 	for _, user := range users {
 		assert.Empty(t, user.PasswordHash)
@@ -185,7 +203,10 @@ func TestGetUsersByRole(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var users []models.User
-		json.Unmarshal(w.Body.Bytes(), &users)
+		err := json.Unmarshal(w.Body.Bytes(), &users)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 
 		for _, user := range users {
 			assert.Empty(t, user.PasswordHash)
@@ -218,7 +239,10 @@ func TestSearchUsers(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var users []models.User
-		json.Unmarshal(w.Body.Bytes(), &users)
+		err := json.Unmarshal(w.Body.Bytes(), &users)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 
 		for _, user := range users {
 			assert.Empty(t, user.PasswordHash)
@@ -234,7 +258,10 @@ func TestSearchUsers(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Search query is required", response.Error)
 	})
 }
@@ -276,7 +303,10 @@ func TestPromoteToAdmin(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var response models.SuccessResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "User promoted to admin successfully", response.Message)
 	})
 
@@ -308,7 +338,10 @@ func TestUpdateProfileImageHandler(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Contains(t, response.Error, "Image file required")
 	})
 }

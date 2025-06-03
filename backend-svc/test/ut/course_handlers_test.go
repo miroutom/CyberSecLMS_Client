@@ -63,7 +63,10 @@ func TestGetCourseByID(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Invalid course ID", response.Error)
 	})
 
@@ -75,7 +78,10 @@ func TestGetCourseByID(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Course not found", response.Error)
 	})
 }
@@ -110,7 +116,10 @@ func TestGetUserProgress(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Invalid user ID", response.Error)
 	})
 }
@@ -140,7 +149,10 @@ func TestCompleteTask(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var response models.SuccessResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Task completed successfully", response.Message)
 	})
 
@@ -152,7 +164,10 @@ func TestCompleteTask(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Invalid user ID", response.Error)
 	})
 
@@ -164,7 +179,10 @@ func TestCompleteTask(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Invalid task ID", response.Error)
 	})
 
@@ -176,7 +194,10 @@ func TestCompleteTask(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Task not found", response.Error)
 	})
 
@@ -195,7 +216,10 @@ func TestCompleteTask(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, w.Code)
 
 		var response models.ErrorResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.Equal(t, "Access denied", response.Error)
 	})
 }

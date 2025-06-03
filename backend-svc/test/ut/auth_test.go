@@ -41,7 +41,10 @@ func TestRegisterHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, w.Code)
 		var response models.RegisterResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			t.Errorf("json.Unmarshal failed: %v", err)
+		}
 		assert.NotEmpty(t, response.Token)
 		assert.Equal(t, "User created successfully", response.Message)
 	})

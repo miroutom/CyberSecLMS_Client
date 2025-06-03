@@ -235,12 +235,14 @@ func TestMockStorage_UserProfileManagement(t *testing.T) {
 		assert.Equal(t, "updated@example.com", user.Email)
 		assert.Equal(t, "Updated Name", user.FullName)
 
-		mockStore.UpdateUserProfile(2, models.UpdateProfileRequest{
+		err = mockStore.UpdateUserProfile(2, models.UpdateProfileRequest{
 			Email:    originalEmail,
 			FullName: originalName,
 		})
+		if err != nil {
+			t.Errorf("UpdateUserProfile failed: %v", err)
+		}
 
-		err = mockStore.UpdateUserProfile(999, updateReq)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "user not found")
 	})
@@ -255,7 +257,10 @@ func TestMockStorage_UserProfileManagement(t *testing.T) {
 		user, _ = mockStore.GetUserByID(2)
 		assert.Equal(t, !originalStatus, user.IsActive)
 
-		mockStore.UpdateUserStatus(2, originalStatus)
+		err = mockStore.UpdateUserStatus(2, originalStatus)
+		if err != nil {
+			t.Errorf("UpdateUserStatus failed: %v", err)
+		}
 
 		err = mockStore.UpdateUserStatus(999, true)
 		assert.Error(t, err)
@@ -272,7 +277,10 @@ func TestMockStorage_UserProfileManagement(t *testing.T) {
 		user, _ = mockStore.GetUserByID(2)
 		assert.Equal(t, "/new/image/path.jpg", user.ProfileImage)
 
-		mockStore.UpdateUserProfileImage(2, originalImage)
+		err = mockStore.UpdateUserProfileImage(2, originalImage)
+		if err != nil {
+			t.Errorf("UpdateUserProfileImage failed: %v", err)
+		}
 
 		err = mockStore.UpdateUserProfileImage(999, "/any/path.jpg")
 		assert.Error(t, err)
@@ -305,10 +313,16 @@ func TestMockStorage_AdminUserRoles(t *testing.T) {
 		err := mockStore.DemoteFromAdmin(1)
 		assert.NoError(t, err)
 
-		user, _ = mockStore.GetUserByID(1)
+		user, err = mockStore.GetUserByID(1)
+		if err != nil {
+			t.Errorf("GetUserByID failed: %v", err)
+		}
 		assert.False(t, user.IsAdmin)
 
-		mockStore.PromoteToAdmin(1)
+		err = mockStore.PromoteToAdmin(1)
+		if err != nil {
+			t.Errorf("PromoteToAdmin failed: %v", err)
+		}
 
 		err = mockStore.DemoteFromAdmin(999)
 		assert.Error(t, err)
@@ -326,12 +340,15 @@ func TestMockStorage_DeleteUser(t *testing.T) {
 		FullName:     "Temporary User",
 	}
 
-	mockStore.CreateUser(tempUser)
+	err := mockStore.CreateUser(tempUser)
+	if err != nil {
+		t.Errorf("CreateUser failed: %v", err)
+	}
 
 	user, _ := mockStore.GetUserByUsername("temp_user")
 	tempUserID := user.ID
 
-	err := mockStore.DeleteUser(tempUserID)
+	err = mockStore.DeleteUser(tempUserID)
 	assert.NoError(t, err)
 
 	_, err = mockStore.GetUserByID(tempUserID)
