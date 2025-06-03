@@ -6,7 +6,6 @@ import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
 val mockTasksItems =
     listOf(
-        // XSS tasks
         Task(
             vulnerabilityType = VulnerabilityType.XSS,
             number = 1,
@@ -37,7 +36,6 @@ val mockTasksItems =
             description = "XSS атака через загрузку SVG файлов",
             difficulty = Difficulty.HARD,
         ),
-        // CSRF tasks
         Task(
             vulnerabilityType = VulnerabilityType.CSRF,
             number = 1,
@@ -68,7 +66,6 @@ val mockTasksItems =
             description = "CSRF атака на API запросы",
             difficulty = Difficulty.HARD,
         ),
-        // SQL Injection tasks
         Task(
             vulnerabilityType = VulnerabilityType.SQL,
             number = 1,
