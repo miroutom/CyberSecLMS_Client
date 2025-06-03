@@ -18,6 +18,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -64,6 +65,7 @@ fun PasswordChangeDialog(
                 PasswordField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
+                    label = stringResource(R.string.new_password),
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -137,5 +139,15 @@ fun PasswordChangeDialog(
             }
         },
         containerColor = colorResource(R.color.background),
+    )
+}
+
+@PreviewLightDark
+@Composable
+private fun PasswordChangeDialogPreview() {
+    PasswordChangeDialog(
+        onDismiss = {},
+        onSubmit = { _, _ -> },
+        isLoading = false,
     )
 }

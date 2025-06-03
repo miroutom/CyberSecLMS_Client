@@ -2,6 +2,8 @@ package hse.diploma.cybersecplatform.data.api
 
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.request.ChangePasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountConfirmRequest
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountInitRequest
 import hse.diploma.cybersecplatform.data.model.request.ForgotPasswordRequest
 import hse.diploma.cybersecplatform.data.model.request.LoginRequest
 import hse.diploma.cybersecplatform.data.model.request.RegisterRequest
@@ -13,8 +15,6 @@ import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.response.MyCoursesResponse
 import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
-import hse.diploma.cybersecplatform.mock.mockAllCourses
-import hse.diploma.cybersecplatform.mock.mockCourses
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -71,20 +71,18 @@ interface ApiService {
     ): Response<ResponseBody>
 
     @POST("api/account/delete")
-    suspend fun requestDeleteAccount(): Response<TempTokenResponse>
+    suspend fun requestDeleteAccount(
+        @Body request: DeleteAccountInitRequest,
+    ): Response<TempTokenResponse>
 
     @POST("api/account/delete/confirm")
     suspend fun confirmDeleteAccount(
-        @Body request: VerifyOtpRequest,
+        @Body request: DeleteAccountConfirmRequest,
     ): Response<MessageResponse>
 
-    // TODO: replace with real data
-    suspend fun getAllCourses(): Response<AllCoursesResponse> {
-        return Response.success(AllCoursesResponse(mockAllCourses))
-    }
+    @GET("api/courses")
+    suspend fun getAllCourses(): Response<AllCoursesResponse>
 
-    // TODO: replace with real data
-    suspend fun getMyCourses(): Response<MyCoursesResponse> {
-        return Response.success(MyCoursesResponse(mockCourses))
-    }
+    @GET("api/my-courses")
+    suspend fun getMyCourses(): Response<MyCoursesResponse>
 }

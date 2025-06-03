@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
     id("com.google.devtools.ksp")
+    alias(libs.plugins.screenshot)
 }
 
 apply(from = "../../jacoco.gradle.kts")
@@ -35,8 +36,8 @@ android {
 
     defaultConfig {
         applicationId = "hse.diploma.cybersecplatform"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 28
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -47,7 +48,7 @@ android {
     signingConfigs {
         create("release") {
             storeFile =
-                file("${rootDir}/cybersec-release.jks")
+                file("$rootDir/cybersec-release.jks")
             storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = "cybersec"
             keyPassword = System.getenv("KEY_PASSWORD")
@@ -85,7 +86,21 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
+    packaging {
+        resources {
+            excludes +=
+                listOf(
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+                    "META-INF/NOTICE.md",
+                )
+        }
+    }
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
 
 dependencies {
@@ -132,7 +147,14 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
-    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk.agent)
+    androidTestImplementation(libs.androidx.uiautomator)
+    androidTestImplementation(libs.core.ktx)
+    androidTestImplementation(libs.androidx.espresso.idling.resource)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 
     debugImplementation(libs.ui.test.manifest)
     debugImplementation(libs.androidx.ui.tooling)

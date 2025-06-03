@@ -11,60 +11,43 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.buttons.TextButton
 import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
 import hse.diploma.cybersecplatform.ui.components.textFields.PasswordField
 import hse.diploma.cybersecplatform.ui.components.textFields.RegistrationTextField
-import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
+import hse.diploma.cybersecplatform.ui.state.screen_state.AuthorizationScreenState
 import hse.diploma.cybersecplatform.ui.theme.Typography
 import hse.diploma.cybersecplatform.ui.theme.linearHorizontalGradient
-import hse.diploma.cybersecplatform.utils.logD
 
 private const val TAG = "AuthorizationScreen"
 
 @Composable
 fun AuthorizationScreen(
+    state: AuthorizationScreenState,
+    onUsernameChange: (TextFieldValue) -> Unit,
+    onPasswordChange: (TextFieldValue) -> Unit,
+    onLoginClick: () -> Unit,
     onNavigateToRegistration: () -> Unit,
-    onAuthorized: () -> Unit,
-    onError: (String) -> Unit,
-    viewModel: AuthorizationViewModel = viewModel(factory = LocalViewModelFactory.current),
-    otpViewModel: OtpViewModel = viewModel(factory = LocalViewModelFactory.current),
+    onOtpSubmit: (String) -> Unit,
+    onOtpDismiss: () -> Unit,
+    onErrorDismiss: () -> Unit,
+    isOtpLoading: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val password by viewModel.password.collectAsState()
-    val username by viewModel.username.collectAsState()
-
-    val isAuthorizationEnabled by viewModel.isAuthorizationEnabled.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
-    var tempTokenForOtp by remember { mutableStateOf<String?>(null) }
-    var otpError by remember { mutableStateOf<String?>(null) }
-    val isOtpLoading by otpViewModel.isLoading.collectAsState()
-
-    var errorDialogMessage by remember { mutableStateOf<String?>(null) }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         content = { paddingValues ->
@@ -102,14 +85,14 @@ fun AuthorizationScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         RegistrationTextField(
-                            value = username,
-                            onValueChange = viewModel::onUsernameChange,
+                            value = state.username,
+                            onValueChange = onUsernameChange,
                             labelId = R.string.auth_label_username,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         PasswordField(
-                            value = password,
-                            onValueChange = viewModel::onPasswordChange,
+                            value = state.password,
+                            onValueChange = onPasswordChange,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         TextButton(
@@ -121,20 +104,8 @@ fun AuthorizationScreen(
                     Spacer(modifier = Modifier.height(64.dp))
                     FilledButton(
                         text = stringResource(R.string.auth_button),
-                        onClick = {
-                            logD(TAG, "onLoginClicked()")
-                            viewModel.login(username.text, password.text) { result ->
-                                logD(TAG, "onLoginClicked() result: $result")
-                                result.onSuccess { tempResp ->
-                                    logD(TAG, "onLoginClicked() tempToken: ${tempResp.tempToken}")
-                                    tempTokenForOtp = tempResp.tempToken
-                                    otpError = null
-                                }.onFailure { error ->
-                                    onError(error.message ?: "Authorization error")
-                                }
-                            }
-                        },
-                        enabled = isAuthorizationEnabled,
+                        onClick = onLoginClick,
+                        enabled = state.isAuthorizationEnabled,
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     TextButton(
@@ -143,48 +114,25 @@ fun AuthorizationScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if (tempTokenForOtp != null) {
+                    if (state.tempTokenForOtp != null) {
                         OtpDialog(
                             email = "",
                             isLoading = isOtpLoading,
-                            error = otpError,
-                            onOtpSubmit = { enteredCode ->
-                                otpViewModel.verifyOtp(
-                                    tempToken = tempTokenForOtp!!,
-                                    otp = enteredCode,
-                                    onResult = { result ->
-                                        result.onSuccess {
-                                            tempTokenForOtp = null
-                                            otpError = null
-                                            onAuthorized()
-                                        }.onFailure { err ->
-                                            otpError = err.message ?: "Wrong code"
-                                        }
-                                    },
-                                )
-                            },
-                            onDismiss = {
-                                tempTokenForOtp = null
-                                otpError = null
-                            },
+                            error = state.otpError,
+                            onOtpSubmit = onOtpSubmit,
+                            onDismiss = onOtpDismiss,
                         )
                     }
                 }
 
-                if (isLoading) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(colorResource(R.color.background).copy(alpha = 0.7f)),
-                    ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
+                if (state.isLoading) {
+                    LoadingScreen()
                 }
 
-                errorDialogMessage?.let { msg ->
+                state.errorDialogMessage?.let { msg ->
                     ErrorDialog(
                         errorMessage = msg,
-                        onDismiss = { errorDialogMessage = null },
+                        onDismiss = onErrorDismiss,
                     )
                 }
             }
@@ -192,13 +140,24 @@ fun AuthorizationScreen(
     )
 }
 
-@Preview
 @Composable
+@Preview(name = "AuthorizationScreen", showBackground = true, apiLevel = 30)
 fun AuthorizationScreenPreview() {
+    val previewState =
+        AuthorizationScreenState(
+            username = TextFieldValue("test@example.com"),
+            password = TextFieldValue("password123"),
+            isAuthorizationEnabled = true,
+        )
+
     AuthorizationScreen(
+        state = previewState,
+        onUsernameChange = {},
+        onPasswordChange = {},
+        onLoginClick = {},
         onNavigateToRegistration = {},
-        onAuthorized = {},
-        onError = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(AuthorizationViewModel::class.java),
+        onOtpSubmit = {},
+        onOtpDismiss = {},
+        onErrorDismiss = {},
     )
 }

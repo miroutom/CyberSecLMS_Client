@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -41,10 +41,9 @@ import hse.diploma.cybersecplatform.utils.isPasswordValid
 fun PasswordField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    label: String = stringResource(R.string.auth_label_password),
     modifier: Modifier = Modifier,
 ) {
-    val label = stringResource(R.string.auth_label_password)
-
     val isPasswordValid = isPasswordValid(value.text)
     val isPasswordVisible = remember { mutableStateOf(false) }
 
@@ -118,7 +117,7 @@ fun PasswordField(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun PasswordFieldPreview() {
     CyberSecPlatformTheme {

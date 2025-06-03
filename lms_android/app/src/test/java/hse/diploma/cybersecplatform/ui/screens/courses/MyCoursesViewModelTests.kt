@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.courses
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
-import hse.diploma.cybersecplatform.ui.state.MyCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.MyCoursesState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

@@ -5,7 +5,7 @@ import android.net.Uri
 import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

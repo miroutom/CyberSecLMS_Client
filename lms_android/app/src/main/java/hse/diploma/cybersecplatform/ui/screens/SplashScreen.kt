@@ -58,10 +58,10 @@ fun SplashScreen(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(name = "SplashScreen", showBackground = true, apiLevel = 30)
 private fun SplashScreenPreview() {
     CyberSecPlatformTheme {
-        SplashScreen(isAuthorized = false, {})
+        SplashScreen(isAuthorized = false) {}
     }
 }
