@@ -3,11 +3,11 @@
 // Mock data for courses
 const MOCK_COURSES = [
   {
-    name: "XSS",
+    name: "Серверные",
     gradient: "linear-gradient(180deg, #F2F2FF 0%, #3764ED 100%)",
     titleColor: "linear-gradient(90deg, #3764ED 0%, #2C4FBC 50%, #1F3987 100%)",
     description:
-      "XSS уязвимости - внедрение вредоносных скриптов на веб-страницы.",
+      "Серверные уязвимости - внедрение вредоносных скриптов в приложение.",
     progress: 50,
     accentColor: "#3764ED",
   },
@@ -19,26 +19,26 @@ const MOCK_COURSES = [
     progress: 15,
     accentColor: "#3AE8C5",
   },
-  {
-    name: "SQL Injection",
-    gradient: "linear-gradient(180deg, #FEF3E9 0%, #F9A866 100%)",
-    titleColor: "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
-    description:
-      "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
-    progress: 40,
-    accentColor: "#F9A866",
-  },
+  // {
+  //   name: "SQL Injection",
+  //   gradient: "linear-gradient(180deg, #FEF3E9 0%, #F9A866 100%)",
+  //   titleColor: "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
+  //   description:
+  //     "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
+  //   progress: 40,
+  //   accentColor: "#F9A866",
+  // },
 ]
 
 // Mock data for all courses with task counts
 const MOCK_ALL_COURSES = [
   {
-    name: "XSS",
+    name: "Серверные",
     gradient: "linear-gradient(180deg, #F2F2FF 0%, #3764ED 100%)",
     titleColor: "linear-gradient(90deg, #3764ED 0%, #2C4FBC 50%, #1F3987 100%)",
     description:
-      "XSS уязвимости - внедрение вредоносных скриптов на веб-страницы.",
-    taskCount: 10,
+      "Серверные уязвимости - внедрение вредоносных скриптов в приложение.",
+    taskCount: 6,
     accentColor: "#3764ED",
   },
   {
@@ -49,15 +49,15 @@ const MOCK_ALL_COURSES = [
     taskCount: 15,
     accentColor: "#3AE8C5",
   },
-  {
-    name: "SQL Injection",
-    gradient: "linear-gradient(180deg, #FEF3E9 0%, #F9A866 100%)",
-    titleColor: "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
-    description:
-      "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
-    taskCount: 12,
-    accentColor: "#F9A866",
-  },
+  // {
+  //   name: "SQL Injection",
+  //   gradient: "linear-gradient(180deg, #FEF3E9 0%, #F9A866 100%)",
+  //   titleColor: "linear-gradient(90deg, #F88F3A 0%, #DE7620 50%, #C6691D 100%)",
+  //   description:
+  //     "SQL Injection - внедрение вредоносного кода для манипуляции базой данных.",
+  //   taskCount: 12,
+  //   accentColor: "#F9A866",
+  // },
 ]
 
 export const courseService = {
