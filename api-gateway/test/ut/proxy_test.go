@@ -33,7 +33,10 @@ func TestProxyRequest(t *testing.T) {
 
 	localServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			t.Errorf("w.Write failed: %v", err)
+		}
 	}))
 	defer localServer.Close()
 
