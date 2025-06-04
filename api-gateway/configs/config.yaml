@@ -5,7 +5,6 @@ log_level: "INFO"
 cors:
   allow_origins:
     - "http://localhost:8080"
-  # Добавить origin сервера
   allow_methods:
     - "GET"
     - "POST"
@@ -22,7 +21,7 @@ cors:
   max_age: 86400  # 24 часа
 
 
-# Сервисы
+# Сервисы (используются как fallback, если Eureka недоступна)
 auth_service:
   url: "http://backend-svc:8081"
   timeout: 30
@@ -32,7 +31,7 @@ course_service:
   timeout: 30
 
 code_executor_service:
-  url: "http://localhost:5000"
+  url: "http://executor-svc:5000"
   timeout: 30
 
 # Service discovery

@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
+	"lmsmodule/api-gateway/internal/discovery"
 	"lmsmodule/api-gateway/internal/middleware"
 	"lmsmodule/api-gateway/internal/utils"
 	"lmsmodule/api-gateway/pkg/logger"
@@ -19,6 +21,7 @@ type Server struct {
 	Config     *utils.Config
 	Logger     *logger.Logger
 	HttpClient *http.Client
+	Discovery  *discovery.ServiceDiscovery
 }
 
 func NewServer(config *utils.Config, logger *logger.Logger) *Server {
@@ -31,24 +34,52 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 		Timeout: time.Duration(30) * time.Second,
 	}
 
+	serviceDiscovery, err := discovery.NewServiceDiscovery(config, logger)
+	if err != nil {
+		logger.Error("Failed to initialize service discovery: %v", err)
+	}
+
 	server := &Server{
 		Router:     router,
 		Config:     config,
 		Logger:     logger,
 		HttpClient: httpClient,
+		Discovery:  serviceDiscovery,
 	}
 
-	server.SetupRoutes()
+	server.setupRoutes()
 	return server
 }
 
-func (s *Server) SetupRoutes() {
+func (s *Server) setupRoutes() {
 	SetupRoutes(s.Router, s.Config, s.Logger, s.ProxyRequest)
 }
 
-func (s *Server) ProxyRequest(targetURL string) gin.HandlerFunc {
+func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		remote, err := url.Parse(targetURL)
+		serviceURL := s.Discovery.GetServiceURL(targetServiceName)
+		if serviceURL == "" {
+			s.Logger.Error("Service not found: %s", targetServiceName)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Service unavailable"})
+			return
+		}
+
+		var targetPath string
+		if targetServiceName == "EXECUTOR-SVC" {
+			path := c.Request.URL.Path
+			segments := strings.Split(path, "/")
+			if len(segments) >= 3 {
+				targetPath = "/" + segments[len(segments)-1]
+
+				if len(segments) >= 4 && (segments[len(segments)-2] == "result" || segments[len(segments)-2] == "cleanup") {
+					targetPath = "/" + segments[len(segments)-2] + "/" + segments[len(segments)-1]
+				}
+			}
+		} else {
+			targetPath = c.Request.URL.Path
+		}
+
+		remote, err := url.Parse(serviceURL)
 		if err != nil {
 			s.Logger.Error("Failed to parse target URL: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -59,7 +90,13 @@ func (s *Server) ProxyRequest(targetURL string) gin.HandlerFunc {
 		proxy.Director = func(req *http.Request) {
 			req.URL.Scheme = remote.Scheme
 			req.URL.Host = remote.Host
-			req.URL.Path = c.Request.URL.Path
+
+			if targetServiceName == "EXECUTOR-SVC" {
+				req.URL.Path = targetPath
+			} else {
+				req.URL.Path = c.Request.URL.Path
+			}
+
 			req.URL.RawQuery = c.Request.URL.RawQuery
 
 			for key, values := range c.Request.Header {
