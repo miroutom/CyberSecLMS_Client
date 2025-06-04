@@ -4,11 +4,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Module
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
-import hse.diploma.cybersecplatform.ui.state.AllCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
 import hse.diploma.cybersecplatform.utils.logD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
 ) : ViewModel() {
-    // TODO: replace with real data
     private val _allCoursesState = MutableStateFlow<AllCoursesState>(AllCoursesState.Loading)
     val allCoursesState: StateFlow<AllCoursesState> = _allCoursesState.asStateFlow()
 

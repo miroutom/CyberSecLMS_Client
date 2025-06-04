@@ -6,7 +6,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
     id("com.google.devtools.ksp")
+    alias(libs.plugins.screenshot)
 }
+
+apply(from = "../../jacoco.gradle.kts")
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -20,6 +23,12 @@ val baseUrl: String =
         ?: localProperties.getProperty("BASE_URL")
         ?: "\"https://default-url.example.com/api/\""
 
+val uploadsUrl: String =
+    System.getProperty("UPLOADS_URL")
+        ?: System.getenv("UPLOADS_URL")
+        ?: localProperties.getProperty("UPLOADS_URL")
+        ?: "\"https://default-url.example.com/api/\""
+
 android {
     namespace = "hse.diploma.cybersecplatform"
     compileSdk = 35
@@ -27,8 +36,8 @@ android {
 
     defaultConfig {
         applicationId = "hse.diploma.cybersecplatform"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 28
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -36,30 +45,62 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile =
+                file("$rootDir/cybersec-release.jks")
+            storePassword = System.getenv("STORE_PASSWORD")
+            keyAlias = "cybersec"
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
 
         debug {
             buildConfigField("String", "BASE_URL", baseUrl)
+            buildConfigField("String", "UPLOADS_URL", uploadsUrl)
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
+    packaging {
+        resources {
+            excludes +=
+                listOf(
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+                    "META-INF/NOTICE.md",
+                )
+        }
+    }
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
 
 dependencies {
@@ -99,13 +140,30 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
 
     // --- Testing ---
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk.agent)
+    androidTestImplementation(libs.androidx.uiautomator)
+    androidTestImplementation(libs.core.ktx)
+    androidTestImplementation(libs.androidx.espresso.idling.resource)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+
+    debugImplementation(libs.ui.test.manifest)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockk)
 }
 
 tasks.register("pullRequestCheck") {

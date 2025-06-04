@@ -21,13 +21,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.domain.model.Difficulty
 import hse.diploma.cybersecplatform.domain.model.Task
-import hse.diploma.cybersecplatform.domain.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.model.Difficulty
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 
@@ -88,7 +88,7 @@ fun TaskCard(
     }
 }
 
-@Preview()
+@PreviewLightDark()
 @Composable
 fun TaskCardPreview() {
     CyberSecPlatformTheme {

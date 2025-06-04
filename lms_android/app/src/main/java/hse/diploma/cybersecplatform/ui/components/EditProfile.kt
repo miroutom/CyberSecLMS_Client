@@ -26,19 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.ui.components.dialogs.AvatarChooserDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.EditProfileDialog
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
+import hse.diploma.cybersecplatform.utils.UnsafeOkHttpClient
 import hse.diploma.cybersecplatform.utils.logE
 
 @Composable
@@ -89,34 +91,42 @@ fun EditProfile(
                 EditProfileDialog(
                     uiState = (profileState as ProfileState.Success).uiState,
                     onDismiss = {
-                        isEditProfileDialogOpened = !isEditProfileDialogOpened
+                        isEditProfileDialogOpened = false
                     },
                     onSave = { username, fullName, email ->
                         profileViewModel.updateProfile(username, fullName, email)
+                        isEditProfileDialogOpened = false
                     },
                 )
             }
+
             is ProfileState.Error -> {
                 AlertDialog(
                     onDismissRequest = { isEditProfileDialogOpened = false },
-                    title = { Text("Error") },
-                    text = { Text("Failed to load profile: ${(profileState as ProfileState.Error).errorType}") },
+                    title = { Text(stringResource(R.string.error_dialog_title)) },
+                    text = {
+                        Text(
+                            "${stringResource(R.string.profile_loading_error)}: " +
+                                "${(profileState as ProfileState.Error).errorType}",
+                        )
+                    },
                     confirmButton = {
                         Button(onClick = { isEditProfileDialogOpened = false }) {
-                            Text("OK")
+                            Text(stringResource(R.string.ok_button))
                         }
                     },
                 )
             }
+
             is ProfileState.Loading -> {
                 AlertDialog(
                     onDismissRequest = { isEditProfileDialogOpened = false },
-                    title = { Text("Loading") },
+                    title = { Text(stringResource(R.string.loading_dialog_title)) },
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp))
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text("Loading profile data...")
+                            Text(stringResource(R.string.loading_profile))
                         }
                     },
                     confirmButton = {},
@@ -142,6 +152,14 @@ private fun ProfileIcon(
     userProfileImageUrl: String?,
     onClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val imageLoader =
+        remember {
+            ImageLoader.Builder(context)
+                .okHttpClient(UnsafeOkHttpClient.unsafeOkHttpClient)
+                .build()
+        }
+
     Box(
         modifier =
             Modifier
@@ -150,28 +168,20 @@ private fun ProfileIcon(
                 .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        if (userProfileImageUrl != null) {
-            AsyncImage(
-                model = userProfileImageUrl,
-                contentDescription = "User avatar",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize(),
-                placeholder = painterResource(R.drawable.ic_account),
-                error = painterResource(R.drawable.ic_account),
-                onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
-            )
-        } else {
-            Icon(
-                painter = painterResource(R.drawable.ic_account),
-                contentDescription = "Profile",
-                tint = colorResource(R.color.supporting_text),
-                modifier = Modifier.size(36.dp),
-            )
-        }
+        AsyncImage(
+            model = userProfileImageUrl,
+            contentDescription = "User avatar",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+            placeholder = painterResource(R.drawable.ic_account),
+            error = painterResource(R.drawable.ic_account),
+            onError = { logE("EditProfile", "Avatar upload error", it.result.throwable) },
+            imageLoader = imageLoader,
+        )
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun EditProfilePreview() {
     CyberSecPlatformTheme {

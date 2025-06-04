@@ -52,6 +52,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lms-backend:latest
 
+      - name: Checkout CyberSecurityEngine repo
+        uses: actions/checkout@v4
+        with:
+          repository: CyberSecurityLMS/CyberSecurityEngine
+          path: CyberSecurityEngine
+          token: ${{ secrets.GH_PAT }}
+
       - name: Build and push frontend
         if: github.event_name != 'pull_request_target'
         uses: docker/build-push-action@v4
@@ -150,7 +157,7 @@ jobs:
             sleep 5
             docker compose run --rm migrate
             docker compose pull
-            docker compose up -d api-gateway backend-svc nginx frontend-svc discovery-server
+            docker compose up -d
 
       - name: Check service health
         uses: appleboy/ssh-action@v0.1.5

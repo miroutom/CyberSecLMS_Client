@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -27,10 +27,10 @@ import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.extensions.addTimestamp
 import hse.diploma.cybersecplatform.extensions.toAbsoluteUrl
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.components.EditProfile
-import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.utils.logD
@@ -107,7 +107,7 @@ fun TopBar(
     )
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun TopBarPreview() {
     CyberSecPlatformTheme {

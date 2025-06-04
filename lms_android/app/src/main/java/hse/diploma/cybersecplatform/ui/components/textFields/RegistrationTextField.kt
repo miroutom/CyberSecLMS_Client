@@ -68,8 +68,8 @@ fun RegistrationTextField(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(showBackground = true, apiLevel = 30)
 fun RegistrationTextFieldPreview() {
     CyberSecPlatformTheme {
         Column(

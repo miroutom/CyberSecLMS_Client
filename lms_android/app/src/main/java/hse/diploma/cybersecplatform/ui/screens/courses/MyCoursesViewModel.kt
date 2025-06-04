@@ -2,11 +2,11 @@ package hse.diploma.cybersecplatform.ui.screens.courses
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.model.Course
-import hse.diploma.cybersecplatform.domain.model.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.state.MyCoursesState
+import hse.diploma.cybersecplatform.ui.state.shared.MyCoursesState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +18,13 @@ class MyCoursesViewModel @Inject constructor(
 ) : ViewModel() {
     private val _myCoursesState = MutableStateFlow<MyCoursesState>(MyCoursesState.Loading)
     val myCoursesState: StateFlow<MyCoursesState> = _myCoursesState.asStateFlow()
+
+    private val _selectedCourseForRestart = MutableStateFlow<Course?>(null)
+    val selectedCourseForRestart: StateFlow<Course?> = _selectedCourseForRestart.asStateFlow()
+
+    fun selectCourseForRestart(course: Course) {
+        _selectedCourseForRestart.value = course
+    }
 
     fun loadCourses() {
         viewModelScope.launch {

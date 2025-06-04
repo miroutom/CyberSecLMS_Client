@@ -47,6 +47,32 @@ services:
       - cybersec
     restart: always
 
+  executor-svc:
+    image: ${DOCKER_HUB_USERNAME}/code-executor:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
+  labs-app-svc:
+    image: ${DOCKER_HUB_USERNAME}/labs-app:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - cybersec
+    restart: always
+
   frontend-svc:
     image: ${DOCKER_HUB_USERNAME}/lms-frontend:latest
     volumes:

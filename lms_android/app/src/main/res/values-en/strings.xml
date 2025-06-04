@@ -77,6 +77,9 @@
     <string name="otp_error">"OTP error"</string>
     <string name="unknown_error">"Unknown error"</string>
 
+    <string name="profile_loading_error">Failed to load profile</string>
+    <string name="loading_dialog_title">Loading</string>
+    <string name="loading_profile">Loading profile data...</string>
     <string name="no_internet_error">No internet connection</string>
     <string name="server_error">Server is coming back soon</string>
     <string name="other_error">We\'re sorry, something went wrong :(</string>

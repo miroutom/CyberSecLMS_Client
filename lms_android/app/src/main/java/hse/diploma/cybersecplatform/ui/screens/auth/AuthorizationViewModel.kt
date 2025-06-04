@@ -3,7 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow

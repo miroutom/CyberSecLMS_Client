@@ -22,7 +22,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,58 +33,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
-import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
+import hse.diploma.cybersecplatform.mock.mockUser
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
-import hse.diploma.cybersecplatform.ui.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
-import hse.diploma.cybersecplatform.ui.state.ProfileState
+import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
 
 @Composable
 fun ProfileScreen(
-    profileViewModel: ProfileViewModel,
-    navHostController: NavHostController,
+    state: ProfileState,
+    onLogoutClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onReload: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val authStateViewModel = LocalAuthStateViewModel.current
-    val profileState by profileViewModel.profileState.collectAsState()
-
-    when (profileState) {
+    when (state) {
         is ProfileState.Loading -> {
-            ProfileShimmer(modifier)
+            LoadingScreen()
         }
         is ProfileState.Success -> {
-            val uiState = (profileState as ProfileState.Success).uiState
+            val uiState = state.uiState
             ProfileContent(
-                navHostController = navHostController,
                 profile = uiState,
                 modifier = modifier,
-                onLogoutClick = { authStateViewModel.logout() },
+                onLogoutClick = onLogoutClick,
+                onSettingsClick = onSettingsClick,
             )
         }
         is ProfileState.Error -> {
-            val errorType = (profileState as ProfileState.Error).errorType
-            ErrorScreen(errorType, onReload = { profileViewModel.loadProfile() })
+            val errorType = state.errorType
+            ErrorScreen(errorType, onReload = onReload)
         }
     }
 }
 
 @Composable
 private fun ProfileContent(
-    navHostController: NavHostController,
     profile: ProfileUiState,
     modifier: Modifier = Modifier,
     onLogoutClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     Column(
         modifier =
@@ -165,167 +156,21 @@ private fun ProfileContent(
 
         ProfileMenu(
             onTheoryClick = {},
-            onSettingsClick = { navHostController.navigate(Screen.Settings.route) },
+            onSettingsClick = onSettingsClick,
             onLogoutClick = onLogoutClick,
         )
     }
 }
 
 @Composable
-private fun ProfileShimmer(modifier: Modifier = Modifier) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        ElevatedCard(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-            shape = RoundedCornerShape(20.dp),
-            colors =
-                CardDefaults.elevatedCardColors(
-                    containerColor = colorResource(R.color.dialog_color),
-                ),
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "",
-                            fontFamily = Montserrat,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp,
-                            color = colorResource(R.color.button_enabled),
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .height(24.dp)
-                                    .placeholder(
-                                        true,
-                                        highlight =
-                                            PlaceholderHighlight.shimmer(
-                                                highlightColor = colorResource(R.color.shimmer_color),
-                                            ),
-                                        color = colorResource(R.color.shimmer_color),
-                                    ),
-                        )
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = "",
-                        fontFamily = Montserrat,
-                        fontSize = 12.sp,
-                        color = colorResource(R.color.main_text_color),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(0.5f)
-                                .height(18.dp)
-                                .placeholder(
-                                    true,
-                                    highlight =
-                                        PlaceholderHighlight.shimmer(
-                                            highlightColor = colorResource(R.color.shimmer_color),
-                                        ),
-                                    color = colorResource(R.color.shimmer_color),
-                                ),
-                    )
-                    Text(
-                        text = "",
-                        fontFamily = Montserrat,
-                        fontSize = 12.sp,
-                        color = colorResource(R.color.main_text_color),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(0.3f)
-                                .height(18.dp)
-                                .placeholder(
-                                    true,
-                                    highlight =
-                                        PlaceholderHighlight.shimmer(
-                                            highlightColor = colorResource(R.color.shimmer_color),
-                                        ),
-                                    color = colorResource(R.color.shimmer_color),
-                                ),
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-                Box(
-                    Modifier
-                        .size(width = 136.dp, height = 105.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .placeholder(
-                            true,
-                            highlight =
-                                PlaceholderHighlight.shimmer(
-                                    highlightColor = colorResource(R.color.shimmer_color),
-                                ),
-                            color = colorResource(R.color.shimmer_color),
-                        ),
-                )
-            }
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 8.dp),
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_activity),
-                contentDescription = "Statistics",
-                tint = colorResource(R.color.main_text_color),
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "",
-                style = Typography.bodyMedium,
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.3f)
-                        .height(18.dp)
-                        .placeholder(
-                            true,
-                            highlight =
-                                PlaceholderHighlight.shimmer(
-                                    highlightColor = colorResource(R.color.shimmer_color),
-                                ),
-                            color = colorResource(R.color.shimmer_color),
-                        ),
-            )
-        }
-
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(colorResource(R.color.profile_content_background)),
-        )
-
-        ProfileMenu(
-            onTheoryClick = {},
-            onSettingsClick = {},
-            onLogoutClick = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
+@Preview(name = "ProfileScreen", showBackground = true, apiLevel = 30)
+private fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
         ProfileScreen(
-            viewModel(factory = LocalViewModelFactory.current),
-            rememberNavController(),
+            state = ProfileState.Success(ProfileUiState(mockUser)),
+            onLogoutClick = {},
+            onSettingsClick = {},
+            onReload = {},
         )
     }
 }

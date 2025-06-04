@@ -1,17 +1,20 @@
 package hse.diploma.cybersecplatform.data.api
 
-import hse.diploma.cybersecplatform.data.model.ChangePasswordRequest
-import hse.diploma.cybersecplatform.data.model.ForgotPasswordRequest
-import hse.diploma.cybersecplatform.data.model.LoginRequest
-import hse.diploma.cybersecplatform.data.model.LoginResponse
-import hse.diploma.cybersecplatform.data.model.RegisterRequest
-import hse.diploma.cybersecplatform.data.model.RegisterResponse
-import hse.diploma.cybersecplatform.data.model.ResetPasswordRequest
-import hse.diploma.cybersecplatform.data.model.SuccessResponse
-import hse.diploma.cybersecplatform.data.model.TempTokenResponse
-import hse.diploma.cybersecplatform.data.model.UpdateProfileRequest
 import hse.diploma.cybersecplatform.data.model.UserData
-import hse.diploma.cybersecplatform.data.model.VerifyOtpRequest
+import hse.diploma.cybersecplatform.data.model.request.ChangePasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountConfirmRequest
+import hse.diploma.cybersecplatform.data.model.request.DeleteAccountInitRequest
+import hse.diploma.cybersecplatform.data.model.request.ForgotPasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.LoginRequest
+import hse.diploma.cybersecplatform.data.model.request.RegisterRequest
+import hse.diploma.cybersecplatform.data.model.request.ResetPasswordRequest
+import hse.diploma.cybersecplatform.data.model.request.VerifyOtpRequest
+import hse.diploma.cybersecplatform.data.model.response.AllCoursesResponse
+import hse.diploma.cybersecplatform.data.model.response.LoginResponse
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.response.MyCoursesResponse
+import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
+import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -43,8 +46,8 @@ interface ApiService {
 
     @PUT("api/profile")
     suspend fun updateProfile(
-        @Body request: UpdateProfileRequest,
-    ): Response<UserData>
+        @Body userData: UserData,
+    ): Response<MessageResponse>
 
     @POST("api/account/change-password")
     suspend fun changePassword(
@@ -59,7 +62,7 @@ interface ApiService {
     @POST("api/reset-password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest,
-    ): Response<SuccessResponse>
+    ): Response<MessageResponse>
 
     @Multipart
     @POST("api/account/profile/image")
@@ -68,10 +71,18 @@ interface ApiService {
     ): Response<ResponseBody>
 
     @POST("api/account/delete")
-    suspend fun requestDeleteAccount(): Response<TempTokenResponse>
+    suspend fun requestDeleteAccount(
+        @Body request: DeleteAccountInitRequest,
+    ): Response<TempTokenResponse>
 
     @POST("api/account/delete/confirm")
     suspend fun confirmDeleteAccount(
-        @Body request: VerifyOtpRequest,
-    ): Response<SuccessResponse>
+        @Body request: DeleteAccountConfirmRequest,
+    ): Response<MessageResponse>
+
+    @GET("api/courses")
+    suspend fun getAllCourses(): Response<AllCoursesResponse>
+
+    @GET("api/my-courses")
+    suspend fun getMyCourses(): Response<MyCoursesResponse>
 }

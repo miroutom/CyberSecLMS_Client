@@ -1,11 +1,11 @@
-import { config } from '@vue/test-utils'
+import { config } from "@vue/test-utils"
 
 // Глобальные настройки для тестов
 config.global.mocks = {
   $route: {
-    params: {}
+    params: {},
   },
   $router: {
-    push: jest.fn()
-  }
-} 
+    push: jest.fn(),
+  },
+}

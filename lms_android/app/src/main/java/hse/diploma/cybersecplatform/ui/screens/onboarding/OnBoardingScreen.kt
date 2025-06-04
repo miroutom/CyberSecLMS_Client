@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -28,11 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import hse.diploma.cybersecplatform.MainApplication
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomOutlinedButton
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomStepper
@@ -43,27 +37,14 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnBoardingScreen(
-    onNavigateToAuthorization: () -> Unit,
-    onNavigateToRegistration: () -> Unit,
-    viewModel: OnBoardingViewModel = viewModel(),
+    currentStep: Int,
+    onNextPage: () -> Unit,
+    onSkipClick: () -> Unit,
+    onAuthClick: () -> Unit,
+    onRegisterClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val currentStep by viewModel.currentPage.collectAsState()
     val pagerState = rememberPagerState(initialPage = currentStep)
-
-    LaunchedEffect(currentStep) {
-        if (pagerState.currentPage != currentStep) {
-            pagerState.animateScrollToPage(currentStep)
-        }
-    }
-
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            if (page != currentStep) {
-                viewModel.setPage(page)
-            }
-        }
-    }
 
     Box(
         modifier =
@@ -87,7 +68,7 @@ fun OnBoardingScreen(
                     modifier = Modifier.weight(1f),
                 )
                 if (!isLastStep(currentStep)) {
-                    SkipButton(onClick = onNavigateToAuthorization)
+                    SkipButton(onClick = onSkipClick)
                 } else {
                     Spacer(modifier = Modifier.height(48.dp))
                 }
@@ -97,6 +78,7 @@ fun OnBoardingScreen(
                 count = 3,
                 state = pagerState,
                 modifier = Modifier.weight(1f),
+                userScrollEnabled = false,
             ) { page ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -135,9 +117,9 @@ fun OnBoardingScreen(
                 text = currentStepToButtonText(currentStep),
                 onClick = {
                     if (isLastStep(currentStep)) {
-                        onNavigateToRegistration()
+                        onRegisterClick()
                     } else {
-                        viewModel.onNextPage()
+                        onNextPage()
                     }
                 },
             )
@@ -145,7 +127,7 @@ fun OnBoardingScreen(
             if (isLastStep(currentStep)) {
                 CustomOutlinedButton(
                     text = stringResource(R.string.auth_button),
-                    onClick = onNavigateToAuthorization,
+                    onClick = onAuthClick,
                 )
             }
         }
@@ -180,12 +162,14 @@ private fun currentStepToButtonText(step: Int): String {
     }
 }
 
-@Preview
 @Composable
-fun OnBoardingScreenPreview() {
+@Preview(name = "OnBoardingScreen", showBackground = true, apiLevel = 30)
+private fun OnBoardingScreenPreview() {
     OnBoardingScreen(
-        onNavigateToAuthorization = {},
-        onNavigateToRegistration = {},
-        viewModel = MainApplication.appComponent.viewModelFactory().create(OnBoardingViewModel::class.java),
+        currentStep = 0,
+        onNextPage = {},
+        onSkipClick = {},
+        onAuthClick = {},
+        onRegisterClick = {},
     )
 }

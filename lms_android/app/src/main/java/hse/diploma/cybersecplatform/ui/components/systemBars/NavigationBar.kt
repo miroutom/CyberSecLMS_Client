@@ -24,13 +24,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.ui.navigation.Screen
+import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
 @Composable
@@ -123,7 +123,7 @@ fun CustomNavigationBar(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun CustomNavigationBarPreview() {
     CyberSecPlatformTheme {

@@ -2,14 +2,17 @@ name: Android CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     paths:
       - 'lms_android/**'
 
-  pull_request:
-    branches: [main]
-    paths:
-      - 'lms_android/**'
+  pull_request_target:
+    branches: [ main ]
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
 
 jobs:
   check-paths:
@@ -27,31 +30,100 @@ jobs:
 
   static-code-analysis:
     name: Perform static code analysis
+    needs: check-paths
+    if: needs.check-paths.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
 
       - name: Set up Java JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Pull Request Check (ktlint, lint)
         run: ./gradlew pullRequestCheck
 
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: [ static-code-analysis ]
+    if: needs.check-paths.outputs.android_changed == 'true'
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: lms_android/app/build/reports/tests/testDebugUnitTest/
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Tests
+          path: lms_android/app/build/test-results/testDebugUnitTest/*.xml
+          reporter: java-junit
+
+  jacoco-report:
+    name: Jacoco Report
+    needs: [ run-unit-tests ]
+    if: needs.check-paths.outputs.android_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Generate Jacoco report
+        run: ./gradlew testDebugUnitTest jacocoDebugTestReport
+
+      - name: Upload Jacoco HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: lms_android/app/build/reports/jacoco/debug/index.html
+
+      - name: Jacoco Coverage Summary
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: lms_android/app/build/reports/jacoco/jacocoDebugTestReport/jacocoDebugTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 50
+
   build-debug-apk:
     name: Build Debug APK
-    needs: [static-code-analysis]
+    needs: [ static-code-analysis, run-unit-tests ]
+    if: needs.check-paths.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
 
       - name: Set up Java JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
@@ -61,3 +133,36 @@ jobs:
         with:
           name: lms_cybersecurity.apk
           path: lms_android/app/build/outputs/apk/debug/app-debug.apk
+
+  run-screenshot-tests:
+    name: Run screenshot tests
+    runs-on: ubuntu-latest
+    needs: [ build-debug-apk ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Run screenshot tests
+        run: ./gradlew validateDebugScreenshotTest -PscreenshotTestThreshold=0.5
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreenshotTest_Reports
+          path: lms_android/app/build/reports/screenshotTest/
+
+      - name: Publish Screenshot Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Screenshot Tests
+          path: lms_android/app/build/outputs/screenshotTest-results/preview/debug/results/*.xml
+          reporter: java-junit

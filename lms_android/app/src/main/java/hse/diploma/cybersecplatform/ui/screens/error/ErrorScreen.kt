@@ -1,6 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.error
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.domain.model.ErrorType
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.ui.components.buttons.CustomOutlinedButton
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 
@@ -34,7 +36,8 @@ fun ErrorScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(32.dp)
+                .background(color = colorResource(R.color.background)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -49,6 +52,7 @@ fun ErrorScreen(
             fontFamily = Montserrat,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
+            color = colorResource(R.color.main_text_color),
         )
         Spacer(Modifier.height(32.dp))
         CustomOutlinedButton(
@@ -72,14 +76,13 @@ private fun errorText(errorType: ErrorType): String {
 private fun errorImage(errorType: ErrorType): Painter {
     return when (errorType) {
         ErrorType.NoInternet -> painterResource(R.drawable.ic_no_wifi)
-        // TODO: show error code instead of image
         is ErrorType.Server -> painterResource(R.drawable.ic_server_error)
         ErrorType.Other -> painterResource(R.drawable.ic_other_error)
     }
 }
 
-@Preview(showBackground = true)
 @Composable
+@Preview(name = "ErrorScreen", showBackground = true, apiLevel = 30)
 private fun ErrorScreenPreview() {
     ErrorScreen(
         errorType = ErrorType.Other,
