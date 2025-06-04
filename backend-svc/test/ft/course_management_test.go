@@ -20,7 +20,10 @@ func (suite *FunctionalTestSuite) TestGetCourses() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var courses []models.Course
-	json.Unmarshal(w.Body.Bytes(), &courses)
+	err := json.Unmarshal(w.Body.Bytes(), &courses)
+	if err != nil {
+		return
+	}
 	assert.Len(t, courses, 3)
 	assert.Equal(t, "SQL Injection", courses[0].VulnerabilityType)
 }
@@ -35,7 +38,10 @@ func (suite *FunctionalTestSuite) TestGetCourseByID() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var course models.Course
-	json.Unmarshal(w.Body.Bytes(), &course)
+	err := json.Unmarshal(w.Body.Bytes(), &course)
+	if err != nil {
+		return
+	}
 	assert.Equal(t, 1, course.ID)
 	assert.Equal(t, "SQL Injection", course.VulnerabilityType)
 	assert.Len(t, course.Tasks, 2)

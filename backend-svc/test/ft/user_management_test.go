@@ -23,7 +23,10 @@ func (suite *FunctionalTestSuite) TestGetUserProfile() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var user models.User
-	json.Unmarshal(w.Body.Bytes(), &user)
+	err := json.Unmarshal(w.Body.Bytes(), &user)
+	if err != nil {
+		return
+	}
 	assert.Equal(t, "user123", user.Username)
 	assert.Equal(t, "user@example.com", user.Email)
 	assert.Empty(t, user.PasswordHash)
@@ -93,7 +96,10 @@ func (suite *FunctionalTestSuite) TestAdminAccess() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var loginResp models.LoginResponse
-	json.Unmarshal(w.Body.Bytes(), &loginResp)
+	err := json.Unmarshal(w.Body.Bytes(), &loginResp)
+	if err != nil {
+		return
+	}
 	adminToken := loginResp.Token
 
 	req = httptest.NewRequest("GET", "/api/admin/users", nil)
@@ -105,7 +111,10 @@ func (suite *FunctionalTestSuite) TestAdminAccess() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var users []models.User
-	json.Unmarshal(w.Body.Bytes(), &users)
+	err = json.Unmarshal(w.Body.Bytes(), &users)
+	if err != nil {
+		return
+	}
 	assert.GreaterOrEqual(t, len(users), 2)
 
 	req = httptest.NewRequest("GET", "/api/admin/users", nil)

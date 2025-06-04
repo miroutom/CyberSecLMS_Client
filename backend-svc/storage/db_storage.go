@@ -808,3 +808,147 @@ func (s *DBStorage) CompleteTask(userID, taskID int) error {
 
 	return nil
 }
+
+// ****** МЕТОДЫ ДЛЯ ПРЕПОДОВАТЕЛЯ ******
+
+func (s *DBStorage) IsTeacher(userID int) (bool, error) {
+	stmt, err := s.DB.Prepare("SELECT is_teacher FROM users WHERE id = ?")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	var isTeacher bool
+	err = stmt.QueryRow(userID).Scan(&isTeacher)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, errors.New("user not found")
+		}
+		return false, err
+	}
+
+	return isTeacher, nil
+}
+
+func (s *DBStorage) CreateCourse(course models.Course) (models.Course, error) {
+	insertStmt, err := s.DB.Prepare(
+		"INSERT INTO courses (vulnerability_type, description) VALUES (?, ?)")
+	if err != nil {
+		return models.Course{}, err
+	}
+	defer insertStmt.Close()
+
+	result, err := insertStmt.Exec(course.VulnerabilityType, course.Description)
+	if err != nil {
+		return models.Course{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return models.Course{}, err
+	}
+
+	course.ID = int(id)
+	return course, nil
+}
+
+func (s *DBStorage) UpdateCourse(id int, course models.Course) (models.Course, error) {
+	updateStmt, err := s.DB.Prepare(
+		"UPDATE courses SET vulnerability_type = ?, description = ? WHERE id = ?")
+	if err != nil {
+		return models.Course{}, err
+	}
+	defer updateStmt.Close()
+
+	_, err = updateStmt.Exec(course.VulnerabilityType, course.Description, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Course{}, ErrCourseNotFound
+		}
+		return models.Course{}, err
+	}
+
+	course.ID = id
+	return course, nil
+}
+
+func (s *DBStorage) DeleteCourse(id int) error {
+	deleteStmt, err := s.DB.Prepare("DELETE FROM courses WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer deleteStmt.Close()
+
+	_, err = deleteStmt.Exec(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrCourseNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (s *DBStorage) CreateTask(courseID int, task models.Task) (models.Task, error) {
+	insertStmt, err := s.DB.Prepare(
+		"INSERT INTO tasks (course_id, title, description, difficulty, task_order) " +
+			"VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		return models.Task{}, err
+	}
+	defer insertStmt.Close()
+
+	result, err := insertStmt.Exec(task.CourseID, task.Title, task.Description, task.Difficulty, task.Order)
+	if err != nil {
+		return models.Task{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return models.Task{}, err
+	}
+
+	task.ID = int(id)
+	return task, nil
+}
+
+func (s *DBStorage) UpdateTask(courseID, taskID int, task models.Task) (models.Task, error) {
+	updateStmt, err := s.DB.Prepare(
+		"UPDATE tasks SET title = ?, description = ?, difficulty = ?, task_order = ? " +
+			"WHERE course_id = ? AND id = ?")
+	if err != nil {
+		return models.Task{}, err
+	}
+	defer updateStmt.Close()
+
+	_, err = updateStmt.Exec(task.Title, task.Description, task.Difficulty, task.Order, courseID, taskID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Task{}, ErrTaskNotFound
+		}
+		return models.Task{}, err
+	}
+
+	task.CourseID = courseID
+	task.ID = taskID
+	return task, nil
+}
+
+func (s *DBStorage) DeleteTask(courseID, taskID int) error {
+	deleteStmt, err := s.DB.Prepare("DELETE FROM tasks WHERE course_id = ? AND id = ?")
+	if err != nil {
+		return err
+	}
+	defer deleteStmt.Close()
+
+	_, err = deleteStmt.Exec(courseID, taskID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrTaskNotFound
+		}
+		return err
+	}
+
+	return nil
+}

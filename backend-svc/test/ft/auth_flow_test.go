@@ -233,7 +233,10 @@ func (suite *FunctionalTestSuite) getAuthToken() string {
 	}
 
 	var resp models.LoginResponse
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	if err != nil {
+		return ""
+	}
 
 	return resp.Token
 }
@@ -307,11 +310,14 @@ func (suite *FunctionalTestSuite) TestRegisterHandler() {
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var resp models.RegisterResponse
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	if err != nil {
+		return
+	}
 	assert.NotEmpty(t, resp.Token)
 
 	var count int
-	err := suite.db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", "newuser").Scan(&count)
+	err = suite.db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", "newuser").Scan(&count)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, count)
 }

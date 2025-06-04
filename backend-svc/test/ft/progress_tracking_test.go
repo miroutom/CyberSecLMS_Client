@@ -20,7 +20,10 @@ func (suite *FunctionalTestSuite) TestGetUserProgress() {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var progress models.UserProgress
-	json.Unmarshal(w.Body.Bytes(), &progress)
+	err := json.Unmarshal(w.Body.Bytes(), &progress)
+	if err != nil {
+		return
+	}
 	assert.Equal(t, 2, progress.UserID)
 	assert.True(t, progress.Completed[1])
 	assert.True(t, progress.Completed[2])

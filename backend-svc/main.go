@@ -195,6 +195,17 @@ func main() {
 			account.POST("/delete/confirm", handlers.ConfirmDeleteAccount)
 		}
 
+		teacher := api.Group("/teacher")
+		teacher.Use(TeacherAuthMiddleware())
+		{
+			teacher.POST("/courses", handlers.CreateCourse)
+			teacher.PUT("/courses", handlers.UpdateCourse)
+			teacher.DELETE("/courses", handlers.DeleteCourse)
+			teacher.POST("/courses/:course_id/tasks", handlers.CreateTask)
+			teacher.PUT("/courses/:course_id/tasks/:task_id", handlers.UpdateTask)
+			teacher.DELETE("/courses/:course_id/tasks/:task_id", handlers.DeleteTask)
+		}
+
 		admin := api.Group("/admin")
 		admin.Use(AdminAuthMiddleware())
 		{
@@ -263,6 +274,29 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("userID", int(userID))
+		c.Next()
+	}
+}
+
+func TeacherAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, exists := c.Get("userID")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+			return
+		}
+
+		isTeacher, err := handlers.CheckTeacherRights(userID.(int))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Error checking teacher rights: " + err.Error()})
+			return
+		}
+
+		if !isTeacher {
+			c.AbortWithStatusJSON(http.StatusForbidden, models.ErrorResponse{Error: "Teacher access required"})
+			return
+		}
+
 		c.Next()
 	}
 }

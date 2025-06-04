@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-
 	"lmsmodule/api-gateway/internal/middleware"
 	"lmsmodule/api-gateway/internal/utils"
 	"lmsmodule/api-gateway/pkg/logger"
@@ -52,6 +51,16 @@ func SetupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 			admin.Any("/users/:id/status", proxyHandler("BACKEND-SERVICE"))
 			admin.Any("/users/:id/promote", proxyHandler("BACKEND-SERVICE"))
 			admin.Any("/users/:id/demote", proxyHandler("BACKEND-SERVICE"))
+		}
+
+		teacher := api.Group("/teacher")
+		{
+			teacher.POST("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.PUT("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.DELETE("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.POST("/courses/:course_id/tasks", proxyHandler("BACKEND-SERVICE"))
+			teacher.PUT("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
+			teacher.DELETE("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
 		}
 
 		executor := api.Group("/executor")
