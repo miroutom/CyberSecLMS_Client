@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Port          int     `yaml:"port"`
-	LogLevel      string  `yaml:"log_level"`
-	AuthService   Service `yaml:"auth_service"`
-	CourseService Service `yaml:"course_service"`
+	Port                int     `yaml:"port"`
+	LogLevel            string  `yaml:"log_level"`
+	AuthService         Service `yaml:"auth_service"`
+	CourseService       Service `yaml:"course_service"`
+	CodeExecutorService Service `yaml:"code_executor_service"`
 }
 
 type CORSConfig struct {

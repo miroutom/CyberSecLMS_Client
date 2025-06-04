@@ -5,7 +5,7 @@ log_level: "INFO"
 cors:
   allow_origins:
     - "http://localhost:8080"
-# Добавить origin сервера
+  # Добавить origin сервера
   allow_methods:
     - "GET"
     - "POST"
@@ -29,6 +29,10 @@ auth_service:
 
 course_service:
   url: "http://backend-svc:8081"
+  timeout: 30
+
+code_executor_service:
+  url: "http://localhost:5000"
   timeout: 30
 
 # Service discovery

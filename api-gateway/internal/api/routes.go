@@ -53,6 +53,15 @@ func SetupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger
 			admin.Any("/users/:id/promote", proxyHandler(config.AuthService.URL))
 			admin.Any("/users/:id/demote", proxyHandler(config.AuthService.URL))
 		}
+
+		executor := api.Group("/executor")
+		{
+			executor.POST("/prewarm", proxyHandler(config.CodeExecutorService.URL+"/prewarm"))
+			executor.POST("/execute", proxyHandler(config.CodeExecutorService.URL+"/execute"))
+			executor.POST("/execute_pytest", proxyHandler(config.CodeExecutorService.URL+"/execute_pytest"))
+			executor.GET("/result/:session_id", proxyHandler(config.CodeExecutorService.URL+"/result/:session_id"))
+			executor.POST("/cleanup/:session_id", proxyHandler(config.CodeExecutorService.URL+"/cleanup/:session_id"))
+		}
 	}
 
 	router.Static("/uploads", "/uploads")
