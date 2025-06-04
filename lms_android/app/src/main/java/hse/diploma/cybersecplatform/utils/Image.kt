@@ -17,11 +17,8 @@ fun createImageUri(context: Context): Uri? {
         val storageDir: File = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
         val file =
             File.createTempFile(
-                // prefix
                 "JPEG_${timeStamp}_",
-                // suffix
                 ".jpg",
-                // directory
                 storageDir,
             )
         FileProvider.getUriForFile(

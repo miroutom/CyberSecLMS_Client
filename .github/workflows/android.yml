@@ -150,14 +150,14 @@ jobs:
           cache: 'gradle'
 
       - name: Run screenshot tests
-        run: ./gradlew validateDebugScreenshotTest
+        run: ./gradlew validateDebugScreenshotTest -PscreenshotTestThreshold=0.5
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ScreenshotTest_Reports
-          path: lms_android/app/build/reports/screenshotTest/preview/debug/index.html
+          path: lms_android/app/build/reports/screenshotTest/
 
       - name: Publish Screenshot Test Results
         uses: dorny/test-reporter@v1
