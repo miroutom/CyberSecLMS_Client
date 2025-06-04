@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"lmsmodule/api-gateway/internal/metrics"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -16,12 +17,14 @@ import (
 	"lmsmodule/api-gateway/pkg/logger"
 )
 
+// internal/api/server.go
 type Server struct {
 	Router     *gin.Engine
 	Config     *utils.Config
 	Logger     *logger.Logger
 	HttpClient *http.Client
 	Discovery  *discovery.ServiceDiscovery
+	Metrics    *metrics.ServiceMetrics
 }
 
 func NewServer(config *utils.Config, logger *logger.Logger) *Server {
@@ -45,6 +48,7 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 		Logger:     logger,
 		HttpClient: httpClient,
 		Discovery:  serviceDiscovery,
+		Metrics:    metrics.NewServiceMetrics(),
 	}
 
 	server.setupRoutes()
@@ -53,6 +57,7 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 
 func (s *Server) setupRoutes() {
 	SetupRoutes(s.Router, s.Config, s.Logger, s.ProxyRequest)
+	s.setupScalingRoutes()
 }
 
 func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
@@ -63,6 +68,9 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Service unavailable"})
 			return
 		}
+
+		startTime := time.Now()
+		s.Metrics.RecordRequest(targetServiceName)
 
 		var targetPath string
 		if targetServiceName == "EXECUTOR-SVC" {
@@ -83,11 +91,16 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 		if err != nil {
 			s.Logger.Error("Failed to parse target URL: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			s.Metrics.RecordError(targetServiceName)
 			return
 		}
 
 		proxy := httputil.NewSingleHostReverseProxy(remote)
+
+		originalHandler := proxy.Director
 		proxy.Director = func(req *http.Request) {
+			originalHandler(req)
+
 			req.URL.Scheme = remote.Scheme
 			req.URL.Host = remote.Host
 
@@ -112,7 +125,21 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 				req.URL.Path)
 		}
 
+		proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
+			s.Metrics.RecordError(targetServiceName)
+			s.Logger.Error("Proxy error: %v", err)
+			rw.WriteHeader(http.StatusBadGateway)
+			_, _ = rw.Write([]byte("Service unavailable"))
+		}
+
 		proxy.ServeHTTP(c.Writer, c.Request)
+
+		duration := time.Since(startTime)
+		s.Metrics.RecordResponseTime(targetServiceName, duration)
+
+		if c.Writer.Status() >= 400 {
+			s.Metrics.RecordError(targetServiceName)
+		}
 	}
 }
 
