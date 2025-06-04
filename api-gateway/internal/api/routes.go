@@ -10,7 +10,7 @@ import (
 
 type ProxyHandlerFunc func(string) gin.HandlerFunc
 
-func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger, proxyHandler ProxyHandlerFunc) {
+func SetupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger, proxyHandler ProxyHandlerFunc) {
 	public := router.Group("/api")
 	{
 		public.Any("/register", proxyHandler(config.AuthService.URL))
