@@ -2,21 +2,23 @@ package main
 
 import (
 	"database/sql"
-	_ "fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/hudl/fargo"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "lmsmodule/backend-svc/docs"
 	"lmsmodule/backend-svc/handlers"
-	_ "lmsmodule/backend-svc/mail"
 	"lmsmodule/backend-svc/models"
 	"lmsmodule/backend-svc/storage"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -67,6 +69,97 @@ func main() {
 		handlers.UseStorage(&storage.DBStorage{DB: db})
 	}
 
+	eurekaURL := os.Getenv("EUREKA_URL")
+	if eurekaURL == "" {
+		eurekaURL = "http://discovery-server:8761/eureka/v2"
+	}
+
+	appName := os.Getenv("APP_NAME")
+	if appName == "" {
+		appName = "backend-svc"
+	}
+
+	instanceHost := os.Getenv("INSTANCE_IP")
+	if instanceHost == "" {
+		var err error
+		instanceHost, err = os.Hostname()
+		if err != nil {
+			log.Printf("Error getting hostname: %v", err)
+			instanceHost = "localhost"
+		}
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+
+	instancePort, err := strconv.Atoi(port)
+	if err != nil {
+		log.Printf("Error converting PORT: %v, using port 8081", err)
+		instancePort = 8081
+	}
+
+	conn := fargo.NewConn(eurekaURL)
+	conn.PollInterval = time.Second * 30
+
+	metadata := fargo.InstanceMetadata{}
+
+	instance := fargo.Instance{
+		HostName:         instanceHost,
+		Port:             instancePort,
+		App:              appName,
+		IPAddr:           instanceHost,
+		VipAddress:       appName,
+		SecureVipAddress: appName,
+		DataCenterInfo: fargo.DataCenterInfo{
+			Name:  "MyOwn",
+			Class: "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+		},
+		Status:           fargo.UP,
+		Overriddenstatus: "UNKNOWN",
+		LeaseInfo: fargo.LeaseInfo{
+			RenewalIntervalInSecs: 30,
+			DurationInSecs:        90,
+		},
+		Metadata:       metadata,
+		HomePageUrl:    "http://" + instanceHost + ":" + port + "/",
+		StatusPageUrl:  "http://" + instanceHost + ":" + port + "/info",
+		HealthCheckUrl: "http://" + instanceHost + ":" + port + "/health",
+	}
+
+	err = conn.RegisterInstance(&instance)
+	if err != nil {
+		log.Printf("Error registering with Eureka: %v", err)
+	} else {
+		log.Println("Successfully registered with Eureka")
+
+		ticker := time.NewTicker(time.Second * 30)
+		go func() {
+			for range ticker.C {
+				err := conn.HeartBeatInstance(&instance)
+				if err != nil {
+					log.Printf("Heartbeat error: %v", err)
+				}
+			}
+		}()
+
+		go func() {
+			sigChan := make(chan os.Signal, 1)
+			signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+			<-sigChan
+
+			log.Println("Deregistering from Eureka...")
+			err = conn.DeregisterInstance(&instance)
+			if err != nil {
+				log.Printf("Error deregistering from Eureka: %v", err)
+			} else {
+				log.Println("Successfully deregistered from Eureka")
+			}
+			os.Exit(0)
+		}()
+	}
+
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -102,6 +195,17 @@ func main() {
 			account.POST("/delete/confirm", handlers.ConfirmDeleteAccount)
 		}
 
+		teacher := api.Group("/teacher")
+		teacher.Use(TeacherAuthMiddleware())
+		{
+			teacher.POST("/courses", handlers.CreateCourse)
+			teacher.PUT("/courses", handlers.UpdateCourse)
+			teacher.DELETE("/courses", handlers.DeleteCourse)
+			teacher.POST("/courses/:course_id/tasks", handlers.CreateTask)
+			teacher.PUT("/courses/:course_id/tasks/:task_id", handlers.UpdateTask)
+			teacher.DELETE("/courses/:course_id/tasks/:task_id", handlers.DeleteTask)
+		}
+
 		admin := api.Group("/admin")
 		admin.Use(AdminAuthMiddleware())
 		{
@@ -118,11 +222,6 @@ func main() {
 	}
 
 	r.Static("/uploads", "/uploads")
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8081"
-	}
 
 	log.Printf("Server starting on port %s", port)
 	if err := r.Run("0.0.0.0:" + port); err != nil {
@@ -175,6 +274,29 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("userID", int(userID))
+		c.Next()
+	}
+}
+
+func TeacherAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, exists := c.Get("userID")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+			return
+		}
+
+		isTeacher, err := handlers.CheckTeacherRights(userID.(int))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Error checking teacher rights: " + err.Error()})
+			return
+		}
+
+		if !isTeacher {
+			c.AbortWithStatusJSON(http.StatusForbidden, models.ErrorResponse{Error: "Teacher access required"})
+			return
+		}
+
 		c.Next()
 	}
 }

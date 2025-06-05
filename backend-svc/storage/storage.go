@@ -21,6 +21,7 @@ type Storage interface {
 	UpdateUserProfileImage(userID int, imageURL string) error
 	DeleteUser(userID int) error
 
+	IsTeacher(userID int) (bool, error)
 	IsAdmin(userID int) (bool, error)
 	GetAllUsers() ([]models.User, error)
 	GetUsersByRole(isAdmin bool) ([]models.User, error)
@@ -32,6 +33,13 @@ type Storage interface {
 	SaveOTPCode(userID int, code string) error
 	VerifyOTPCode(userID int, code string) (bool, error)
 	ClearOTPCode(userID int) error
+
+	CreateCourse(course models.Course) (models.Course, error)
+	UpdateCourse(id int, course models.Course) (models.Course, error)
+	DeleteCourse(id int) error
+	CreateTask(courseID int, task models.Task) (models.Task, error)
+	UpdateTask(courseID, taskID int, task models.Task) (models.Task, error)
+	DeleteTask(courseID, taskID int) error
 }
 
 // DBStorage имплементирует Storage используя реальную базу данных

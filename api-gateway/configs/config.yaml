@@ -1,13 +1,37 @@
 port: 8080
 log_level: "INFO"
 
-# Сервисы
+# Настройки CORS
+cors:
+  allow_origins:
+    - "http://localhost:8080"
+  allow_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allow_headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Requested-With"
+  expose_headers:
+    - "Content-Length"
+  allow_credentials: true
+  max_age: 86400  # 24 часа
+
+
+# Сервисы (используются как fallback, если Eureka недоступна)
 auth_service:
   url: "http://backend-svc:8081"
   timeout: 30
 
 course_service:
   url: "http://backend-svc:8081"
+  timeout: 30
+
+code_executor_service:
+  url: "http://executor-svc:5000"
   timeout: 30
 
 # Service discovery

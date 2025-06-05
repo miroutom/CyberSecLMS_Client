@@ -21,3 +21,7 @@ func UseStorage(s storage.Storage) {
 func CheckAdminRights(userID int) (bool, error) {
 	return Store.IsAdmin(userID)
 }
+
+func CheckTeacherRights(userID int) (bool, error) {
+	return Store.IsTeacher(userID)
+}
