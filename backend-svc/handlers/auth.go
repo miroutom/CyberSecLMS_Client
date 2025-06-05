@@ -327,9 +327,9 @@ func createJWTToken(userID int) (string, error) {
 	now := time.Now()
 
 	claims := jwt.MapClaims{
-		"sub": userID,                         // Кому принадлежит токен
-		"iat": now.Unix(),                     // Когда был выдан
-		"exp": now.Add(24 * time.Hour).Unix(), // Когда истекает
+		"sub": userID,                             // Кому принадлежит токен
+		"iat": now.Unix(),                         // Когда был выдан
+		"exp": now.Add(7 * 24 * time.Hour).Unix(), // Когда истекает
 	}
 
 	log.Printf("Creating token for user %d, expires at: %v",
