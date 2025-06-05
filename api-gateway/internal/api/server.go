@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"lmsmodule/api-gateway/internal/circuitbreaker"
 	"lmsmodule/api-gateway/internal/metrics"
 	"net/http"
 	"net/http/httputil"
@@ -19,12 +20,13 @@ import (
 
 // internal/api/server.go
 type Server struct {
-	Router     *gin.Engine
-	Config     *utils.Config
-	Logger     *logger.Logger
-	HttpClient *http.Client
-	Discovery  *discovery.ServiceDiscovery
-	Metrics    *metrics.ServiceMetrics
+	Router          *gin.Engine
+	Config          *utils.Config
+	Logger          *logger.Logger
+	HttpClient      *http.Client
+	Discovery       *discovery.ServiceDiscovery
+	Metrics         *metrics.ServiceMetrics
+	CircuitBreakers map[string]*circuitbreaker.CircuitBreaker
 }
 
 func NewServer(config *utils.Config, logger *logger.Logger) *Server {
@@ -43,13 +45,17 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 	}
 
 	server := &Server{
-		Router:     router,
-		Config:     config,
-		Logger:     logger,
-		HttpClient: httpClient,
-		Discovery:  serviceDiscovery,
-		Metrics:    metrics.NewServiceMetrics(),
+		Router:          router,
+		Config:          config,
+		Logger:          logger,
+		HttpClient:      httpClient,
+		Discovery:       serviceDiscovery,
+		Metrics:         metrics.NewServiceMetrics(),
+		CircuitBreakers: make(map[string]*circuitbreaker.CircuitBreaker),
 	}
+
+	server.CircuitBreakers["BACKEND-SERVICE"] = circuitbreaker.NewCircuitBreaker("BACKEND-SERVICE", 5, 30*time.Second)
+	server.CircuitBreakers["EXECUTOR-SVC"] = circuitbreaker.NewCircuitBreaker("EXECUTOR-SVC", 5, 30*time.Second)
 
 	server.setupRoutes()
 	return server
@@ -62,6 +68,18 @@ func (s *Server) setupRoutes() {
 
 func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		circuitBreaker, exists := s.CircuitBreakers[targetServiceName]
+		if !exists {
+			circuitBreaker = circuitbreaker.NewCircuitBreaker(targetServiceName, 5, 30*time.Second)
+			s.CircuitBreakers[targetServiceName] = circuitBreaker
+		}
+
+		if !circuitBreaker.IsAllowed() {
+			s.Logger.Error("Circuit open for service %s, request rejected", targetServiceName)
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Service temporarily unavailable"})
+			return
+		}
+
 		serviceURL := s.Discovery.GetServiceURL(targetServiceName)
 		if serviceURL == "" {
 			s.Logger.Error("Service not found: %s", targetServiceName)
@@ -128,6 +146,7 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 		proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
 			s.Metrics.RecordError(targetServiceName)
 			s.Logger.Error("Proxy error: %v", err)
+			circuitBreaker.Failure() // Регистрация ошибки в Circuit Breaker
 			rw.WriteHeader(http.StatusBadGateway)
 			_, _ = rw.Write([]byte("Service unavailable"))
 		}
@@ -137,8 +156,11 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 		duration := time.Since(startTime)
 		s.Metrics.RecordResponseTime(targetServiceName, duration)
 
-		if c.Writer.Status() >= 400 {
+		if c.Writer.Status() >= 500 {
+			circuitBreaker.Failure() // Регистрация ошибки при HTTP 5xx
 			s.Metrics.RecordError(targetServiceName)
+		} else {
+			circuitBreaker.Success() // Регистрация успешного запроса
 		}
 	}
 }
