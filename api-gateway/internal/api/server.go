@@ -18,7 +18,6 @@ import (
 	"lmsmodule/api-gateway/pkg/logger"
 )
 
-// internal/api/server.go
 type Server struct {
 	Router          *gin.Engine
 	Config          *utils.Config
