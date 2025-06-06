@@ -145,7 +145,7 @@ func LoginHandler(c *gin.Context) {
 			fmt.Printf("Error sending OTP email: %v\n", err)
 		}
 
-		tempToken, err := createTempToken(user.ID)
+		tempToken, err := CreateTempToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "System error"})
 			return
@@ -297,7 +297,7 @@ func ReloadTemplatesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Templates reloaded successfully"})
 }
 
-func createTempToken(userID int) (string, error) {
+func CreateTempToken(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(5 * time.Minute).Unix(),
@@ -327,9 +327,9 @@ func createJWTToken(userID int) (string, error) {
 	now := time.Now()
 
 	claims := jwt.MapClaims{
-		"sub": userID,                         // Кому принадлежит токен
-		"iat": now.Unix(),                     // Когда был выдан
-		"exp": now.Add(24 * time.Hour).Unix(), // Когда истекает
+		"sub": userID,                             // Кому принадлежит токен
+		"iat": now.Unix(),                         // Когда был выдан
+		"exp": now.Add(7 * 24 * time.Hour).Unix(), // Когда истекает
 	}
 
 	log.Printf("Creating token for user %d, expires at: %v",

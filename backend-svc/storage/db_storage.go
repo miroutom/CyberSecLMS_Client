@@ -6,53 +6,76 @@ import (
 	"errors"
 	"fmt"
 	"lmsmodule/backend-svc/models"
-	"log"
 	"time"
 )
 
 // ****** МЕТОДЫ ДЛЯ РАБОТЫ С ПОЛЬЗОВАТЕЛЯМИ ******
 
 func (s *DBStorage) CreateUser(user models.User) error {
-	checkStmt, err := s.DB.Prepare("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)")
+	checkStmt, err := s.DB.Prepare("SELECT id, is_deleted FROM users WHERE username = ? OR email = ?")
 	if err != nil {
 		return err
 	}
 	defer checkStmt.Close()
 
-	var exists bool
-	err = checkStmt.QueryRow(user.Username, user.Email).Scan(&exists)
+	var userID int
+	var isDeleted bool
+	err = checkStmt.QueryRow(user.Username, user.Email).Scan(&userID, &isDeleted)
+
 	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+		insertStmt, err := s.DB.Prepare(
+			"INSERT INTO users (username, password_hash, email, full_name, totp_secret, is_2fa_enabled, is_active, is_teacher, is_deleted) " +
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		if err != nil {
+			return err
+		}
+		defer insertStmt.Close()
+
+		_, err = insertStmt.Exec(
+			user.Username,
+			user.PasswordHash,
+			user.Email,
+			user.FullName,
+			user.TOTPSecret,
+			user.Is2FAEnabled,
+			true,
+			user.IsTeacher,
+			false,
+		)
 		return err
 	}
 
-	if exists {
+	if !isDeleted {
 		return errors.New("username or email already exists")
 	}
 
-	insertStmt, err := s.DB.Prepare(
-		"INSERT INTO users (username, password_hash, email, full_name, totp_secret, is_2fa_enabled, is_active) " +
-			"VALUES (?, ?, ?, ?, ?, ?, ?)")
+	updateStmt, err := s.DB.Prepare(
+		"UPDATE users SET password_hash = ?, email = ?, full_name = ?, totp_secret = ?, is_2fa_enabled = ?, is_active = ?, is_teacher = ?, is_deleted = ? WHERE id = ?")
 	if err != nil {
 		return err
 	}
-	defer insertStmt.Close()
+	defer updateStmt.Close()
 
-	_, err = insertStmt.Exec(
-		user.Username,
+	_, err = updateStmt.Exec(
 		user.PasswordHash,
 		user.Email,
 		user.FullName,
 		user.TOTPSecret,
 		user.Is2FAEnabled,
 		true,
+		user.IsTeacher,
+		false, // not deleted
+		userID,
 	)
-
 	return err
 }
 
 func (s *DBStorage) GetUserByUsername(username string) (models.User, error) {
 	stmt, err := s.DB.Prepare(
-		"SELECT id, username, password_hash, email, full_name, totp_secret, is_2fa_enabled, is_admin, is_active, last_login " +
+		"SELECT id, username, password_hash, email, full_name, totp_secret, is_2fa_enabled, is_admin, is_active, is_teacher, is_deleted, last_login " +
 			"FROM users WHERE username = ?")
 	if err != nil {
 		return models.User{}, err
@@ -71,6 +94,8 @@ func (s *DBStorage) GetUserByUsername(username string) (models.User, error) {
 		&user.Is2FAEnabled,
 		&user.IsAdmin,
 		&user.IsActive,
+		&user.IsTeacher,
+		&user.IsDeleted,
 		&lastLogin,
 	)
 
@@ -79,6 +104,10 @@ func (s *DBStorage) GetUserByUsername(username string) (models.User, error) {
 			return models.User{}, errors.New("user not found")
 		}
 		return models.User{}, err
+	}
+
+	if user.IsDeleted {
+		return models.User{}, errors.New("user not found")
 	}
 
 	if lastLogin.Valid {
@@ -90,7 +119,8 @@ func (s *DBStorage) GetUserByUsername(username string) (models.User, error) {
 
 func (s *DBStorage) GetUserByID(userID int) (models.User, error) {
 	stmt, err := s.DB.Prepare(`
-        SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, is_2fa_enabled, is_admin, is_active, last_login
+        SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
+               is_2fa_enabled, is_admin, is_active, is_teacher, is_deleted, last_login
         FROM users
         WHERE id = ?
     `)
@@ -114,6 +144,8 @@ func (s *DBStorage) GetUserByID(userID int) (models.User, error) {
 		&user.Is2FAEnabled,
 		&user.IsAdmin,
 		&user.IsActive,
+		&user.IsTeacher,
+		&user.IsDeleted,
 		&lastLogin,
 	)
 
@@ -122,6 +154,10 @@ func (s *DBStorage) GetUserByID(userID int) (models.User, error) {
 			return models.User{}, fmt.Errorf("user not found")
 		}
 		return models.User{}, fmt.Errorf("query user: %w", err)
+	}
+
+	if user.IsDeleted {
+		return models.User{}, fmt.Errorf("user not found")
 	}
 
 	if profileImage.Valid && profileImage.String != "" {
@@ -180,21 +216,34 @@ func (s *DBStorage) GetUserByID(userID int) (models.User, error) {
 func (s *DBStorage) SaveOTPCode(userID int, code string) error {
 	expiresAt := time.Now().Add(5 * time.Minute)
 
-	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(code, expiresAt, userID)
-	return err
+	result, err := stmt.Exec(code, expiresAt, userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) VerifyOTPCode(userID int, code string) (bool, error) {
 	var storedCode string
 	var expiresAt time.Time
 
-	stmt, err := s.DB.Prepare("SELECT otp_code, otp_expires_at FROM users WHERE id = ?")
+	stmt, err := s.DB.Prepare("SELECT otp_code, otp_expires_at FROM users WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return false, err
 	}
@@ -203,7 +252,7 @@ func (s *DBStorage) VerifyOTPCode(userID int, code string) (bool, error) {
 	err = stmt.QueryRow(userID).Scan(&storedCode, &expiresAt)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
 		}
 		return false, err
@@ -221,36 +270,75 @@ func (s *DBStorage) VerifyOTPCode(userID int, code string) (bool, error) {
 }
 
 func (s *DBStorage) ClearOTPCode(userID int) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = NULL, otp_expires_at = NULL WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET otp_code = NULL, otp_expires_at = NULL WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID)
-	return err
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) UpdateUserLastLogin(userID int) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET last_login = NOW() WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET last_login = NOW() WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID)
-	return err
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) Enable2FA(userID int) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET is_2fa_enabled = TRUE WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET is_2fa_enabled = TRUE WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID)
-	return err
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileRequest) error {
@@ -269,8 +357,18 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 		}
 	}()
 
+	var exists bool
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND is_deleted = FALSE)", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("user not found or already deleted")
+	}
+
 	if data.Email != "" {
-		stmt, err := tx.Prepare("UPDATE users SET email = ? WHERE id = ?")
+		stmt, err := tx.Prepare("UPDATE users SET email = ? WHERE id = ? AND is_deleted = FALSE")
 		if err != nil {
 			return err
 		}
@@ -283,7 +381,7 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 	}
 
 	if data.FullName != "" {
-		stmt, err := tx.Prepare("UPDATE users SET full_name = ? WHERE id = ?")
+		stmt, err := tx.Prepare("UPDATE users SET full_name = ? WHERE id = ? AND is_deleted = FALSE")
 		if err != nil {
 			return err
 		}
@@ -327,42 +425,15 @@ func (s *DBStorage) UpdateUserProfileImage(userID int, imageURL string) error {
 }
 
 func (s *DBStorage) DeleteUser(userID int) error {
-	tx, err := s.DB.Begin()
+	stmt, err := s.DB.Prepare("UPDATE users SET is_deleted = TRUE WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
-	}
-
-	defer func() {
-		if err != nil {
-			if rbErr := tx.Rollback(); rbErr != nil {
-				log.Printf("rollback error: %v (original error: %v)", rbErr, err)
-			}
-		} else {
-			if cmtErr := tx.Commit(); cmtErr != nil {
-				err = fmt.Errorf("commit error: %w", cmtErr)
-			}
-		}
-	}()
-
-	stmt, err := tx.Prepare("DELETE FROM user_progress WHERE user_id = ?")
-	if err != nil {
-		return fmt.Errorf("prepare delete progress statement: %w", err)
+		return fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(userID); err != nil {
-		return fmt.Errorf("delete user progress: %w", err)
-	}
-
-	stmt2, err := tx.Prepare("DELETE FROM users WHERE id = ?")
+	result, err := stmt.Exec(userID)
 	if err != nil {
-		return fmt.Errorf("prepare delete user statement: %w", err)
-	}
-	defer stmt2.Close()
-
-	result, err := stmt2.Exec(userID)
-	if err != nil {
-		return fmt.Errorf("delete user: %w", err)
+		return fmt.Errorf("execute statement: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -371,7 +442,7 @@ func (s *DBStorage) DeleteUser(userID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("user not found")
+		return fmt.Errorf("user not found or already deleted")
 	}
 
 	return nil
@@ -380,7 +451,7 @@ func (s *DBStorage) DeleteUser(userID int) error {
 // ****** АДМИНИСТРАТИВНЫЕ МЕТОДЫ ******
 
 func (s *DBStorage) IsAdmin(userID int) (bool, error) {
-	stmt, err := s.DB.Prepare("SELECT is_admin FROM users WHERE id = ?")
+	stmt, err := s.DB.Prepare("SELECT is_admin FROM users WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return false, err
 	}
@@ -400,10 +471,11 @@ func (s *DBStorage) IsAdmin(userID int) (bool, error) {
 
 func (s *DBStorage) GetAllUsers() ([]models.User, error) {
 	stmt, err := s.DB.Prepare(`
-		SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
-			   is_2fa_enabled, is_admin, is_active, last_login 
-		FROM users
-	`)
+        SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
+               is_2fa_enabled, is_admin, is_active, is_teacher, last_login 
+        FROM users
+        WHERE is_deleted = FALSE
+    `)
 	if err != nil {
 		return nil, err
 	}
@@ -432,6 +504,7 @@ func (s *DBStorage) GetAllUsers() ([]models.User, error) {
 			&user.Is2FAEnabled,
 			&user.IsAdmin,
 			&user.IsActive,
+			&user.IsTeacher,
 			&lastLogin,
 		)
 		if err != nil {
@@ -458,11 +531,11 @@ func (s *DBStorage) GetAllUsers() ([]models.User, error) {
 
 func (s *DBStorage) GetUsersByRole(isAdmin bool) ([]models.User, error) {
 	stmt, err := s.DB.Prepare(`
-		SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
-			   is_2fa_enabled, is_admin, is_active, last_login 
-		FROM users
-		WHERE is_admin = ?
-	`)
+        SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
+               is_2fa_enabled, is_admin, is_active, is_teacher, last_login 
+        FROM users
+        WHERE is_admin = ? AND is_deleted = FALSE
+    `)
 	if err != nil {
 		return nil, err
 	}
@@ -491,6 +564,7 @@ func (s *DBStorage) GetUsersByRole(isAdmin bool) ([]models.User, error) {
 			&user.Is2FAEnabled,
 			&user.IsAdmin,
 			&user.IsActive,
+			&user.IsTeacher,
 			&lastLogin,
 		)
 		if err != nil {
@@ -519,11 +593,11 @@ func (s *DBStorage) SearchUsers(query string) ([]models.User, error) {
 	searchQuery := "%" + query + "%"
 
 	stmt, err := s.DB.Prepare(`
-		SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
-			   is_2fa_enabled, is_admin, is_active, last_login 
-		FROM users
-		WHERE username LIKE ? OR email LIKE ? OR full_name LIKE ?
-	`)
+        SELECT id, username, password_hash, email, full_name, profile_image, totp_secret, 
+               is_2fa_enabled, is_admin, is_active, is_teacher, last_login 
+        FROM users
+        WHERE (username LIKE ? OR email LIKE ? OR full_name LIKE ?) AND is_deleted = FALSE
+    `)
 	if err != nil {
 		return nil, err
 	}
@@ -552,6 +626,7 @@ func (s *DBStorage) SearchUsers(query string) ([]models.User, error) {
 			&user.Is2FAEnabled,
 			&user.IsAdmin,
 			&user.IsActive,
+			&user.IsTeacher,
 			&lastLogin,
 		)
 		if err != nil {
@@ -577,36 +652,75 @@ func (s *DBStorage) SearchUsers(query string) ([]models.User, error) {
 }
 
 func (s *DBStorage) UpdateUserStatus(userID int, isActive bool) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET is_active = ? WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET is_active = ? WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(isActive, userID)
-	return err
+	result, err := stmt.Exec(isActive, userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) PromoteToAdmin(userID int) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET is_admin = TRUE WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET is_admin = TRUE WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID)
-	return err
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 func (s *DBStorage) DemoteFromAdmin(userID int) error {
-	stmt, err := s.DB.Prepare("UPDATE users SET is_admin = FALSE WHERE id = ?")
+	stmt, err := s.DB.Prepare("UPDATE users SET is_admin = FALSE WHERE id = ? AND is_deleted = FALSE")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID)
-	return err
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }
 
 // ****** МЕТОДЫ ДЛЯ РАБОТЫ С КУРСАМИ ******
@@ -752,6 +866,16 @@ var (
 )
 
 func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
+	var exists bool
+	err := s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND is_deleted = FALSE)", userID).Scan(&exists)
+	if err != nil {
+		return models.UserProgress{}, fmt.Errorf("check user: %w", err)
+	}
+
+	if !exists {
+		return models.UserProgress{}, fmt.Errorf("user not found or deleted")
+	}
+
 	stmt, err := s.DB.Prepare("SELECT task_id FROM user_progress WHERE user_id = ?")
 	if err != nil {
 		return models.UserProgress{}, fmt.Errorf("prepare statement: %w", err)
@@ -784,13 +908,23 @@ func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 }
 
 func (s *DBStorage) CompleteTask(userID, taskID int) error {
-	var exists bool
-	err := s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)", taskID).Scan(&exists)
+	var userExists bool
+	err := s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND is_deleted = FALSE)", userID).Scan(&userExists)
+	if err != nil {
+		return fmt.Errorf("check user: %w", err)
+	}
+
+	if !userExists {
+		return fmt.Errorf("user not found or deleted")
+	}
+
+	var taskExists bool
+	err = s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tasks WHERE id = ?)", taskID).Scan(&taskExists)
 	if err != nil {
 		return fmt.Errorf("check task existence: %w", err)
 	}
 
-	if !exists {
+	if !taskExists {
 		return ErrTaskNotFound
 	}
 
@@ -804,6 +938,198 @@ func (s *DBStorage) CompleteTask(userID, taskID int) error {
 
 	if _, err := stmt.Exec(userID, taskID); err != nil {
 		return fmt.Errorf("execute statement: %w", err)
+	}
+
+	return nil
+}
+
+// ****** МЕТОДЫ ДЛЯ ПРЕПОДОВАТЕЛЯ ******
+
+func (s *DBStorage) IsTeacher(userID int) (bool, error) {
+	stmt, err := s.DB.Prepare("SELECT is_teacher FROM users WHERE id = ? AND is_deleted = FALSE")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	var isTeacher bool
+	err = stmt.QueryRow(userID).Scan(&isTeacher)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, errors.New("user not found")
+		}
+		return false, err
+	}
+
+	return isTeacher, nil
+}
+
+func (s *DBStorage) PromoteToTeacher(userID int) error {
+	stmt, err := s.DB.Prepare("UPDATE users SET is_teacher = TRUE WHERE id = ? AND is_deleted = FALSE")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
+}
+
+func (s *DBStorage) DemoteFromTeacher(userID int) error {
+	stmt, err := s.DB.Prepare("UPDATE users SET is_teacher = FALSE WHERE id = ? AND is_deleted = FALSE")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
+}
+
+func (s *DBStorage) CreateCourse(course models.Course) (models.Course, error) {
+	insertStmt, err := s.DB.Prepare(
+		"INSERT INTO courses (vulnerability_type, description) VALUES (?, ?)")
+	if err != nil {
+		return models.Course{}, err
+	}
+	defer insertStmt.Close()
+
+	result, err := insertStmt.Exec(course.VulnerabilityType, course.Description)
+	if err != nil {
+		return models.Course{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return models.Course{}, err
+	}
+
+	course.ID = int(id)
+	return course, nil
+}
+
+func (s *DBStorage) UpdateCourse(id int, course models.Course) (models.Course, error) {
+	updateStmt, err := s.DB.Prepare(
+		"UPDATE courses SET vulnerability_type = ?, description = ? WHERE id = ?")
+	if err != nil {
+		return models.Course{}, err
+	}
+	defer updateStmt.Close()
+
+	_, err = updateStmt.Exec(course.VulnerabilityType, course.Description, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Course{}, ErrCourseNotFound
+		}
+		return models.Course{}, err
+	}
+
+	course.ID = id
+	return course, nil
+}
+
+func (s *DBStorage) DeleteCourse(id int) error {
+	deleteStmt, err := s.DB.Prepare("DELETE FROM courses WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer deleteStmt.Close()
+
+	_, err = deleteStmt.Exec(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrCourseNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (s *DBStorage) CreateTask(courseID int, task models.Task) (models.Task, error) {
+	insertStmt, err := s.DB.Prepare(
+		"INSERT INTO tasks (course_id, title, description, difficulty, task_order) " +
+			"VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		return models.Task{}, err
+	}
+	defer insertStmt.Close()
+
+	result, err := insertStmt.Exec(courseID, task.Title, task.Description, task.Difficulty, task.Order)
+	if err != nil {
+		return models.Task{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return models.Task{}, err
+	}
+
+	task.ID = int(id)
+	return task, nil
+}
+
+func (s *DBStorage) UpdateTask(courseID, taskID int, task models.Task) (models.Task, error) {
+	updateStmt, err := s.DB.Prepare(
+		"UPDATE tasks SET title = ?, description = ?, difficulty = ?, task_order = ? " +
+			"WHERE course_id = ? AND id = ?")
+	if err != nil {
+		return models.Task{}, err
+	}
+	defer updateStmt.Close()
+
+	_, err = updateStmt.Exec(task.Title, task.Description, task.Difficulty, task.Order, courseID, taskID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Task{}, ErrTaskNotFound
+		}
+		return models.Task{}, err
+	}
+
+	task.CourseID = courseID
+	task.ID = taskID
+	return task, nil
+}
+
+func (s *DBStorage) DeleteTask(courseID, taskID int) error {
+	deleteStmt, err := s.DB.Prepare("DELETE FROM tasks WHERE course_id = ? AND id = ?")
+	if err != nil {
+		return err
+	}
+	defer deleteStmt.Close()
+
+	_, err = deleteStmt.Exec(courseID, taskID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrTaskNotFound
+		}
+		return err
 	}
 
 	return nil

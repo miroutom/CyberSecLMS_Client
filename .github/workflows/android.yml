@@ -150,7 +150,7 @@ jobs:
           cache: 'gradle'
 
       - name: Run screenshot tests
-        run: ./gradlew validateDebugScreenshotTest -PscreenshotTestThreshold=0.5
+        run: ./gradlew validateDebugScreenshotTest
 
       - name: Upload test reports
         if: always()

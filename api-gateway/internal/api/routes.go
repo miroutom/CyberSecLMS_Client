@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-
 	"lmsmodule/api-gateway/internal/middleware"
 	"lmsmodule/api-gateway/internal/utils"
 	"lmsmodule/api-gateway/pkg/logger"
@@ -10,48 +9,67 @@ import (
 
 type ProxyHandlerFunc func(string) gin.HandlerFunc
 
-func setupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger, proxyHandler ProxyHandlerFunc) {
+func SetupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger, proxyHandler ProxyHandlerFunc) {
 	public := router.Group("/api")
 	{
-		public.Any("/register", proxyHandler(config.AuthService.URL))
-		public.Any("/login", proxyHandler(config.AuthService.URL))
-		public.Any("/verify-otp", proxyHandler(config.AuthService.URL))
-		public.Any("/forgot-password", proxyHandler(config.AuthService.URL))
-		public.Any("/reset-password", proxyHandler(config.AuthService.URL))
-		public.Any("/health", proxyHandler(config.AuthService.URL))
+		public.Any("/register", proxyHandler("BACKEND-SERVICE"))
+		public.Any("/login", proxyHandler("BACKEND-SERVICE"))
+		public.Any("/verify-otp", proxyHandler("BACKEND-SERVICE"))
+		public.Any("/forgot-password", proxyHandler("BACKEND-SERVICE"))
+		public.Any("/reset-password", proxyHandler("BACKEND-SERVICE"))
+		public.Any("/health", proxyHandler("BACKEND-SERVICE"))
 	}
 
 	api := router.Group("/api")
 	api.Use(middleware.RateLimiterMiddleware())
 	{
-		api.Any("/courses", proxyHandler(config.CourseService.URL))
-		api.Any("/courses/:id", proxyHandler(config.CourseService.URL))
+		api.Any("/courses", proxyHandler("BACKEND-SERVICE"))
+		api.Any("/courses/:id", proxyHandler("BACKEND-SERVICE"))
 
-		api.Any("/progress/:user_id", proxyHandler(config.CourseService.URL))
-		api.Any("/progress/:user_id/tasks/:task_id/complete", proxyHandler(config.CourseService.URL))
+		api.Any("/progress/:user_id", proxyHandler("BACKEND-SERVICE"))
+		api.Any("/progress/:user_id/tasks/:task_id/complete", proxyHandler("BACKEND-SERVICE"))
 
-		api.Any("/profile", proxyHandler(config.AuthService.URL))
+		api.Any("/profile", proxyHandler("BACKEND-SERVICE"))
 
 		account := api.Group("/account")
 		{
-			account.Any("/2fa/enable", proxyHandler(config.AuthService.URL))
-			account.Any("/profile/image", proxyHandler(config.AuthService.URL))
-			account.Any("/change-password", proxyHandler(config.AuthService.URL))
-			account.Any("/delete", proxyHandler(config.AuthService.URL))
-			account.Any("/delete/confirm", proxyHandler(config.AuthService.URL))
+			account.Any("/2fa/enable", proxyHandler("BACKEND-SERVICE"))
+			account.Any("/profile/image", proxyHandler("BACKEND-SERVICE"))
+			account.Any("/change-password", proxyHandler("BACKEND-SERVICE"))
+			account.Any("/delete", proxyHandler("BACKEND-SERVICE"))
+			account.Any("/delete/confirm", proxyHandler("BACKEND-SERVICE"))
 		}
 
 		admin := api.Group("/admin")
 		{
-			admin.Any("/reload-templates", proxyHandler(config.AuthService.URL))
+			admin.Any("/reload-templates", proxyHandler("BACKEND-SERVICE"))
 
-			admin.Any("/users", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/:id", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/by-role", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/search", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/:id/status", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/:id/promote", proxyHandler(config.AuthService.URL))
-			admin.Any("/users/:id/demote", proxyHandler(config.AuthService.URL))
+			admin.Any("/users", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/:id", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/by-role", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/search", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/:id/status", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/:id/promote", proxyHandler("BACKEND-SERVICE"))
+			admin.Any("/users/:id/demote", proxyHandler("BACKEND-SERVICE"))
+		}
+
+		teacher := api.Group("/teacher")
+		{
+			teacher.POST("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.PUT("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.DELETE("/courses", proxyHandler("BACKEND-SERVICE"))
+			teacher.POST("/courses/:course_id/tasks", proxyHandler("BACKEND-SERVICE"))
+			teacher.PUT("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
+			teacher.DELETE("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
+		}
+
+		executor := api.Group("/executor")
+		{
+			executor.POST("/prewarm", proxyHandler("EXECUTOR-SVC"))
+			executor.POST("/execute", proxyHandler("EXECUTOR-SVC"))
+			executor.POST("/execute_pytest", proxyHandler("EXECUTOR-SVC"))
+			executor.GET("/result/:session_id", proxyHandler("EXECUTOR-SVC"))
+			executor.POST("/cleanup/:session_id", proxyHandler("EXECUTOR-SVC"))
 		}
 	}
 

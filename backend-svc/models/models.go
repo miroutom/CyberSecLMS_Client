@@ -15,6 +15,8 @@ type User struct {
 	Is2FAEnabled   bool             `json:"is2faEnabled"`
 	IsAdmin        bool             `json:"isAdmin,omitempty"`
 	IsActive       bool             `json:"isActive,omitempty"`
+	IsTeacher      bool             `json:"isTeacher,omitempty"`
+	IsDeleted      bool             `json:"-"` // Скрыто в JSON
 	LastLogin      time.Time        `json:"lastLogin,omitempty"`
 	Courses        []CourseProgress `json:"courses,omitempty"`
 	CompletedTasks int              `json:"completedTasks,omitempty"`

@@ -209,6 +209,8 @@ definitions:
         type: boolean
       isAdmin:
         type: boolean
+      isTeacher:
+        type: boolean
       lastLogin:
         type: string
       profileImage:
@@ -736,6 +738,305 @@ paths:
       summary: Search users
       tags:
       - Admin
+  /api/courses:
+    post:
+      parameters:
+      - description: Title of the course
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description of the course
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Difficulty level of the course
+        in: body
+        name: difficulty_level
+        required: true
+        schema:
+          type: string
+      - description: Category of the course
+        in: body
+        name: category
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new course
+      tags:
+      - Courses
+  /api/courses/{course_id}/tasks:
+    post:
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Title of the task
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description of the task
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Type of the task
+        in: body
+        name: type
+        required: true
+        schema:
+          type: string
+      - description: Points for the task
+        in: body
+        name: points
+        required: true
+        schema:
+          type: integer
+      - description: Content of the task
+        in: body
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new task
+      tags:
+      - Tasks
+  /api/courses/{course_id}/tasks/{task_id}:
+    delete:
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Delete task
+      tags:
+      - Tasks
+    put:
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: Title of the task
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description of the task
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Type of the task
+        in: body
+        name: type
+        required: true
+        schema:
+          type: string
+      - description: Points for the task
+        in: body
+        name: points
+        required: true
+        schema:
+          type: integer
+      - description: Content of the task
+        in: body
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Update task information
+      tags:
+      - Tasks
+  /api/courses/{id}:
+    delete:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Delete course
+      tags:
+      - Courses
+    put:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Title of the course
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description of the course
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Difficulty level of the course
+        in: body
+        name: difficulty_level
+        required: true
+        schema:
+          type: string
+      - description: Category of the course
+        in: body
+        name: category
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Update course information
+      tags:
+      - Courses
   /courses:
     get:
       produces:

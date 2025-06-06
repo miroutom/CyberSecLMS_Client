@@ -83,7 +83,7 @@ var (
 		2: {
 			ID:             2,
 			Username:       "user123",
-			PasswordHash:   "$2a$10$qJ7EYH.1r9kQQBqS7iPFm.LoTJHEbzGP4.94a8QCbeHEFjyFsHoKG",
+			PasswordHash:   "$2a$10$mY1j/T1JlJ7H50omhthPluBS2qYiU/r64X8C6UXEkbobiEDC9UZ62",
 			Email:          "user@example.com",
 			FullName:       "Regular User",
 			ProfileImage:   "",
@@ -305,6 +305,14 @@ func (s *MockStorage) IsAdmin(userID int) (bool, error) {
 	return user.IsAdmin, nil
 }
 
+func (s *MockStorage) IsTeacher(userID int) (bool, error) {
+	user, exists := mockUsers[userID]
+	if !exists {
+		return false, errors.New("user not found")
+	}
+	return user.IsTeacher, nil
+}
+
 func (s *MockStorage) GetAllUsers() ([]models.User, error) {
 	var users []models.User
 	for _, user := range mockUsers {
@@ -461,4 +469,58 @@ func (s *MockStorage) DeleteUser(userID int) error {
 	delete(mockUserProgress, userID)
 
 	return nil
+}
+
+func (s *MockStorage) CreateCourse(course models.Course) (models.Course, error) {
+	newID := len(mockCourses) + 1
+	course.ID = newID
+	mockCourses = append(mockCourses, course)
+	return course, nil
+}
+
+func (s *MockStorage) UpdateCourse(id int, course models.Course) (models.Course, error) {
+	for i, c := range mockCourses {
+		if c.ID == id {
+			mockCourses[i] = course
+			return course, nil
+		}
+	}
+	return models.Course{}, errors.New("course not found")
+}
+
+func (s *MockStorage) DeleteCourse(id int) error {
+	for i, c := range mockCourses {
+		if c.ID == id {
+			mockCourses = append(mockCourses[:i], mockCourses[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New("course not found")
+}
+
+func (s *MockStorage) CreateTask(courseID int, task models.Task) (models.Task, error) {
+	newID := len(mockTasks) + 1
+	task.ID = newID
+	mockTasks = append(mockTasks, task)
+	return task, nil
+}
+
+func (s *MockStorage) UpdateTask(courseID, taskID int, task models.Task) (models.Task, error) {
+	for i, t := range mockTasks {
+		if t.ID == taskID {
+			mockTasks[i] = task
+			return task, nil
+		}
+	}
+	return models.Task{}, errors.New("task not found")
+}
+
+func (s *MockStorage) DeleteTask(courseID, taskID int) error {
+	for i, t := range mockTasks {
+		if t.ID == taskID {
+			mockTasks = append(mockTasks[:i], mockTasks[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New("task not found")
 }
