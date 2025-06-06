@@ -43,7 +43,6 @@ func (cb *CircuitBreaker) IsAllowed() bool {
 		return true
 	case Open:
 		if time.Since(cb.lastStateChange) > cb.resetTimeout {
-			// Переход в Half-Open после истечения времени
 			cb.mutex.RUnlock()
 			cb.mutex.Lock()
 			cb.state = HalfOpen

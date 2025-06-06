@@ -3,13 +3,11 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"lmsmodule/api-gateway/internal/middleware"
-	"lmsmodule/api-gateway/internal/utils"
-	"lmsmodule/api-gateway/pkg/logger"
 )
 
 type ProxyHandlerFunc func(string) gin.HandlerFunc
 
-func SetupRoutes(router *gin.Engine, config *utils.Config, logger *logger.Logger, proxyHandler ProxyHandlerFunc) {
+func SetupRoutes(router *gin.Engine, proxyHandler ProxyHandlerFunc) {
 	public := router.Group("/api")
 	{
 		public.Any("/register", proxyHandler("BACKEND-SERVICE"))

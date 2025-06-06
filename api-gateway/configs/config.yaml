@@ -34,7 +34,6 @@ code_executor_service:
   url: "http://executor-svc:5000"
   timeout: 30
 
-# Service discovery
 eureka:
   url: "http://discovery-server:8761/eureka"
   app_name: "api-gateway"
