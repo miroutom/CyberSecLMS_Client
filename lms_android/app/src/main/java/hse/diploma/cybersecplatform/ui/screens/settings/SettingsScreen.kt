@@ -122,7 +122,7 @@ fun SettingsScreen(
                     onSubmit = { currentPassword, newPassword ->
                         onPasswordChangeInitiated(currentPassword, newPassword) { result ->
                             result.onFailure { error ->
-                                // Ошибка будет обработана в ViewModel
+                                // handled in ViewModel
                             }
                         }
                     },
@@ -135,7 +135,7 @@ fun SettingsScreen(
                     onConfirm = { password ->
                         onDeleteAccountInitiated(password) { result ->
                             result.onFailure { error ->
-                                // Ошибка будет обработана в ViewModel
+                                // handled in ViewModel
                             }
                         }
                     },
@@ -153,7 +153,7 @@ fun SettingsScreen(
                 onOtpSubmit = { otpCode ->
                     onPasswordOtpSubmitted(otpCode) { result ->
                         result.onSuccess { message ->
-                            // Успех будет обработан в ViewModel
+                            // handled in ViewModel
                         }
                     }
                 },
