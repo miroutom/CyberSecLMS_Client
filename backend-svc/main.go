@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
@@ -37,7 +38,17 @@ func main() {
 
 	dsn := os.Getenv("DATABASE_DSN")
 	if dsn == "" {
-		dsn = "lms_user:Ept@Meny@8NeSpros1l1@tcp(db:3306)/lms_db?parseTime=true"
+		user := os.Getenv("MYSQL_USER")
+		password := os.Getenv("MYSQL_PASSWORD")
+		database := os.Getenv("MYSQL_DATABASE")
+		host := "db"
+		port := "3306"
+
+		if user == "" || password == "" || database == "" {
+			log.Fatal("Database credentials not provided. Set MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE environment variables")
+		}
+
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, database)
 	}
 
 	var useMockData = false
