@@ -1,6 +1,6 @@
 package hse.diploma.cybersecplatform.mock
 
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.user.UserData
 
 val mockUser =
     UserData(

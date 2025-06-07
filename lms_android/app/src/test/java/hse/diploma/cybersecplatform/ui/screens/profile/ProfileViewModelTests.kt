@@ -2,8 +2,8 @@ package hse.diploma.cybersecplatform.ui.screens.profile
 
 import android.content.ContentResolver
 import android.net.Uri
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import io.mockk.coEvery

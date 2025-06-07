@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.navigation.Screen

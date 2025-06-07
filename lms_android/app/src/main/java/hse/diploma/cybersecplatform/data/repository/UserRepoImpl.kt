@@ -4,8 +4,9 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import hse.diploma.cybersecplatform.data.api.ApiService
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.user.UserData
+import hse.diploma.cybersecplatform.data.model.user.UserProgress
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,6 +51,41 @@ class UserRepoImpl @Inject constructor(
                 }
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Failed to update profile"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUserProgress(userId: Int): Result<UserProgress> {
+        return try {
+            val response = apiService.getUserProgress(userId)
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Failed to get progress"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun completeTask(
+        userId: Int,
+        taskId: Int,
+    ): Result<MessageResponse> {
+        return try {
+            val response = apiService.completeTask(userId, taskId)
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Failed to complete task"))
             }
         } catch (e: Exception) {
             Result.failure(e)

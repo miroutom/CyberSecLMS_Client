@@ -2,8 +2,8 @@ package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.AppPreferencesManager
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.LoginResponse
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
 import io.mockk.coEvery

@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat

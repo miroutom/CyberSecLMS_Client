@@ -3,8 +3,8 @@ package hse.diploma.cybersecplatform.data.repository
 import android.content.ContentResolver
 import android.net.Uri
 import hse.diploma.cybersecplatform.data.api.ApiService
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

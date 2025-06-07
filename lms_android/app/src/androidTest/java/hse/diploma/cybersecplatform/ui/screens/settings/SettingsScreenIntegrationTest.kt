@@ -7,7 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel

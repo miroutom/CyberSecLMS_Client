@@ -1,67 +1,84 @@
 package hse.diploma.cybersecplatform.ui.screens.courses
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.domain.error.ErrorType
+import dagger.Module
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.state.shared.MyCoursesState
+import hse.diploma.cybersecplatform.ui.CoursesSharedViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Module
 class MyCoursesViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
-) : ViewModel() {
-    private val _myCoursesState = MutableStateFlow<MyCoursesState>(MyCoursesState.Loading)
-    val myCoursesState: StateFlow<MyCoursesState> = _myCoursesState.asStateFlow()
+) : CoursesSharedViewModel() {
+    private val _selectedCourse = MutableStateFlow<Course?>(null)
+    val selectedCourse: StateFlow<Course?> = _selectedCourse.asStateFlow()
 
-    private val _selectedCourseForRestart = MutableStateFlow<Course?>(null)
-    val selectedCourseForRestart: StateFlow<Course?> = _selectedCourseForRestart.asStateFlow()
-
-    fun selectCourseForRestart(course: Course) {
-        _selectedCourseForRestart.value = course
+    init {
+        loadCourses()
     }
 
-    fun loadCourses() {
+    override fun loadCourses() {
         viewModelScope.launch {
-            _myCoursesState.value = MyCoursesState.Loading
-            val result = coursesRepo.getMyCourses()
-            if (result.isSuccess) {
-                val courses = result.getOrNull()!!
-                _myCoursesState.value =
-                    MyCoursesState.Success(
-                        CoursesUiState(
+            _coursesState.value = CoursesState.Loading
+            try {
+                val result = coursesRepo.getMyCourses()
+                result.onSuccess { response ->
+                    val courses = response.courses
+                    _coursesState.value =
+                        CoursesState.Success(
                             courses = courses,
-                            startedCourses = courses.filter { it.isStarted },
-                            completedCourses = courses.filter { !it.isStarted },
-                        ),
-                    )
-            } else {
-                _myCoursesState.value =
-                    MyCoursesState.Error(result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other)
+                            filteredCourses = courses,
+                        )
+                }.onFailure { e ->
+                    _coursesState.value = CoursesState.Error(e.toErrorType(TAG))
+                }
+            } catch (e: Exception) {
+                _coursesState.value = CoursesState.Error(e.toErrorType(TAG))
             }
         }
     }
 
-    fun onCompletedCourseRestart(course: Course) {
-        val currentState = _myCoursesState.value
-        if (currentState is MyCoursesState.Success) {
-            val updatedCourse = course.copy(completedTasks = 0, isStarted = true)
-            val updatedCourses =
-                currentState.uiState.courses.map {
-                    if (it == course) updatedCourse else it
+    override fun filterCourses(query: String) {
+        val currentState = _coursesState.value
+        if (currentState is CoursesState.Success) {
+            val filtered =
+                if (query.isBlank()) {
+                    currentState.courses
+                } else {
+                    currentState.courses.filter { course ->
+                        course.title.contains(query, ignoreCase = true) ||
+                            course.description.contains(query, ignoreCase = true)
+                    }
                 }
-            val newUiState =
-                currentState.uiState.copy(
+            _coursesState.value = currentState.copy(filteredCourses = filtered)
+        }
+    }
+
+    fun selectCourse(course: Course) {
+        _selectedCourse.value = course
+    }
+
+    fun restartCourseProgress(course: Course) {
+        val currentState = _coursesState.value
+        if (currentState is CoursesState.Success) {
+            val updatedCourses =
+                currentState.courses.map {
+                    if (it.id == course.id) it.copy(completedTasks = 0, progress = 0) else it
+                }
+            _coursesState.value =
+                currentState.copy(
                     courses = updatedCourses,
-                    startedCourses = updatedCourses.filter { it.isStarted },
-                    completedCourses = updatedCourses.filter { !it.isStarted },
+                    filteredCourses =
+                        updatedCourses.filter {
+                            _searchQuery.value.isBlank() || it.title.contains(_searchQuery.value, ignoreCase = true)
+                        },
                 )
-            _myCoursesState.value = MyCoursesState.Success(newUiState)
         }
     }
 
