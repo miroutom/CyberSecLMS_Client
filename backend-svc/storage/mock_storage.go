@@ -524,3 +524,33 @@ func (s *MockStorage) DeleteTask(courseID, taskID int) error {
 	}
 	return errors.New("task not found")
 }
+
+func (s *MockStorage) SubmitTaskAnswer(submission models.TaskSubmission) (models.TaskSubmissionResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MockStorage) GetUserSubmissions(userID int) ([]models.TaskSubmissionDetails, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MockStorage) GetCourseStatistics(courseID int) (models.CourseStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MockStorage) GetUserStatistics(userID int) (models.UserStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MockStorage) GetLeaderboard(courseID int, limit int) ([]models.LeaderboardEntry, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MockStorage) GetUserLearningPath(userID int) (models.LearningPath, error) {
+	//TODO implement me
+	panic("implement me")
+}
