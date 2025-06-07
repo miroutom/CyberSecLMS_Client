@@ -42,6 +42,51 @@ definitions:
       vulnerabilityType:
         type: string
     type: object
+  models.CourseStatistics:
+    properties:
+      average_completion_percentage:
+        type: number
+      average_score:
+        type: number
+      completed_students:
+        type: integer
+      course_id:
+        type: integer
+      course_name:
+        type: string
+      enrolled_students:
+        type: integer
+      students_progress:
+        items:
+          properties:
+            average_score:
+              type: number
+            completion_percentage:
+              type: number
+            last_activity:
+              type: string
+            user_id:
+              type: integer
+            username:
+              type: string
+          type: object
+        type: array
+      task_completion_rates:
+        items:
+          properties:
+            average_score:
+              type: number
+            completed_by:
+              type: integer
+            success_rate:
+              type: number
+            task_id:
+              type: integer
+            task_title:
+              type: string
+          type: object
+        type: array
+    type: object
   models.DeleteAccountConfirmRequest:
     properties:
       code:
@@ -81,6 +126,58 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  models.LearningPath:
+    properties:
+      generated_at:
+        type: string
+      next_tasks:
+        items:
+          properties:
+            course_id:
+              type: integer
+            course_name:
+              type: string
+            due_date:
+              type: string
+            priority:
+              type: integer
+            task_id:
+              type: integer
+            task_title:
+              type: string
+          type: object
+        type: array
+      recommendations:
+        items:
+          properties:
+            course_id:
+              type: integer
+            course_name:
+              type: string
+            estimated_time:
+              type: string
+            priority:
+              type: integer
+            reason:
+              type: string
+          type: object
+        type: array
+      skills:
+        items:
+          properties:
+            current_level:
+              type: integer
+            progress_to_next_level:
+              type: number
+            recommended_task_id:
+              type: integer
+            skill_name:
+              type: string
+          type: object
+        type: array
+      user_id:
+        type: integer
     type: object
   models.LoginRequest:
     properties:
@@ -156,15 +253,70 @@ definitions:
       description:
         type: string
       difficulty:
-        description: 'например: "easy", "medium", "hard"'
         type: string
       id:
         type: integer
       order:
-        description: порядковый номер задания в курсе
         type: integer
       title:
         type: string
+    type: object
+  models.TaskSubmission:
+    properties:
+      answer:
+        type: string
+      attachments:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      status:
+        type: string
+      submitted_at:
+        type: string
+      task_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  models.TaskSubmissionDetails:
+    properties:
+      course_id:
+        type: integer
+      course_name:
+        type: string
+      feedback:
+        type: string
+      graded_at:
+        type: string
+      max_score:
+        type: number
+      score:
+        type: number
+      status:
+        type: string
+      submission_id:
+        type: integer
+      submitted_at:
+        type: string
+      task_id:
+        type: integer
+      task_title:
+        type: string
+    type: object
+  models.TaskSubmissionResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      submission_id:
+        type: integer
+      submitted_at:
+        type: string
+      task_id:
+        type: integer
     type: object
   models.TempTokenResponse:
     properties:
@@ -227,9 +379,44 @@ definitions:
       completed:
         additionalProperties:
           type: boolean
-        description: ключ - ID задания
         type: object
       userId:
+        type: integer
+    type: object
+  models.UserStatistics:
+    properties:
+      average_score:
+        type: number
+      completed_courses:
+        type: integer
+      completed_tasks:
+        type: integer
+      courses_progress:
+        items:
+          properties:
+            average_score:
+              type: number
+            completion_percentage:
+              type: number
+            course_id:
+              type: integer
+            course_name:
+              type: string
+            last_activity:
+              type: string
+          type: object
+        type: array
+      joined_date:
+        type: string
+      last_active:
+        type: string
+      total_courses:
+        type: integer
+      total_points:
+        type: integer
+      total_tasks:
+        type: integer
+      user_id:
         type: integer
     type: object
   models.VerifyOTPRequest:
@@ -738,6 +925,70 @@ paths:
       summary: Search users
       tags:
       - Admin
+  /analytics/courses/{course_id}/statistics:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CourseStatistics'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get statistics for a course
+      tags:
+      - Analytics
+  /analytics/users/{user_id}/statistics:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserStatistics'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get learning statistics for a user
+      tags:
+      - Analytics
   /api/courses:
     post:
       parameters:
@@ -1230,6 +1481,68 @@ paths:
       summary: Get user progress
       tags:
       - Progress
+  /progress/{user_id}/learning-path:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LearningPath'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get personalized learning path for a user
+      tags:
+      - Progress
+  /progress/{user_id}/submissions:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TaskSubmissionDetails'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all submissions for a user
+      tags:
+      - Progress
   /progress/{user_id}/tasks/{task_id}/complete:
     post:
       parameters:
@@ -1263,6 +1576,47 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Complete task
+      tags:
+      - Progress
+  /progress/{user_id}/tasks/{task_id}/submit:
+    post:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: Task submission
+        in: body
+        name: submission
+        required: true
+        schema:
+          $ref: '#/definitions/models.TaskSubmission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TaskSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Submit task with answer for grading
       tags:
       - Progress
   /register:

@@ -778,6 +778,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/analytics/courses/{course_id}/statistics": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get statistics for a course",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CourseStatistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/analytics/users/{user_id}/statistics": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get learning statistics for a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserStatistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/courses": {
             "post": {
                 "produces": [
@@ -1531,6 +1629,101 @@ const docTemplate = `{
                 }
             }
         },
+        "/progress/{user_id}/learning-path": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Get personalized learning path for a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LearningPath"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/{user_id}/submissions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Get all submissions for a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TaskSubmissionDetails"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/progress/{user_id}/tasks/{task_id}/complete": {
             "post": {
                 "produces": [
@@ -1561,6 +1754,68 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/{user_id}/tasks/{task_id}/submit": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Submit task with answer for grading",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Task submission",
+                        "name": "submission",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TaskSubmission"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TaskSubmissionResponse"
                         }
                     },
                     "400": {
@@ -1803,6 +2058,75 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CourseStatistics": {
+            "type": "object",
+            "properties": {
+                "average_completion_percentage": {
+                    "type": "number"
+                },
+                "average_score": {
+                    "type": "number"
+                },
+                "completed_students": {
+                    "type": "integer"
+                },
+                "course_id": {
+                    "type": "integer"
+                },
+                "course_name": {
+                    "type": "string"
+                },
+                "enrolled_students": {
+                    "type": "integer"
+                },
+                "students_progress": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "average_score": {
+                                "type": "number"
+                            },
+                            "completion_percentage": {
+                                "type": "number"
+                            },
+                            "last_activity": {
+                                "type": "string"
+                            },
+                            "user_id": {
+                                "type": "integer"
+                            },
+                            "username": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "task_completion_rates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "average_score": {
+                                "type": "number"
+                            },
+                            "completed_by": {
+                                "type": "integer"
+                            },
+                            "success_rate": {
+                                "type": "number"
+                            },
+                            "task_id": {
+                                "type": "integer"
+                            },
+                            "task_title": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "models.DeleteAccountConfirmRequest": {
             "type": "object",
             "required": [
@@ -1862,6 +2186,86 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.LearningPath": {
+            "type": "object",
+            "properties": {
+                "generated_at": {
+                    "type": "string"
+                },
+                "next_tasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "course_id": {
+                                "type": "integer"
+                            },
+                            "course_name": {
+                                "type": "string"
+                            },
+                            "due_date": {
+                                "type": "string"
+                            },
+                            "priority": {
+                                "type": "integer"
+                            },
+                            "task_id": {
+                                "type": "integer"
+                            },
+                            "task_title": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "course_id": {
+                                "type": "integer"
+                            },
+                            "course_name": {
+                                "type": "string"
+                            },
+                            "estimated_time": {
+                                "type": "string"
+                            },
+                            "priority": {
+                                "type": "integer"
+                            },
+                            "reason": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "current_level": {
+                                "type": "integer"
+                            },
+                            "progress_to_next_level": {
+                                "type": "number"
+                            },
+                            "recommended_task_id": {
+                                "type": "integer"
+                            },
+                            "skill_name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1973,18 +2377,103 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "difficulty": {
-                    "description": "например: \"easy\", \"medium\", \"hard\"",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "order": {
-                    "description": "порядковый номер задания в курсе",
                     "type": "integer"
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "models.TaskSubmission": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submitted_at": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.TaskSubmissionDetails": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
+                },
+                "course_name": {
+                    "type": "string"
+                },
+                "feedback": {
+                    "type": "string"
+                },
+                "graded_at": {
+                    "type": "string"
+                },
+                "max_score": {
+                    "type": "number"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submission_id": {
+                    "type": "integer"
+                },
+                "submitted_at": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "integer"
+                },
+                "task_title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TaskSubmissionResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submission_id": {
+                    "type": "integer"
+                },
+                "submitted_at": {
+                    "type": "string"
+                },
+                "task_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2078,13 +2567,67 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "completed": {
-                    "description": "ключ - ID задания",
                     "type": "object",
                     "additionalProperties": {
                         "type": "boolean"
                     }
                 },
                 "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.UserStatistics": {
+            "type": "object",
+            "properties": {
+                "average_score": {
+                    "type": "number"
+                },
+                "completed_courses": {
+                    "type": "integer"
+                },
+                "completed_tasks": {
+                    "type": "integer"
+                },
+                "courses_progress": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "average_score": {
+                                "type": "number"
+                            },
+                            "completion_percentage": {
+                                "type": "number"
+                            },
+                            "course_id": {
+                                "type": "integer"
+                            },
+                            "course_name": {
+                                "type": "string"
+                            },
+                            "last_activity": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "joined_date": {
+                    "type": "string"
+                },
+                "last_active": {
+                    "type": "string"
+                },
+                "total_courses": {
+                    "type": "integer"
+                },
+                "total_points": {
+                    "type": "integer"
+                },
+                "total_tasks": {
+                    "type": "integer"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
