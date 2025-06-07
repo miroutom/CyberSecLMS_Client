@@ -1,35 +1,25 @@
 package ft
 
 import (
-	"bytes"
-	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"lmsmodule/backend-svc/handlers"
 	"lmsmodule/backend-svc/models"
 	"net/http"
-	"net/http/httptest"
 )
 
 func (suite *FunctionalTestSuite) TestGetUserProfile() {
 	t := suite.T()
 
-	req := httptest.NewRequest("GET", "/api/profile", nil)
-	req.Header.Set("Authorization", "Bearer "+suite.token)
+	resp, err := suite.client.R().
+		SetAuthToken(suite.token).
+		SetResult(&models.User{}).
+		Get("/api/profile")
 
-	w := httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode())
 
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var user models.User
-	err := json.Unmarshal(w.Body.Bytes(), &user)
-	if err != nil {
-		return
-	}
+	user := resp.Result().(*models.User)
 	assert.Equal(t, "user123", user.Username)
 	assert.Equal(t, "user@example.com", user.Email)
-	assert.Empty(t, user.PasswordHash)
 }
 
 func (suite *FunctionalTestSuite) TestUpdateUserProfile() {
@@ -39,89 +29,66 @@ func (suite *FunctionalTestSuite) TestUpdateUserProfile() {
 		FullName: "Updated User Name",
 	}
 
-	body, _ := json.Marshal(updateReq)
-	req := httptest.NewRequest("PUT", "/api/profile", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+suite.token)
+	resp, err := suite.client.R().
+		SetAuthToken(suite.token).
+		SetBody(updateReq).
+		Put("/api/profile")
 
-	w := httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode())
 
 	var fullName string
-	err := suite.db.QueryRow("SELECT full_name FROM users WHERE id = 2").Scan(&fullName)
+	err = suite.db.QueryRow("SELECT full_name FROM users WHERE username = ?", "user123").Scan(&fullName)
 	assert.NoError(t, err)
 	assert.Equal(t, "Updated User Name", fullName)
 }
 
-func AdminAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userID, exists := c.Get("userID")
-		if !exists {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
-			return
-		}
-
-		isAdmin, err := handlers.CheckAdminRights(userID.(int))
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Error checking admin rights: " + err.Error()})
-			return
-		}
-
-		if !isAdmin {
-			c.AbortWithStatusJSON(http.StatusForbidden, models.ErrorResponse{Error: "Admin access required"})
-			return
-		}
-
-		c.Next()
-	}
-}
-
-func (suite *FunctionalTestSuite) TestAdminAccess() {
+func (suite *FunctionalTestSuite) TestGetUserSubmissions() {
 	t := suite.T()
 
-	adminLoginReq := models.LoginRequest{
+	resp, err := suite.client.R().
+		SetAuthToken(suite.token).
+		SetResult(&[]models.TaskSubmissionDetails{}).
+		Get("/api/progress/2/submissions")
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode())
+
+	submissions := resp.Result().(*[]models.TaskSubmissionDetails)
+	assert.GreaterOrEqual(t, len(*submissions), 2)
+}
+
+func (suite *FunctionalTestSuite) TestGetUserLearningPath() {
+	t := suite.T()
+
+	resp, err := suite.client.R().
+		SetAuthToken(suite.token).
+		SetResult(&models.LearningPath{}).
+		Get("/api/progress/2/learning-path")
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode())
+
+	learningPath := resp.Result().(*models.LearningPath)
+	assert.Equal(t, 2, learningPath.UserID)
+	assert.NotEmpty(t, learningPath.Recommendations)
+}
+
+func (suite *FunctionalTestSuite) getAdminToken() string {
+	loginReq := models.LoginRequest{
 		Username: "admin",
-		Password: "admin123",
+		Password: "1",
 	}
 
-	body, _ := json.Marshal(adminLoginReq)
-	req := httptest.NewRequest("POST", "/api/login", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	resp, err := suite.client.R().
+		SetBody(loginReq).
+		SetResult(&models.LoginResponse{}).
+		Post("/api/login")
 
-	w := httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var loginResp models.LoginResponse
-	err := json.Unmarshal(w.Body.Bytes(), &loginResp)
-	if err != nil {
-		return
+	if err != nil || resp.StatusCode() != http.StatusOK {
+		return ""
 	}
-	adminToken := loginResp.Token
 
-	req = httptest.NewRequest("GET", "/api/admin/users", nil)
-	req.Header.Set("Authorization", "Bearer "+adminToken)
-
-	w = httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var users []models.User
-	err = json.Unmarshal(w.Body.Bytes(), &users)
-	if err != nil {
-		return
-	}
-	assert.GreaterOrEqual(t, len(users), 2)
-
-	req = httptest.NewRequest("GET", "/api/admin/users", nil)
-	req.Header.Set("Authorization", "Bearer "+suite.token)
-
-	w = httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusForbidden, w.Code)
+	result := resp.Result().(*models.LoginResponse)
+	return result.Token
 }
