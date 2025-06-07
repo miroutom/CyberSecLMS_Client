@@ -2,7 +2,6 @@ package discovery
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +17,8 @@ type ServiceDiscovery struct {
 	servicesMutex  sync.RWMutex
 	fallbackConfig *utils.Config
 	logger         *logger.Logger
+	currentIndex   map[string]int
+	indexMutex     sync.Mutex
 }
 
 func NewServiceDiscovery(config *utils.Config, logger *logger.Logger) (*ServiceDiscovery, error) {
@@ -27,6 +28,7 @@ func NewServiceDiscovery(config *utils.Config, logger *logger.Logger) (*ServiceD
 		services:       make(map[string][]string),
 		fallbackConfig: config,
 		logger:         logger,
+		currentIndex:   make(map[string]int),
 	}
 
 	go sd.refreshServices()
@@ -44,9 +46,9 @@ func (sd *ServiceDiscovery) refreshServices() {
 		}
 
 		sd.servicesMutex.Lock()
-		for k := range sd.services {
-			sd.services[k] = []string{}
-		}
+
+		oldServices := sd.services
+		newServices := make(map[string][]string)
 
 		for _, app := range apps {
 			serviceName := strings.ToUpper(app.Name)
@@ -54,11 +56,24 @@ func (sd *ServiceDiscovery) refreshServices() {
 			for _, instance := range app.Instances {
 				if instance.Status == fargo.UP {
 					url := fmt.Sprintf("http://%s:%d", instance.IPAddr, instance.Port)
-					sd.services[serviceName] = append(sd.services[serviceName], url)
+					newServices[serviceName] = append(newServices[serviceName], url)
 					sd.logger.Debug("Discovered instance of %s at %s", serviceName, url)
 				}
 			}
 		}
+
+		sd.indexMutex.Lock()
+		for serviceName, instances := range newServices {
+			if len(instances) > 0 {
+				if _, exists := sd.currentIndex[serviceName]; !exists ||
+					len(oldServices[serviceName]) != len(instances) {
+					sd.currentIndex[serviceName] = 0
+				}
+			}
+		}
+		sd.indexMutex.Unlock()
+
+		sd.services = newServices
 		sd.servicesMutex.Unlock()
 
 		time.Sleep(30 * time.Second)
@@ -69,10 +84,17 @@ func (sd *ServiceDiscovery) GetServiceURL(serviceName string) string {
 	serviceName = strings.ToUpper(serviceName)
 
 	sd.servicesMutex.RLock()
-	defer sd.servicesMutex.RUnlock()
+	urls, ok := sd.services[serviceName]
+	sd.servicesMutex.RUnlock()
 
-	if urls, ok := sd.services[serviceName]; ok && len(urls) > 0 {
-		return urls[rand.Intn(len(urls))]
+	if ok && len(urls) > 0 {
+		sd.indexMutex.Lock()
+		index := sd.currentIndex[serviceName]
+		nextIndex := (index + 1) % len(urls)
+		sd.currentIndex[serviceName] = nextIndex
+		sd.indexMutex.Unlock()
+
+		return urls[index]
 	}
 
 	switch serviceName {
