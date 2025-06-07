@@ -34,7 +34,7 @@ export default {
   computed: {
     icon() {
       switch (this.task.vulnerability) {
-        case "XSS":
+        case "Серверные":
           return require("@/assets/icons/xss-icon.png")
         case "CSRF":
           return require("@/assets/icons/csrf-icon.png")
@@ -44,7 +44,7 @@ export default {
     },
     cardColor() {
       switch (this.task.vulnerability) {
-        case "XSS":
+        case "Серверные":
           return "#F2F2FF"
         case "CSRF":
           return "#F1FFFF"
