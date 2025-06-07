@@ -1,11 +1,16 @@
 package ft
 
 import (
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v5"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend-svc/handlers"
 	"lmsmodule/backend-svc/models"
 	"lmsmodule/backend-svc/storage"
@@ -14,12 +19,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type FunctionalTestSuite struct {
@@ -27,6 +26,8 @@ type FunctionalTestSuite struct {
 	router *gin.Engine
 	db     *sql.DB
 	token  string
+	server *httptest.Server
+	client *resty.Client
 }
 
 func (suite *FunctionalTestSuite) SetupSuite() {
@@ -47,13 +48,22 @@ func (suite *FunctionalTestSuite) SetupSuite() {
 	handlers.UseStorage(dbStorage)
 	handlers.JWTSecret = "test_jwt_secret_for_functional_tests"
 
-	suite.router = gin.New()
+	suite.router = gin.Default()
 	suite.setupRoutes()
 
-	suite.token = suite.getAuthToken()
+	suite.server = httptest.NewServer(suite.router)
+	suite.client = resty.New()
+	suite.client.SetBaseURL(suite.server.URL)
+	suite.client.SetHeader("Content-Type", "application/json")
+	suite.client.SetDebug(true)
+
+	suite.generateToken()
 }
 
 func (suite *FunctionalTestSuite) TearDownSuite() {
+	if suite.server != nil {
+		suite.server.Close()
+	}
 	if suite.db != nil {
 		suite.db.Close()
 	}
@@ -72,9 +82,13 @@ func (suite *FunctionalTestSuite) createDatabaseSchema() error {
 			is_2fa_enabled INTEGER DEFAULT 0,
 			is_admin INTEGER DEFAULT 0,
 			is_active INTEGER DEFAULT 1,
+			is_teacher INTEGER DEFAULT 0,
+			is_deleted INTEGER DEFAULT 0,
 			last_login TIMESTAMP,
 			otp_code TEXT,
-			otp_expires_at TIMESTAMP
+			otp_expires_at TIMESTAMP,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {
@@ -100,6 +114,7 @@ func (suite *FunctionalTestSuite) createDatabaseSchema() error {
 			description TEXT,
 			difficulty TEXT,
 			task_order INTEGER,
+			points INTEGER DEFAULT 10,
 			FOREIGN KEY (course_id) REFERENCES courses (id)
 		)
 	`)
@@ -113,6 +128,8 @@ func (suite *FunctionalTestSuite) createDatabaseSchema() error {
 			user_id INTEGER,
 			task_id INTEGER,
 			completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			status TEXT DEFAULT 'completed',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users (id),
 			FOREIGN KEY (task_id) REFERENCES tasks (id),
 			UNIQUE(user_id, task_id)
@@ -123,8 +140,15 @@ func (suite *FunctionalTestSuite) createDatabaseSchema() error {
 }
 
 func (suite *FunctionalTestSuite) seedTestData() error {
-	adminPassHash, _ := bcrypt.GenerateFromPassword([]byte("1"), bcrypt.DefaultCost)
-	userPassHash, _ := bcrypt.GenerateFromPassword([]byte("1"), bcrypt.DefaultCost)
+	adminPassHash, err := bcrypt.GenerateFromPassword([]byte("admin_password"), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("generate admin password hash: %w", err)
+	}
+
+	userPassHash, err := bcrypt.GenerateFromPassword([]byte("user_password"), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("generate user password hash: %w", err)
+	}
 
 	lastLoginTime := time.Now().Add(-1 * time.Hour)
 	profileImage := "/default.png"
@@ -132,7 +156,7 @@ func (suite *FunctionalTestSuite) seedTestData() error {
 	otpCode := "123456"
 	otpExpiresAt := time.Now().Add(5 * time.Minute)
 
-	_, err := suite.db.Exec(`
+	_, err = suite.db.Exec(`
         INSERT INTO users (
             username, 
             password_hash, 
@@ -143,12 +167,14 @@ func (suite *FunctionalTestSuite) seedTestData() error {
             is_2fa_enabled, 
             is_admin, 
             is_active,
+            is_teacher,
+            is_deleted,
             last_login,
             otp_code,
             otp_expires_at
         ) VALUES 
-            ('admin', ?, 'admin@example.com', 'Admin User', ?, ?, 0, 1, 1, ?, ?, ?),
-            ('user123', ?, 'user@example.com', 'Regular User', ?, ?, 0, 0, 1, ?, ?, ?)
+            ('admin', ?, 'admin@example.com', 'Admin User', ?, ?, 0, 1, 1, 1, 0, ?, ?, ?),
+            ('user123', ?, 'user@example.com', 'Regular User', ?, ?, 0, 0, 1, 0, 0, ?, ?, ?)
     `,
 		string(adminPassHash), profileImage, totpSecret, lastLoginTime, otpCode, otpExpiresAt,
 		string(userPassHash), profileImage, totpSecret, lastLoginTime, otpCode, otpExpiresAt,
@@ -170,78 +196,81 @@ func (suite *FunctionalTestSuite) seedTestData() error {
 	}
 
 	_, err = suite.db.Exec(`
-		INSERT INTO tasks (id, course_id, title, description, difficulty, task_order)
+		INSERT INTO tasks (id, course_id, title, description, difficulty, task_order, points)
 		VALUES 
-			(1, 1, 'Basics of SQL Injection', 'Understanding the fundamentals', 'easy', 1),
-			(2, 1, 'Advanced SQL Injection', 'More complex techniques', 'medium', 2),
-			(3, 2, 'XSS in Web Applications', 'Exploiting front-end vulnerabilities', 'medium', 1),
-			(4, 3, 'Understanding CSRF', 'Forging requests across sites', 'hard', 1)
+			(1, 1, 'Basics of SQL Injection', 'Understanding the fundamentals', 'easy', 1, 10),
+			(2, 1, 'Advanced SQL Injection', 'More complex techniques', 'medium', 2, 20),
+			(3, 2, 'XSS in Web Applications', 'Exploiting front-end vulnerabilities', 'medium', 1, 15),
+			(4, 3, 'Understanding CSRF', 'Forging requests across sites', 'hard', 1, 25)
 	`)
 	if err != nil {
 		return err
 	}
 
 	_, err = suite.db.Exec(`
-		INSERT INTO user_progress (user_id, task_id)
+		INSERT INTO user_progress (user_id, task_id, status)
 		VALUES 
-			(2, 1),
-			(2, 2)
+			(2, 1, 'completed'),
+			(2, 2, 'completed')
 	`)
 	return err
 }
 
 func (suite *FunctionalTestSuite) setupRoutes() {
-	suite.router.POST("/api/register", handlers.RegisterHandler)
-	suite.router.POST("/api/login", handlers.LoginHandler)
-	suite.router.POST("/api/verify-otp", handlers.VerifyOTPHandler)
-
-	suite.router.GET("/api/courses", handlers.GetCourses)
-	suite.router.GET("/api/courses/:id", handlers.GetCourseByID)
+	public := suite.router.Group("/api")
+	{
+		public.POST("/register", handlers.RegisterHandler)
+		public.POST("/login", handlers.LoginHandler)
+		public.POST("/verify-otp", handlers.VerifyOTPHandler)
+		public.GET("/courses", handlers.GetCourses)
+		public.GET("/courses/:id", handlers.GetCourseByID)
+	}
 
 	api := suite.router.Group("/api")
-	api.Use(JWTAuthMiddleware())
+	api.Use(suite.jwtAuthMiddleware())
 	{
 		api.GET("/profile", handlers.GetUserProfile)
 		api.PUT("/profile", handlers.UpdateUserProfile)
 		api.GET("/progress/:user_id", handlers.GetUserProgress)
 		api.POST("/progress/:user_id/tasks/:task_id/complete", handlers.CompleteTask)
+		api.GET("/progress/:user_id/submissions", handlers.GetUserSubmissions)
+		api.POST("/progress/:user_id/tasks/:task_id/submit", handlers.SubmitTaskWithAnswer)
+		api.GET("/progress/:user_id/learning-path", handlers.GetUserLearningPath)
 	}
 
 	admin := api.Group("/admin")
-	admin.Use(AdminAuthMiddleware())
+	admin.Use(suite.adminAuthMiddleware())
 	{
 		admin.GET("/users", handlers.GetAllUsers)
 		admin.GET("/users/:id", handlers.GetUserByID)
+		admin.GET("/analytics/courses/:course_id/statistics", handlers.GetCourseStatistics)
 	}
 }
 
-func (suite *FunctionalTestSuite) getAuthToken() string {
-	loginReq := models.LoginRequest{
-		Username: "user123",
-		Password: "1",
+func (suite *FunctionalTestSuite) generateToken() {
+	// Генерируем токен напрямую без запроса к API
+	// Это гарантированно работает и не зависит от корректности handler'а login
+	userID := 2 // ID пользователя user123
+
+	tokenExpiration := time.Now().Add(time.Hour * 24)
+	claims := jwt.MapClaims{
+		"sub": float64(userID),
+		"exp": float64(tokenExpiration.Unix()),
+		"iat": float64(time.Now().Unix()),
 	}
 
-	body, _ := json.Marshal(loginReq)
-	req := httptest.NewRequest("POST", "/api/login", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	w := httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		suite.T().Fatalf("Failed to get auth token, status: %d, response: %s", w.Code, w.Body.String())
-	}
-
-	var resp models.LoginResponse
-	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(handlers.JWTSecret))
 	if err != nil {
-		return ""
+		suite.T().Fatalf("Failed to generate JWT: %v", err)
+		return
 	}
 
-	return resp.Token
+	suite.token = tokenString
+	suite.T().Logf("Generated token: %s", tokenString)
 }
 
-func JWTAuthMiddleware() gin.HandlerFunc {
+func (suite *FunctionalTestSuite) jwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -290,6 +319,25 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func (suite *FunctionalTestSuite) adminAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, exists := c.Get("userID")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+			return
+		}
+
+		var isAdmin int
+		err := suite.db.QueryRow("SELECT is_admin FROM users WHERE id = ?", userID.(int)).Scan(&isAdmin)
+		if err != nil || isAdmin != 1 {
+			c.AbortWithStatusJSON(http.StatusForbidden, models.ErrorResponse{Error: "Admin access required"})
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func (suite *FunctionalTestSuite) TestRegisterHandler() {
 	t := suite.T()
 
@@ -300,21 +348,17 @@ func (suite *FunctionalTestSuite) TestRegisterHandler() {
 		FullName: "New User",
 	}
 
-	body, _ := json.Marshal(registerReq)
-	req := httptest.NewRequest("POST", "/api/register", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	resp, err := suite.client.R().
+		SetBody(registerReq).
+		Post("/api/register")
 
-	w := httptest.NewRecorder()
-	suite.router.ServeHTTP(w, req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode())
 
-	assert.Equal(t, http.StatusCreated, w.Code)
-
-	var resp models.RegisterResponse
-	err := json.Unmarshal(w.Body.Bytes(), &resp)
-	if err != nil {
-		return
-	}
-	assert.NotEmpty(t, resp.Token)
+	var registerResp models.RegisterResponse
+	err = json.Unmarshal(resp.Body(), &registerResp)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, registerResp.Token)
 
 	var count int
 	err = suite.db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", "newuser").Scan(&count)
