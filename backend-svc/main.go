@@ -51,6 +51,18 @@ func main() {
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, database)
 	}
 
+	handlers.JWTSecret = os.Getenv("JWT_SECRET")
+	if handlers.JWTSecret == "" {
+		handlers.JWTSecret = "mock_JWT"
+		log.Fatal("JWT secret not provided")
+	}
+
+	handlers.TempJWTSecret = os.Getenv("TEMP_JWT_SECRET")
+	if handlers.TempJWTSecret == "" {
+		handlers.TempJWTSecret = "mock_JWT"
+		log.Fatal("JWT secret not provided")
+	}
+
 	var useMockData = false
 
 	db, err := sql.Open("mysql", dsn)

@@ -7,9 +7,10 @@ import (
 
 // Глобальные переменные
 var (
-	Db        *sql.DB
-	Store     storage.Storage
-	JWTSecret = "your_strong_secret_here"
+	Db            *sql.DB
+	Store         storage.Storage
+	JWTSecret     = "your_strong_secret_here"
+	TempJWTSecret = "temp_2fa_secret_here"
 )
 
 // UseStorage устанавливает хранилище для обработчиков
