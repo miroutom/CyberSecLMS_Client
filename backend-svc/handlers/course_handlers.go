@@ -5,6 +5,7 @@ import (
 	"lmsmodule/backend-svc/models"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // GetCourses
@@ -97,7 +98,6 @@ func CompleteTask(c *gin.Context) {
 		return
 	}
 
-	// Проверка прав доступа - пользователь может отмечать только свои задания
 	currentUserID, exists := c.Get("userID")
 	if !exists || userID != currentUserID.(int) {
 		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Access denied"})
@@ -115,6 +115,191 @@ func CompleteTask(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.SuccessResponse{Message: "Task completed successfully"})
+}
+
+// SubmitTaskWithAnswer
+// @Summary Submit task with answer for grading
+// @Tags Progress
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Param task_id path int true "Task ID"
+// @Param submission body models.TaskSubmission true "Task submission"
+// @Success 200 {object} models.TaskSubmissionResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /progress/{user_id}/tasks/{task_id}/submit [post]
+func SubmitTaskWithAnswer(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID"})
+		return
+	}
+
+	taskID, err := strconv.Atoi(c.Param("task_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid task ID"})
+		return
+	}
+
+	currentUserID, exists := c.Get("userID")
+	if !exists || userID != currentUserID.(int) {
+		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Access denied"})
+		return
+	}
+
+	var submission models.TaskSubmission
+	if err := c.BindJSON(&submission); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid submission data"})
+		return
+	}
+
+	submission.UserID = userID
+	submission.TaskID = taskID
+	submission.SubmittedAt = time.Now()
+
+	result, err := Store.SubmitTaskAnswer(submission)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to submit task: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// GetUserSubmissions
+// @Summary Get all submissions for a user
+// @Tags Progress
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {array} models.TaskSubmissionDetails
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /progress/{user_id}/submissions [get]
+func GetUserSubmissions(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID"})
+		return
+	}
+
+	currentUserID, exists := c.Get("userID")
+	isAdmin, _ := CheckAdminRights(currentUserID.(int))
+	if !exists || (userID != currentUserID.(int) && !isAdmin) {
+		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Access denied"})
+		return
+	}
+
+	submissions, err := Store.GetUserSubmissions(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve submissions: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, submissions)
+}
+
+// GetCourseStatistics
+// @Summary Get statistics for a course
+// @Tags Analytics
+// @Produce json
+// @Param course_id path int true "Course ID"
+// @Success 200 {object} models.CourseStatistics
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /analytics/courses/{course_id}/statistics [get]
+func GetCourseStatistics(c *gin.Context) {
+	courseID, err := strconv.Atoi(c.Param("course_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid course ID"})
+		return
+	}
+
+	isAdmin, err := CheckAdminRights(c.GetInt("userID"))
+	if err != nil || !isAdmin {
+		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Only administrators can view course statistics"})
+		return
+	}
+
+	stats, err := Store.GetCourseStatistics(courseID)
+	if err != nil {
+		if err.Error() == "course not found" {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Course not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve course statistics: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
+}
+
+// GetUserStatistics
+// @Summary Get learning statistics for a user
+// @Tags Analytics
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {object} models.UserStatistics
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /analytics/users/{user_id}/statistics [get]
+func GetUserStatistics(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID"})
+		return
+	}
+
+	currentUserID, exists := c.Get("userID")
+	isAdmin, _ := CheckAdminRights(currentUserID.(int))
+	if !exists || (userID != currentUserID.(int) && !isAdmin) {
+		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Access denied"})
+		return
+	}
+
+	stats, err := Store.GetUserStatistics(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve user statistics: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
+}
+
+// GetUserLearningPath
+// @Summary Get personalized learning path for a user
+// @Tags Progress
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {object} models.LearningPath
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /progress/{user_id}/learning-path [get]
+func GetUserLearningPath(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID"})
+		return
+	}
+
+	currentUserID, exists := c.Get("userID")
+	if !exists || userID != currentUserID.(int) {
+		c.JSON(http.StatusForbidden, models.ErrorResponse{Error: "Access denied"})
+		return
+	}
+
+	learningPath, err := Store.GetUserLearningPath(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve learning path: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, learningPath)
 }
 
 // CreateCourse

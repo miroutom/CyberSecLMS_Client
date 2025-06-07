@@ -61,7 +61,7 @@ func NewServer(config *utils.Config, logger *logger.Logger) *Server {
 }
 
 func (s *Server) setupRoutes() {
-	SetupRoutes(s.Router, s.Config, s.Logger, s.ProxyRequest)
+	SetupRoutes(s.Router, s.ProxyRequest)
 	s.setupScalingRoutes()
 }
 
@@ -145,7 +145,7 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 		proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
 			s.Metrics.RecordError(targetServiceName)
 			s.Logger.Error("Proxy error: %v", err)
-			circuitBreaker.Failure() // Регистрация ошибки в Circuit Breaker
+			circuitBreaker.Failure()
 			rw.WriteHeader(http.StatusBadGateway)
 			_, _ = rw.Write([]byte("Service unavailable"))
 		}
@@ -156,10 +156,10 @@ func (s *Server) ProxyRequest(targetServiceName string) gin.HandlerFunc {
 		s.Metrics.RecordResponseTime(targetServiceName, duration)
 
 		if c.Writer.Status() >= 500 {
-			circuitBreaker.Failure() // Регистрация ошибки при HTTP 5xx
+			circuitBreaker.Failure()
 			s.Metrics.RecordError(targetServiceName)
 		} else {
-			circuitBreaker.Success() // Регистрация успешного запроса
+			circuitBreaker.Success()
 		}
 	}
 }

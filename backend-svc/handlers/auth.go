@@ -14,10 +14,6 @@ import (
 	"time"
 )
 
-const (
-	tempJWTSecret = "temp_2fa_secret_here"
-)
-
 // @Summary Register new user
 // @Tags Authentication
 // @Accept json
@@ -302,12 +298,12 @@ func CreateTempToken(userID int) (string, error) {
 		"sub": userID,
 		"exp": time.Now().Add(5 * time.Minute).Unix(),
 	})
-	return token.SignedString([]byte(tempJWTSecret))
+	return token.SignedString([]byte(TempJWTSecret))
 }
 
 func validateTempToken(tokenString string) (int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(tempJWTSecret), nil
+		return []byte(TempJWTSecret), nil
 	})
 	if err != nil || !token.Valid {
 		return 0, errors.New("invalid token")
@@ -327,9 +323,9 @@ func createJWTToken(userID int) (string, error) {
 	now := time.Now()
 
 	claims := jwt.MapClaims{
-		"sub": userID,                             // Кому принадлежит токен
-		"iat": now.Unix(),                         // Когда был выдан
-		"exp": now.Add(7 * 24 * time.Hour).Unix(), // Когда истекает
+		"sub": userID,
+		"iat": now.Unix(),
+		"exp": now.Add(7 * 24 * time.Hour).Unix(),
 	}
 
 	log.Printf("Creating token for user %d, expires at: %v",

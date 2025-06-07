@@ -51,6 +51,18 @@ func main() {
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, database)
 	}
 
+	handlers.JWTSecret = os.Getenv("JWT_SECRET")
+	if handlers.JWTSecret == "" {
+		handlers.JWTSecret = "mock_JWT"
+		log.Fatal("JWT secret not provided")
+	}
+
+	handlers.TempJWTSecret = os.Getenv("TEMP_JWT_SECRET")
+	if handlers.TempJWTSecret == "" {
+		handlers.TempJWTSecret = "mock_JWT"
+		log.Fatal("JWT secret not provided")
+	}
+
 	var useMockData = false
 
 	db, err := sql.Open("mysql", dsn)
@@ -193,6 +205,9 @@ func main() {
 		api.GET("/courses/:id", handlers.GetCourseByID)
 		api.GET("/progress/:user_id", handlers.GetUserProgress)
 		api.POST("/progress/:user_id/tasks/:task_id/complete", handlers.CompleteTask)
+		api.GET("/progress/:user_id/submissions", handlers.GetUserSubmissions)
+		api.POST("/progress/:user_id/tasks/:task_id/submit", handlers.SubmitTaskWithAnswer)
+		api.GET("/progress/:user_id/learning-path", handlers.GetUserLearningPath)
 
 		api.GET("/profile", handlers.GetUserProfile)
 		api.PUT("/profile", handlers.UpdateUserProfile)
@@ -206,6 +221,11 @@ func main() {
 			account.POST("/delete/confirm", handlers.ConfirmDeleteAccount)
 		}
 
+		analytics := api.Group("/analytics")
+		{
+			analytics.GET("/users/:user_id/statistics", handlers.GetUserStatistics)
+		}
+
 		teacher := api.Group("/teacher")
 		teacher.Use(TeacherAuthMiddleware())
 		{
@@ -215,6 +235,7 @@ func main() {
 			teacher.POST("/courses/:course_id/tasks", handlers.CreateTask)
 			teacher.PUT("/courses/:course_id/tasks/:task_id", handlers.UpdateTask)
 			teacher.DELETE("/courses/:course_id/tasks/:task_id", handlers.DeleteTask)
+			teacher.GET("/courses/:id/statistics", handlers.GetCourseStatistics)
 		}
 
 		admin := api.Group("/admin")
@@ -229,6 +250,7 @@ func main() {
 			admin.PUT("/users/:id/status", handlers.UpdateUserStatus)
 			admin.POST("/users/:id/promote", handlers.PromoteToAdmin)
 			admin.POST("/users/:id/demote", handlers.DemoteFromAdmin)
+			admin.GET("/analytics/courses/:course_id/statistics", handlers.GetCourseStatistics)
 		}
 	}
 

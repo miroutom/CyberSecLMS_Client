@@ -40,6 +40,13 @@ type Storage interface {
 	CreateTask(courseID int, task models.Task) (models.Task, error)
 	UpdateTask(courseID, taskID int, task models.Task) (models.Task, error)
 	DeleteTask(courseID, taskID int) error
+
+	SubmitTaskAnswer(submission models.TaskSubmission) (models.TaskSubmissionResponse, error)
+	GetUserSubmissions(userID int) ([]models.TaskSubmissionDetails, error)
+	GetCourseStatistics(courseID int) (models.CourseStatistics, error)
+	GetUserStatistics(userID int) (models.UserStatistics, error)
+	GetLeaderboard(courseID int, limit int) ([]models.LeaderboardEntry, error)
+	GetUserLearningPath(userID int) (models.LearningPath, error)
 }
 
 // DBStorage имплементирует Storage используя реальную базу данных

@@ -943,6 +943,524 @@ func (s *DBStorage) CompleteTask(userID, taskID int) error {
 	return nil
 }
 
+func (s *DBStorage) SubmitTaskAnswer(submission models.TaskSubmission) (models.TaskSubmissionResponse, error) {
+	err := s.CompleteTask(submission.UserID, submission.TaskID)
+	if err != nil {
+		return models.TaskSubmissionResponse{}, fmt.Errorf("complete task: %w", err)
+	}
+
+	return models.TaskSubmissionResponse{
+		SubmissionID: 0,
+		TaskID:       submission.TaskID,
+		Status:       "completed",
+		SubmittedAt:  submission.SubmittedAt,
+		Message:      "Task marked as completed",
+	}, nil
+}
+
+func (s *DBStorage) GetUserSubmissions(userID int) ([]models.TaskSubmissionDetails, error) {
+	stmt, err := s.DB.Prepare(`
+		SELECT 
+			t.id, t.title, t.course_id, c.vulnerability_type, up.created_at
+		FROM user_progress up
+		JOIN tasks t ON up.task_id = t.id
+		JOIN courses c ON t.course_id = c.id
+		WHERE up.user_id = ?
+		ORDER BY up.created_at DESC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(userID)
+	if err != nil {
+		return nil, fmt.Errorf("execute query: %w", err)
+	}
+	defer rows.Close()
+
+	var submissions []models.TaskSubmissionDetails
+	for rows.Next() {
+		var submission models.TaskSubmissionDetails
+		var submittedAt time.Time
+
+		if err := rows.Scan(
+			&submission.TaskID,
+			&submission.TaskTitle,
+			&submission.CourseID,
+			&submission.CourseName,
+			&submittedAt,
+		); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
+		}
+
+		submission.SubmissionID = submission.TaskID
+		submission.SubmittedAt = submittedAt
+		submission.Status = "completed"
+
+		submissions = append(submissions, submission)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate rows: %w", err)
+	}
+
+	return submissions, nil
+}
+
+func (s *DBStorage) GetCourseStatistics(courseID int) (models.CourseStatistics, error) {
+	var stats models.CourseStatistics
+	stats.CourseID = courseID
+
+	err := s.DB.QueryRow("SELECT vulnerability_type FROM courses WHERE id = ?", courseID).Scan(&stats.CourseName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return stats, errors.New("course not found")
+		}
+		return stats, fmt.Errorf("get course name: %w", err)
+	}
+
+	err = s.DB.QueryRow(`
+		SELECT 
+			COUNT(DISTINCT up.user_id) as enrolled_students,
+			COUNT(DISTINCT CASE WHEN (
+				SELECT COUNT(*) FROM tasks WHERE course_id = ?
+			) = (
+				SELECT COUNT(*) FROM user_progress up2 
+				JOIN tasks t2 ON up2.task_id = t2.id 
+				WHERE t2.course_id = ? AND up2.user_id = up.user_id
+			) THEN up.user_id ELSE NULL END) as completed_students
+		FROM user_progress up
+		JOIN tasks t ON up.task_id = t.id
+		WHERE t.course_id = ?
+	`, courseID, courseID, courseID).Scan(
+		&stats.EnrolledStudents,
+		&stats.CompletedStudents,
+	)
+	if err != nil {
+		return stats, fmt.Errorf("get course stats: %w", err)
+	}
+
+	if stats.EnrolledStudents > 0 {
+		stats.AverageCompletion = float64(stats.CompletedStudents) / float64(stats.EnrolledStudents) * 100
+	}
+
+	taskStmt, err := s.DB.Prepare(`
+		SELECT 
+			t.id, t.title,
+			COUNT(DISTINCT up.user_id) as completed_by
+		FROM tasks t
+		LEFT JOIN user_progress up ON t.id = up.task_id
+		WHERE t.course_id = ?
+		GROUP BY t.id
+	`)
+	if err != nil {
+		return stats, fmt.Errorf("prepare task stats statement: %w", err)
+	}
+	defer taskStmt.Close()
+
+	taskRows, err := taskStmt.Query(courseID)
+	if err != nil {
+		return stats, fmt.Errorf("execute task stats query: %w", err)
+	}
+	defer taskRows.Close()
+
+	stats.TaskCompletionRates = []struct {
+		TaskID       int     `json:"task_id"`
+		TaskTitle    string  `json:"task_title"`
+		CompletedBy  int     `json:"completed_by"`
+		SuccessRate  float64 `json:"success_rate"`
+		AverageScore float64 `json:"average_score"`
+	}{}
+
+	for taskRows.Next() {
+		var taskStat struct {
+			TaskID       int     `json:"task_id"`
+			TaskTitle    string  `json:"task_title"`
+			CompletedBy  int     `json:"completed_by"`
+			SuccessRate  float64 `json:"success_rate"`
+			AverageScore float64 `json:"average_score"`
+		}
+		if err := taskRows.Scan(
+			&taskStat.TaskID,
+			&taskStat.TaskTitle,
+			&taskStat.CompletedBy,
+		); err != nil {
+			return stats, fmt.Errorf("scan task stats row: %w", err)
+		}
+
+		if stats.EnrolledStudents > 0 {
+			taskStat.SuccessRate = float64(taskStat.CompletedBy) / float64(stats.EnrolledStudents) * 100
+		}
+		stats.TaskCompletionRates = append(stats.TaskCompletionRates, taskStat)
+	}
+
+	if err := taskRows.Err(); err != nil {
+		return stats, fmt.Errorf("iterate task stats rows: %w", err)
+	}
+
+	studentStmt, err := s.DB.Prepare(`
+		SELECT 
+			u.id, u.username,
+			COUNT(DISTINCT CASE WHEN t.course_id = ? THEN up.task_id ELSE NULL END) as completed_tasks,
+			(SELECT COUNT(*) FROM tasks WHERE course_id = ?) as total_tasks,
+			MAX(up.created_at) as last_activity
+		FROM users u
+		JOIN user_progress up ON u.id = up.user_id
+		JOIN tasks t ON up.task_id = t.id
+		WHERE u.is_deleted = 0
+		GROUP BY u.id
+		HAVING completed_tasks > 0
+		ORDER BY completed_tasks DESC
+	`)
+	if err != nil {
+		return stats, fmt.Errorf("prepare student progress statement: %w", err)
+	}
+	defer studentStmt.Close()
+
+	studentRows, err := studentStmt.Query(courseID, courseID)
+	if err != nil {
+		return stats, fmt.Errorf("execute student progress query: %w", err)
+	}
+	defer studentRows.Close()
+
+	stats.StudentsProgress = []struct {
+		UserID            int     `json:"user_id"`
+		Username          string  `json:"username"`
+		CompletionPercent float64 `json:"completion_percentage"`
+		AverageScore      float64 `json:"average_score"`
+		LastActivity      string  `json:"last_activity"`
+	}{}
+
+	for studentRows.Next() {
+		var studentProgress struct {
+			UserID            int     `json:"user_id"`
+			Username          string  `json:"username"`
+			CompletionPercent float64 `json:"completion_percentage"`
+			AverageScore      float64 `json:"average_score"`
+			LastActivity      string  `json:"last_activity"`
+		}
+		var completedTasks, totalTasks int
+		var lastActivity time.Time
+
+		if err := studentRows.Scan(
+			&studentProgress.UserID,
+			&studentProgress.Username,
+			&completedTasks,
+			&totalTasks,
+			&lastActivity,
+		); err != nil {
+			return stats, fmt.Errorf("scan student progress row: %w", err)
+		}
+
+		if totalTasks > 0 {
+			studentProgress.CompletionPercent = float64(completedTasks) / float64(totalTasks) * 100
+		}
+		studentProgress.LastActivity = lastActivity.Format("2006-01-02 15:04:05")
+
+		stats.StudentsProgress = append(stats.StudentsProgress, studentProgress)
+	}
+
+	if err := studentRows.Err(); err != nil {
+		return stats, fmt.Errorf("iterate student progress rows: %w", err)
+	}
+
+	return stats, nil
+}
+
+func (s *DBStorage) GetUserStatistics(userID int) (models.UserStatistics, error) {
+	var stats models.UserStatistics
+	stats.UserID = userID
+
+	err := s.DB.QueryRow(`
+		SELECT
+			(SELECT COUNT(DISTINCT course_id) FROM tasks t JOIN user_progress up ON t.id = up.task_id WHERE up.user_id = ?) as total_courses,
+			(SELECT COUNT(DISTINCT course_id) FROM (
+				SELECT t.course_id, COUNT(t.id) as total_tasks, COUNT(up.task_id) as completed_tasks
+				FROM tasks t
+				LEFT JOIN user_progress up ON t.id = up.task_id AND up.user_id = ?
+				GROUP BY t.course_id
+				HAVING total_tasks = completed_tasks AND total_tasks > 0
+			) as completed_courses) as completed_courses,
+			(SELECT COUNT(*) FROM tasks) as total_tasks,
+			(SELECT COUNT(*) FROM user_progress WHERE user_id = ?) as completed_tasks,
+			u.created_at as joined_date,
+			IFNULL((SELECT MAX(created_at) FROM user_progress WHERE user_id = ?), u.created_at) as last_active
+		FROM users u
+		WHERE u.id = ? AND u.is_deleted = 0
+	`, userID, userID, userID, userID, userID).Scan(
+		&stats.TotalCourses,
+		&stats.CompletedCourses,
+		&stats.TotalTasks,
+		&stats.CompletedTasks,
+		&stats.JoinedDate,
+		&stats.LastActive,
+	)
+	if err != nil {
+		return stats, fmt.Errorf("get user stats: %w", err)
+	}
+
+	courseStmt, err := s.DB.Prepare(`
+		SELECT 
+			c.id, c.vulnerability_type,
+			COUNT(DISTINCT up.task_id) as completed_tasks,
+			(SELECT COUNT(*) FROM tasks WHERE course_id = c.id) as total_tasks,
+			MAX(up.created_at) as last_activity
+		FROM courses c
+		JOIN tasks t ON c.id = t.course_id
+		JOIN user_progress up ON t.id = up.task_id
+		WHERE up.user_id = ?
+		GROUP BY c.id
+		ORDER BY last_activity DESC
+	`)
+	if err != nil {
+		return stats, fmt.Errorf("prepare course progress statement: %w", err)
+	}
+	defer courseStmt.Close()
+
+	courseRows, err := courseStmt.Query(userID)
+	if err != nil {
+		return stats, fmt.Errorf("execute course progress query: %w", err)
+	}
+	defer courseRows.Close()
+
+	stats.CoursesProgress = []struct {
+		CourseID          int     `json:"course_id"`
+		CourseName        string  `json:"course_name"`
+		CompletionPercent float64 `json:"completion_percentage"`
+		AverageScore      float64 `json:"average_score"`
+		LastActivity      string  `json:"last_activity"`
+	}{}
+
+	for courseRows.Next() {
+		var courseProgress struct {
+			CourseID          int     `json:"course_id"`
+			CourseName        string  `json:"course_name"`
+			CompletionPercent float64 `json:"completion_percentage"`
+			AverageScore      float64 `json:"average_score"`
+			LastActivity      string  `json:"last_activity"`
+		}
+		var completedTasks, totalTasks int
+		var lastActivity time.Time
+
+		if err := courseRows.Scan(
+			&courseProgress.CourseID,
+			&courseProgress.CourseName,
+			&completedTasks,
+			&totalTasks,
+			&lastActivity,
+		); err != nil {
+			return stats, fmt.Errorf("scan course progress row: %w", err)
+		}
+
+		if totalTasks > 0 {
+			courseProgress.CompletionPercent = float64(completedTasks) / float64(totalTasks) * 100
+		}
+		courseProgress.LastActivity = lastActivity.Format("2006-01-02 15:04:05")
+
+		stats.CoursesProgress = append(stats.CoursesProgress, courseProgress)
+	}
+
+	if err := courseRows.Err(); err != nil {
+		return stats, fmt.Errorf("iterate course progress rows: %w", err)
+	}
+
+	return stats, nil
+}
+
+func (s *DBStorage) GetLeaderboard(courseID int, limit int) ([]models.LeaderboardEntry, error) {
+	courseFilter := ""
+	params := []interface{}{}
+
+	if courseID > 0 {
+		courseFilter = "AND t.course_id = ?"
+		params = append(params, courseID)
+	}
+
+	query := fmt.Sprintf(`
+		SELECT 
+			ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT up.task_id) DESC) as position,
+			u.id, u.username,
+			COUNT(DISTINCT up.task_id) * 10 as points,
+			COUNT(DISTINCT up.task_id) as completed_tasks
+		FROM users u
+		JOIN user_progress up ON u.id = up.user_id
+		JOIN tasks t ON up.task_id = t.id
+		WHERE u.is_deleted = 0 %s
+		GROUP BY u.id
+		ORDER BY points DESC
+		LIMIT ?
+	`, courseFilter)
+
+	params = append(params, limit)
+
+	stmt, err := s.DB.Prepare(query)
+	if err != nil {
+		return nil, fmt.Errorf("prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(params...)
+	if err != nil {
+		return nil, fmt.Errorf("execute query: %w", err)
+	}
+	defer rows.Close()
+
+	var leaderboard []models.LeaderboardEntry
+	for rows.Next() {
+		var entry models.LeaderboardEntry
+		if err := rows.Scan(
+			&entry.Position,
+			&entry.UserID,
+			&entry.Username,
+			&entry.Points,
+			&entry.Completed,
+		); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
+		}
+		leaderboard = append(leaderboard, entry)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate rows: %w", err)
+	}
+
+	return leaderboard, nil
+}
+
+func (s *DBStorage) GetUserLearningPath(userID int) (models.LearningPath, error) {
+	var path models.LearningPath
+	path.UserID = userID
+	path.GeneratedAt = time.Now()
+
+	recStmt, err := s.DB.Prepare(`
+		SELECT 
+			c.id, c.vulnerability_type,
+			CASE 
+				WHEN NOT EXISTS (
+					SELECT 1 FROM user_progress up 
+					JOIN tasks t ON up.task_id = t.id 
+					WHERE up.user_id = ? AND t.course_id = c.id
+				) THEN 3
+				WHEN (
+					SELECT COUNT(*) FROM tasks WHERE course_id = c.id
+				) > (
+					SELECT COUNT(*) FROM user_progress up 
+					JOIN tasks t ON up.task_id = t.id 
+					WHERE up.user_id = ? AND t.course_id = c.id
+				) THEN 2
+				ELSE 1
+			END as priority,
+			CASE 
+				WHEN NOT EXISTS (
+					SELECT 1 FROM user_progress up 
+					JOIN tasks t ON up.task_id = t.id 
+					WHERE up.user_id = ? AND t.course_id = c.id
+				) THEN 'New recommended course'
+				ELSE 'Continue your progress'
+			END as reason
+		FROM courses c
+		ORDER BY priority DESC, c.id
+		LIMIT 3
+	`)
+	if err != nil {
+		return path, fmt.Errorf("prepare recommendations statement: %w", err)
+	}
+	defer recStmt.Close()
+
+	recRows, err := recStmt.Query(userID, userID, userID)
+	if err != nil {
+		return path, fmt.Errorf("execute recommendations query: %w", err)
+	}
+	defer recRows.Close()
+
+	path.Recommendations = []struct {
+		CourseID      int    `json:"course_id"`
+		CourseName    string `json:"course_name"`
+		Priority      int    `json:"priority"`
+		Reason        string `json:"reason"`
+		EstimatedTime string `json:"estimated_time"`
+	}{}
+
+	for recRows.Next() {
+		var rec struct {
+			CourseID      int    `json:"course_id"`
+			CourseName    string `json:"course_name"`
+			Priority      int    `json:"priority"`
+			Reason        string `json:"reason"`
+			EstimatedTime string `json:"estimated_time"`
+		}
+		if err := recRows.Scan(
+			&rec.CourseID,
+			&rec.CourseName,
+			&rec.Priority,
+			&rec.Reason,
+		); err != nil {
+			return path, fmt.Errorf("scan recommendation row: %w", err)
+		}
+
+		rec.EstimatedTime = "Based on course size"
+		path.Recommendations = append(path.Recommendations, rec)
+	}
+
+	taskStmt, err := s.DB.Prepare(`
+		SELECT 
+			t.id, t.title, t.course_id, c.vulnerability_type,
+			ROW_NUMBER() OVER (ORDER BY t.task_order) as priority
+		FROM tasks t
+		JOIN courses c ON t.course_id = c.id
+		WHERE NOT EXISTS (
+			SELECT 1 FROM user_progress up
+			WHERE up.user_id = ? AND up.task_id = t.id
+		)
+		ORDER BY c.id, t.task_order
+		LIMIT 5
+	`)
+	if err != nil {
+		return path, fmt.Errorf("prepare next tasks statement: %w", err)
+	}
+	defer taskStmt.Close()
+
+	taskRows, err := taskStmt.Query(userID)
+	if err != nil {
+		return path, fmt.Errorf("execute next tasks query: %w", err)
+	}
+	defer taskRows.Close()
+
+	path.NextTasks = []struct {
+		TaskID     int    `json:"task_id"`
+		TaskTitle  string `json:"task_title"`
+		CourseID   int    `json:"course_id"`
+		CourseName string `json:"course_name"`
+		Priority   int    `json:"priority"`
+		DueDate    string `json:"due_date,omitempty"`
+	}{}
+
+	for taskRows.Next() {
+		var task struct {
+			TaskID     int    `json:"task_id"`
+			TaskTitle  string `json:"task_title"`
+			CourseID   int    `json:"course_id"`
+			CourseName string `json:"course_name"`
+			Priority   int    `json:"priority"`
+			DueDate    string `json:"due_date,omitempty"`
+		}
+		if err := taskRows.Scan(
+			&task.TaskID,
+			&task.TaskTitle,
+			&task.CourseID,
+			&task.CourseName,
+			&task.Priority,
+		); err != nil {
+			return path, fmt.Errorf("scan task row: %w", err)
+		}
+
+		path.NextTasks = append(path.NextTasks, task)
+	}
+
+	return path, nil
+}
+
 // ****** МЕТОДЫ ДЛЯ ПРЕПОДОВАТЕЛЯ ******
 
 func (s *DBStorage) IsTeacher(userID int) (bool, error) {
