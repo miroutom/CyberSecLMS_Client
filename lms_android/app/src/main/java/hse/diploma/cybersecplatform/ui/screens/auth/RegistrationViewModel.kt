@@ -8,6 +8,7 @@ import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isEmailValid
 import hse.diploma.cybersecplatform.utils.isPasswordValid
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -34,6 +35,13 @@ class RegistrationViewModel @Inject constructor(private val authRepo: AuthRepo) 
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _isTeacher = MutableStateFlow(false)
+    val isTeacher: StateFlow<Boolean> = _isTeacher.asStateFlow()
+
+    fun onTeacherStatusChange(isTeacher: Boolean) {
+        _isTeacher.value = isTeacher
+    }
 
     init {
         viewModelScope.launch {
@@ -81,7 +89,17 @@ class RegistrationViewModel @Inject constructor(private val authRepo: AuthRepo) 
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                onResult(authRepo.register(username, password, email, fullName))
+                val result =
+                    authRepo.register(
+                        username = username,
+                        password = password,
+                        email = email,
+                        fullName = fullName,
+                        isTeacher = _isTeacher.value,
+                    )
+                onResult(result)
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
             } finally {
                 _isLoading.value = false
             }

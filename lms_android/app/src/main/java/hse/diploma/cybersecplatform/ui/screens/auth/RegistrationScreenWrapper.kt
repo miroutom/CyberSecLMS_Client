@@ -21,6 +21,7 @@ fun RegistrationScreenWrapper(
             password = viewModel.password.collectAsState().value,
             username = viewModel.username.collectAsState().value,
             fullName = viewModel.fullName.collectAsState().value,
+            isTeacher = viewModel.isTeacher.collectAsState().value,
             passwordConfirmation = viewModel.passwordConfirmation.collectAsState().value,
             isRegistrationEnabled = viewModel.isRegistrationEnabled.collectAsState().value,
             isLoading = viewModel.isLoading.collectAsState().value,
@@ -32,6 +33,7 @@ fun RegistrationScreenWrapper(
         onUsernameChange = viewModel::onUsernameChange,
         onLoginChange = viewModel::onLoginChange,
         onPasswordChange = viewModel::onPasswordChange,
+        onTeacherStatusChange = viewModel::onTeacherStatusChange,
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onRegisterClick = {
             viewModel.register(

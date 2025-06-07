@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -39,12 +41,27 @@ import hse.diploma.cybersecplatform.ui.theme.Montserrat
 fun OnBoardingScreen(
     currentStep: Int,
     onNextPage: () -> Unit,
+    onPageChanged: (Int) -> Unit,
     onSkipClick: () -> Unit,
     onAuthClick: () -> Unit,
     onRegisterClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pagerState = rememberPagerState(initialPage = currentStep)
+
+    LaunchedEffect(currentStep) {
+        if (pagerState.currentPage != currentStep) {
+            pagerState.animateScrollToPage(currentStep)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            if (page != currentStep) {
+                onPageChanged(page)
+            }
+        }
+    }
 
     Box(
         modifier =
@@ -63,7 +80,7 @@ fun OnBoardingScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 CustomStepper(
-                    currentStep = currentStep,
+                    currentStep = pagerState.currentPage,
                     totalSteps = 3,
                     modifier = Modifier.weight(1f),
                 )
@@ -78,7 +95,6 @@ fun OnBoardingScreen(
                 count = 3,
                 state = pagerState,
                 modifier = Modifier.weight(1f),
-                userScrollEnabled = false,
             ) { page ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -168,6 +184,7 @@ private fun OnBoardingScreenPreview() {
     OnBoardingScreen(
         currentStep = 0,
         onNextPage = {},
+        onPageChanged = {},
         onSkipClick = {},
         onAuthClick = {},
         onRegisterClick = {},

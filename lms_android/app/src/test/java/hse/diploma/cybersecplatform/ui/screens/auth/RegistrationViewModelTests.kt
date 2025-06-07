@@ -20,11 +20,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegistrationViewModelTests {
     private val authRepo: AuthRepo = mock()
+
     private lateinit var viewModel: RegistrationViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(StandardTestDispatcher())
+
         viewModel = RegistrationViewModel(authRepo)
     }
 
@@ -34,7 +36,7 @@ class RegistrationViewModelTests {
     }
 
     @Test
-    fun `fields change updates flows`() {
+    fun `when field values are changed, then corresponding flows are updated`() {
         viewModel.onFullNameChange(TextFieldValue(FULL_NAME))
         viewModel.onUsernameChange(TextFieldValue(USERNAME))
         viewModel.onLoginChange(TextFieldValue(EMAIL))
@@ -49,7 +51,7 @@ class RegistrationViewModelTests {
     }
 
     @Test
-    fun `isRegistrationEnabled false for invalid email`() =
+    fun `when email is invalid, then registration is disabled`() =
         runTest {
             viewModel.onLoginChange(TextFieldValue("invalid-email"))
             viewModel.onPasswordChange(TextFieldValue(PASSWORD))
@@ -60,7 +62,7 @@ class RegistrationViewModelTests {
         }
 
     @Test
-    fun `isRegistrationEnabled false for invalid password`() =
+    fun `when password is invalid, then registration is disabled`() =
         runTest {
             viewModel.onLoginChange(TextFieldValue(EMAIL))
             viewModel.onPasswordChange(TextFieldValue("short"))
@@ -71,7 +73,7 @@ class RegistrationViewModelTests {
         }
 
     @Test
-    fun `isRegistrationEnabled false for mismatching passwords`() =
+    fun `when passwords do not match, then registration is disabled`() =
         runTest {
             viewModel.onLoginChange(TextFieldValue(EMAIL))
             viewModel.onPasswordChange(TextFieldValue(PASSWORD))
@@ -82,7 +84,7 @@ class RegistrationViewModelTests {
         }
 
     @Test
-    fun `isRegistrationEnabled true for valid email passwords and match`() =
+    fun `when email and passwords are valid and match, then registration is enabled`() =
         runTest {
             viewModel.onLoginChange(TextFieldValue(EMAIL))
             viewModel.onPasswordChange(TextFieldValue(PASSWORD))

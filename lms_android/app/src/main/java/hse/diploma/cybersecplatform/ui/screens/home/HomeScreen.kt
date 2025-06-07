@@ -2,16 +2,25 @@ package hse.diploma.cybersecplatform.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.mock.mockAllCourses
-import hse.diploma.cybersecplatform.ui.components.SearchBar
+import hse.diploma.cybersecplatform.ui.components.bars.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.BaseCourseCard
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
@@ -32,37 +41,55 @@ fun HomeScreen(
     state: AllCoursesState,
     searchQuery: TextFieldValue,
     onSearchQueryChange: (TextFieldValue) -> Unit,
-    onCourseClick: (String) -> Unit,
+    onCourseClick: (Int) -> Unit,
     onReload: () -> Unit,
+    onCreateCourseClick: () -> Unit,
+    isTeacher: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
-        when (state) {
-            is AllCoursesState.Loading -> LoadingScreen()
-            is AllCoursesState.Success -> {
-                val coursesUiState = state.uiState
+    Box(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            when (state) {
+                is AllCoursesState.Loading -> LoadingScreen()
+                is AllCoursesState.Success -> {
+                    val coursesUiState = state.uiState
 
-                SearchBar(
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = onSearchQueryChange,
-                    enableFiltering = false,
-                    modifier = Modifier.background(colorResource(R.color.background)),
-                )
+                    SearchBar(
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = onSearchQueryChange,
+                        enableFiltering = false,
+                        modifier = Modifier.background(colorResource(R.color.background)),
+                    )
 
-                val coursesToShow =
-                    coursesUiState.filteredCourses.ifEmpty {
-                        coursesUiState.courses
-                    }
-                CoursesContent(
-                    items = coursesToShow,
-                    onCourseClick = onCourseClick,
-                )
+                    val coursesToShow =
+                        coursesUiState.filteredCourses.ifEmpty {
+                            coursesUiState.courses
+                        }
+                    CoursesContent(
+                        items = coursesToShow,
+                        onCourseClick = onCourseClick,
+                    )
+                }
+                is AllCoursesState.Error -> {
+                    ErrorScreen(
+                        errorType = state.errorType,
+                        onReload = onReload,
+                    )
+                }
             }
-            is AllCoursesState.Error -> {
-                ErrorScreen(
-                    errorType = state.errorType,
-                    onReload = onReload,
-                )
+        }
+
+        if (isTeacher) {
+            FloatingActionButton(
+                onClick = onCreateCourseClick,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                containerColor = colorResource(R.color.button_enabled),
+                contentColor = Color.White,
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Create course")
             }
         }
     }
@@ -71,7 +98,7 @@ fun HomeScreen(
 @Composable
 fun CoursesContent(
     items: List<Course>,
-    onCourseClick: (String) -> Unit,
+    onCourseClick: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -86,7 +113,7 @@ fun CoursesContent(
         items(items) { item ->
             BaseCourseCard(
                 course = item,
-                onClick = { onCourseClick(item.vulnerabilityType.name) },
+                onClick = { onCourseClick(item.id) },
             )
         }
 
@@ -106,6 +133,8 @@ fun HomeScreenPreview() {
             onSearchQueryChange = {},
             onCourseClick = {},
             onReload = {},
+            isTeacher = true,
+            onCreateCourseClick = {},
         )
     }
 }

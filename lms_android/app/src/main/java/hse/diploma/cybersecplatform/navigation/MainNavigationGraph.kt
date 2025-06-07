@@ -7,17 +7,19 @@ import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.extensions.animatedComposable
 import hse.diploma.cybersecplatform.ui.components.systemBars.AppScaffold
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
+import hse.diploma.cybersecplatform.ui.screens.code_editor.CodeEditorScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesScreenWrapper
-import hse.diploma.cybersecplatform.ui.screens.home.HomeScreen
 import hse.diploma.cybersecplatform.ui.screens.home.HomeScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 import hse.diploma.cybersecplatform.ui.screens.settings.SettingsScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.teacher.CourseEditorScreenWrapper
+import hse.diploma.cybersecplatform.ui.screens.teacher.TaskEditorScreenWrapper
 
 @Composable
-fun MainNavigationGraph() {
+fun MainNavigationGraph(authStateViewModel: AuthStateViewModel) {
     val mainNavController = rememberNavController()
     val profileViewModel: ProfileViewModel = viewModel(factory = LocalViewModelFactory.current)
 
@@ -37,17 +39,41 @@ fun MainNavigationGraph() {
                 MyCoursesScreenWrapper(navController = mainNavController)
             }
             animatedComposable(Screen.Profile.route) {
-                ProfileScreenWrapper(profileViewModel, mainNavController)
+                ProfileScreenWrapper(profileViewModel, authStateViewModel, mainNavController)
             }
 
-            animatedComposable(Screen.TaskScreen.route) { backStackEntry ->
-                val typeString = backStackEntry.arguments?.getString("vulnerabilityType")
-                val type = VulnerabilityType.valueOf(typeString ?: "XSS")
-                TasksScreenWrapper(vulnerabilityType = type)
+            animatedComposable(Screen.TasksScreen.route) { backStackEntry ->
+                val courseId = backStackEntry.arguments?.getString("courseId")?.toIntOrNull()
+                if (courseId != null) {
+                    TasksScreenWrapper(
+                        courseId = courseId,
+                        navController = mainNavController,
+                    )
+                }
+            }
+
+            animatedComposable(Screen.CodeEditor.route) { backStackEntry ->
+                val courseId = backStackEntry.arguments?.getString("courseId")?.toIntOrNull()
+                val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull()
+                if (courseId != null && taskId != null) {
+                    CodeEditorScreenWrapper(courseId, taskId)
+                }
             }
 
             animatedComposable(Screen.Settings.route) {
-                SettingsScreenWrapper()
+                SettingsScreenWrapper(authStateViewModel = authStateViewModel)
+            }
+
+            animatedComposable(Screen.CourseEditor.route) {
+                CourseEditorScreenWrapper(navController = mainNavController)
+            }
+
+            animatedComposable(Screen.TaskEditor.route) { backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                TaskEditorScreenWrapper(
+                    navController = mainNavController,
+                    taskId = taskId?.toIntOrNull(),
+                )
             }
         }
     }

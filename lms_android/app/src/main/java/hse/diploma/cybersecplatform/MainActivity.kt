@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -130,6 +131,20 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                     ) {
                         val navController = rememberNavController()
                         val isAuthorized by authStateViewModel.isAuthorized.collectAsState()
+
+                        LaunchedEffect(Unit) {
+                            lifecycleScope.launch {
+                                authStateViewModel.isAuthorized
+                                    .collect { isAuthorized ->
+                                        if (!isAuthorized) {
+                                            navController.navigate("auth_flow") {
+                                                popUpTo("main_flow") { inclusive = true }
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+
                         NavHost(
                             navController = navController,
                             startDestination = "splash",
@@ -155,7 +170,7 @@ class MainActivity : ComponentActivity(), LifecycleComponentActivity {
                                 appPreferencesManager = appPreferencesManager,
                             )
                             composable("main_flow") {
-                                MainNavigationGraph()
+                                MainNavigationGraph(authStateViewModel)
                             }
                         }
                     }

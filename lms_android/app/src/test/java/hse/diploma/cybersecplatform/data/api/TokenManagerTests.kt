@@ -28,31 +28,31 @@ class TokenManagerTests {
     }
 
     @Test
-    fun `saveToken should store token in preferences`() {
+    fun `when saveToken is called, then token is stored in preferences`() {
         tokenManager.saveToken("test_token")
         verify { editor.putString("auth_token", "test_token") }
     }
 
     @Test
-    fun `getToken should return stored token`() {
+    fun `when getToken is called, then return stored token`() {
         every { sharedPreferences.getString("auth_token", null) } returns "test_token"
         assertEquals("test_token", tokenManager.getToken())
     }
 
     @Test
-    fun `clearToken should remove token from preferences`() {
+    fun `when clearToken is called, then token is removed from preferences`() {
         tokenManager.clearToken()
         verify { editor.remove("auth_token") }
     }
 
     @Test
-    fun `hasToken should return true when token exists`() {
+    fun `when hasToken is called with existing token, then return true`() {
         every { sharedPreferences.getString("auth_token", null) } returns "test_token"
         assertTrue(tokenManager.hasToken())
     }
 
     @Test
-    fun `hasToken should return false when token is null`() {
+    fun `when hasToken is called with null token, then return false`() {
         every { sharedPreferences.getString("auth_token", null) } returns null
         assertFalse(tokenManager.hasToken())
     }

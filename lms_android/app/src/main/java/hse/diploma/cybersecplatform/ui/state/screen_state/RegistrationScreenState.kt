@@ -9,5 +9,6 @@ data class RegistrationScreenState(
     val fullName: TextFieldValue = TextFieldValue(),
     val passwordConfirmation: TextFieldValue = TextFieldValue(),
     val isRegistrationEnabled: Boolean = false,
+    val isTeacher: Boolean = false,
     val isLoading: Boolean = false,
 )

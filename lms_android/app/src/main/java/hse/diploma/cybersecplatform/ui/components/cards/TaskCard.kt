@@ -4,9 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -21,7 +19,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -88,29 +86,63 @@ fun TaskCard(
     }
 }
 
-@PreviewLightDark()
 @Composable
+@Preview(showBackground = true, apiLevel = 30)
 fun TaskCardPreview() {
     CyberSecPlatformTheme {
         Column {
             TaskCard(
                 task =
                     Task(
+                        id = 1,
+                        courseId = 101,
+                        title = "XSS в HTML-контексте",
+                        description = "Сохранение XSS в HTML-контексте без кодирования",
+                        content = "Детальное описание задания...",
+                        solution = "Решение задания...",
                         vulnerabilityType = VulnerabilityType.XSS,
                         number = 1,
-                        description = "Сохранение XSS в HTML-контексте без кодирования",
                         difficulty = Difficulty.EASY,
+                        type = "XSS",
+                        points = 10,
+                        isCompleted = false,
                     ),
                 onClick = {},
             )
-            Spacer(modifier = Modifier.height(16.dp))
+
             TaskCard(
                 task =
                     Task(
+                        id = 2,
+                        courseId = 102,
+                        title = "CSRF с проверкой токена",
+                        description = "CSRF, где проверка токена зависит от наличия токена",
+                        content = "Детальное описание задания...",
+                        solution = "Решение задания...",
                         vulnerabilityType = VulnerabilityType.CSRF,
                         number = 10,
-                        description = "CSRF, где проверка токена зависит от наличия токена",
                         difficulty = Difficulty.HARD,
+                        type = "CSRF",
+                        points = 30,
+                        isCompleted = true,
+                    ),
+                onClick = {},
+            )
+            TaskCard(
+                task =
+                    Task(
+                        id = 3,
+                        courseId = 103,
+                        title = "SQL Injection UNION атака",
+                        description = "Использование UNION для извлечения данных",
+                        content = "Детальное описание задания...",
+                        solution = "Решение задания...",
+                        vulnerabilityType = VulnerabilityType.SQL,
+                        number = 5,
+                        difficulty = Difficulty.MEDIUM,
+                        type = "SQL_INJECTION",
+                        points = 20,
+                        isCompleted = false,
                     ),
                 onClick = {},
             )

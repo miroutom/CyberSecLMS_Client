@@ -3,6 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
 import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.utils.isPasswordValid
@@ -43,15 +44,42 @@ class AuthorizationViewModel @Inject constructor(private val authRepo: AuthRepo)
         _password.value = newPassword
     }
 
-    fun login(
-        username: String,
-        password: String,
+    fun login(onResult: (Result<TempTokenResponse>) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                onResult(authRepo.login(username.value.text, password.value.text))
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun forgotPassword(
+        email: String? = null,
+        username: String? = null,
         onResult: (Result<TempTokenResponse>) -> Unit,
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                onResult(authRepo.login(username, password))
+                onResult(authRepo.forgotPassword(email, username))
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetPassword(
+        tempToken: String,
+        code: String,
+        newPassword: String,
+        onResult: (Result<MessageResponse>) -> Unit,
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                onResult(authRepo.resetPassword(tempToken, code, newPassword))
             } finally {
                 _isLoading.value = false
             }

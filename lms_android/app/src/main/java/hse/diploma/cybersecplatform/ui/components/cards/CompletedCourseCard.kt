@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -105,13 +105,24 @@ fun CompletedCourseCard(
     }
 }
 
-@PreviewLightDark
+@Preview(showBackground = true, apiLevel = 30)
 @Composable
 private fun CompletedCourseCardPreview() {
     CyberSecPlatformTheme {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             CompletedCourseCard(
-                course = Course(vulnerabilityType = VulnerabilityType.XSS, tasksCount = 10),
+                course =
+                    Course(
+                        id = 1,
+                        title = "XSS Attacks Course",
+                        description = "Learn about different types of XSS vulnerabilities",
+                        vulnerabilityType = VulnerabilityType.XSS,
+                        difficultyLevel = "medium",
+                        category = "web",
+                        tasks = emptyList(),
+                        completedTasks = 3,
+                        tasksCount = 10,
+                    ),
                 onCardClick = {},
                 onRestartClick = {},
             )

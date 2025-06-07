@@ -21,6 +21,7 @@ fun OnBoardingScreenWrapper(
     OnBoardingScreen(
         currentStep = currentStep,
         onNextPage = viewModel::onNextPage,
+        onPageChanged = viewModel::setPage,
         onSkipClick = onNavigateToAuthorization,
         onAuthClick = onNavigateToAuthorization,
         onRegisterClick = onNavigateToRegistration,

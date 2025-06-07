@@ -47,9 +47,10 @@ class AuthRepoImpl @Inject constructor(
         password: String,
         email: String,
         fullName: String,
+        isTeacher: Boolean,
     ): Result<RegisterResponse> {
         return try {
-            val response = apiService.register(RegisterRequest(username, password, email, fullName))
+            val response = apiService.register(RegisterRequest(username, password, email, fullName, isTeacher))
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->

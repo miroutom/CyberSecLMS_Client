@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -59,7 +59,7 @@ fun TopBar(
             Screen.HomeScreen.route -> Screen.HomeScreen
             Screen.MyCourses.route -> Screen.MyCourses
             Screen.Profile.route -> Screen.Profile
-            Screen.TaskScreen.route -> Screen.TaskScreen
+            Screen.TasksScreen.route -> Screen.TasksScreen
             Screen.Settings.route -> Screen.Settings
             else -> null
         }
@@ -107,7 +107,7 @@ fun TopBar(
     )
 }
 
-@PreviewLightDark
+@Preview(showBackground = true, apiLevel = 30)
 @Composable
 fun TopBarPreview() {
     CyberSecPlatformTheme {

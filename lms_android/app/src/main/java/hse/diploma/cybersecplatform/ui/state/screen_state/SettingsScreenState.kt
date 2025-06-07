@@ -9,14 +9,8 @@ data class SettingsScreenState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: Language = Language.ENGLISH,
     val user: UserData? = null,
-    val passwordTempToken: String? = null,
     val deleteTempToken: String? = null,
-    val passwordOtpError: String? = null,
     val deleteOtpError: String? = null,
     val errorMessage: String? = null,
     val successMessage: String? = null,
-) {
-    fun onErrorDismissed() = copy(errorMessage = null)
-
-    fun onSuccessMessageShown() = copy(successMessage = null)
-}
+)

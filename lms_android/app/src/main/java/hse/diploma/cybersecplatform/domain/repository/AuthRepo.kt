@@ -16,6 +16,7 @@ interface AuthRepo {
         password: String,
         email: String,
         fullName: String,
+        isTeacher: Boolean,
     ): Result<RegisterResponse>
 
     suspend fun verifyOtp(

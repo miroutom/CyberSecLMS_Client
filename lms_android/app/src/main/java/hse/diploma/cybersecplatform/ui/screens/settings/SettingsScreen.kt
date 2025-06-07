@@ -29,6 +29,7 @@ import hse.diploma.cybersecplatform.ui.components.dialogs.ErrorDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.LanguageChooserDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.OtpDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.PasswordChangeDialog
+import hse.diploma.cybersecplatform.ui.components.dialogs.SuccessDialog
 import hse.diploma.cybersecplatform.ui.components.dialogs.ThemeChooserDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsDialog
 import hse.diploma.cybersecplatform.ui.components.menu.SettingsMenu
@@ -46,9 +47,7 @@ fun SettingsScreen(
     onLanguageSelected: (Language) -> Unit,
     onPasswordChangeInitiated: (String, String, (Result<String>) -> Unit) -> Unit,
     onDeleteAccountInitiated: (String, (Result<String>) -> Unit) -> Unit,
-    onPasswordOtpSubmitted: (String, (Result<String>) -> Unit) -> Unit,
     onDeleteOtpSubmitted: (String, (Result<String>) -> Unit) -> Unit,
-    onPasswordOtpDismissed: () -> Unit,
     onDeleteOtpDismissed: () -> Unit,
     onErrorDismissed: () -> Unit,
     onLogout: () -> Unit,
@@ -121,8 +120,12 @@ fun SettingsScreen(
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
                     onSubmit = { currentPassword, newPassword ->
                         onPasswordChangeInitiated(currentPassword, newPassword) { result ->
+                            result.onSuccess {
+                                // show success dialog
+                                visibleDialog = SettingsDialog.NONE
+                            }
                             result.onFailure { error ->
-                                // handled in viewModel
+                                // show error dialog
                             }
                         }
                     },
@@ -134,8 +137,12 @@ fun SettingsScreen(
                     onDismiss = { visibleDialog = SettingsDialog.NONE },
                     onConfirm = { password ->
                         onDeleteAccountInitiated(password) { result ->
+                            result.onSuccess {
+                                // show success dialog
+                                visibleDialog = SettingsDialog.NONE
+                            }
                             result.onFailure { error ->
-                                // handled in viewModel
+                                // show error dialog
                             }
                         }
                     },
@@ -143,22 +150,6 @@ fun SettingsScreen(
                 )
 
             SettingsDialog.NONE -> {}
-        }
-
-        state.passwordTempToken?.let {
-            OtpDialog(
-                email = state.user?.email?.let { maskEmail(it) } ?: "",
-                isLoading = state.isLoading,
-                error = state.passwordOtpError,
-                onOtpSubmit = { otpCode ->
-                    onPasswordOtpSubmitted(otpCode) { result ->
-                        result.onSuccess { message ->
-                            // handled in viewModel
-                        }
-                    }
-                },
-                onDismiss = onPasswordOtpDismissed,
-            )
         }
 
         state.deleteTempToken?.let {
@@ -174,6 +165,13 @@ fun SettingsScreen(
                     }
                 },
                 onDismiss = onDeleteOtpDismissed,
+            )
+        }
+
+        state.successMessage?.let { msg ->
+            SuccessDialog(
+                message = msg,
+                onDismiss = onErrorDismissed,
             )
         }
 
@@ -196,9 +194,7 @@ private fun SettingsScreenPreview() {
             onLanguageSelected = {},
             onPasswordChangeInitiated = { _, _, _ -> },
             onDeleteAccountInitiated = { _, _ -> },
-            onPasswordOtpSubmitted = { _, _ -> },
             onDeleteOtpSubmitted = { _, _ -> },
-            onPasswordOtpDismissed = {},
             onDeleteOtpDismissed = {},
             onErrorDismissed = {},
             onLogout = {},

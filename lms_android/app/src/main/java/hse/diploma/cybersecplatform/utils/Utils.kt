@@ -3,6 +3,11 @@ package hse.diploma.cybersecplatform.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 enum class PasswordError {
     NONE,
@@ -57,5 +62,19 @@ fun maskEmail(email: String): String {
         namePart.first() + "*".repeat(nb - 1) + "@" + domainPart
     } else {
         namePart.first() + "*".repeat(nb - 2) + namePart.last() + "@" + domainPart
+    }
+}
+
+fun formatIsoDateToReadable(isoDate: String?): String {
+    if (isoDate.isNullOrEmpty()) return "N/A"
+
+    return try {
+        val instant = Instant.parse(isoDate)
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())
+        dateTime.format(formatter)
+    } catch (e: Exception) {
+        logE("Utils", "Error parsing ISO date: $isoDate", e)
+        "N/A"
     }
 }

@@ -3,81 +3,62 @@ package hse.diploma.cybersecplatform.mock
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
-private val mockSqlCourse =
+val mockXssCourse =
     Course(
-        vulnerabilityType = VulnerabilityType.SQL,
-        tasksCount = 25,
-    )
-
-private val mockXssCourse =
-    Course(
+        id = 1,
+        title = "XSS Attacks",
+        description = "Изучите различные типы XSS уязвимостей",
         vulnerabilityType = VulnerabilityType.XSS,
-        tasksCount = 10,
+        difficultyLevel = "medium",
+        category = "web",
+        tasks = mockTasks.filter { it.courseId == 1 },
     )
 
-private val mockCsrfCourse =
+val mockSqlCourse =
     Course(
+        id = 2,
+        title = "SQL Injection",
+        description = "Научитесь эксплуатировать SQL уязвимости",
+        vulnerabilityType = VulnerabilityType.SQL,
+        difficultyLevel = "hard",
+        category = "database",
+        tasks = mockTasks.filter { it.courseId == 2 },
+    )
+
+val mockCsrfCourse =
+    Course(
+        id = 3,
+        title = "CSRF Attacks",
+        description = "Понимание и эксплуатация CSRF уязвимостей",
         vulnerabilityType = VulnerabilityType.CSRF,
-        tasksCount = 15,
+        difficultyLevel = "medium",
+        category = "web",
+        tasks = mockTasks.filter { it.courseId == 3 },
+    )
+
+val mockSqlCourse2 =
+    Course(
+        id = 4,
+        title = "SQL Injection",
+        description = "Научитесь эксплуатировать SQL уязвимости",
+        vulnerabilityType = VulnerabilityType.SQL,
+        difficultyLevel = "medium",
+        category = "database",
+        tasks = mockTasks.filter { it.courseId == 4 },
     )
 
 val mockAllCourses =
     listOf(
-        mockSqlCourse,
-        mockXssCourse,
-        mockCsrfCourse,
         mockXssCourse,
         mockSqlCourse,
         mockCsrfCourse,
-        mockCsrfCourse,
-        mockXssCourse,
-        mockSqlCourse,
-        mockCsrfCourse,
-        mockSqlCourse,
+        mockSqlCourse2,
     )
 
 val mockCourses =
     listOf(
-        Course(
-            vulnerabilityType = VulnerabilityType.XSS,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.SQL,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.CSRF,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.XSS,
-            completedTasks = 1,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.XSS,
-            completedTasks = 3,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.XSS,
-            completedTasks = 9,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.CSRF,
-            completedTasks = 7,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.CSRF,
-            completedTasks = 2,
-            tasksCount = 10,
-        ),
-        Course(
-            vulnerabilityType = VulnerabilityType.SQL,
-            completedTasks = 4,
-            tasksCount = 10,
-        ),
+        mockXssCourse,
+        mockSqlCourse,
+        mockCsrfCourse,
+        mockSqlCourse2,
     )

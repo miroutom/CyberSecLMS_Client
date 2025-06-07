@@ -44,7 +44,7 @@ fun AuthorizationScreenWrapper(
         onUsernameChange = viewModel::onUsernameChange,
         onPasswordChange = viewModel::onPasswordChange,
         onLoginClick = {
-            viewModel.login(state.username.text, state.password.text) { result ->
+            viewModel.login { result ->
                 result.onSuccess { tempResp ->
                     tempTokenForOtp = tempResp.tempToken
                     otpError = null
@@ -55,20 +55,22 @@ fun AuthorizationScreenWrapper(
         },
         onNavigateToRegistration = onNavigateToRegistration,
         onOtpSubmit = { enteredCode ->
-            otpViewModel.verifyOtp(
-                tempToken = tempTokenForOtp!!,
-                otp = enteredCode,
-                onResult = { result ->
-                    result.onSuccess {
-                        tempTokenForOtp = null
-                        otpError = null
-                        onAuthorized()
-                    }.onFailure { error ->
-                        onError(error.message ?: "Authorization error")
-                        errorDialogMessage = error.message ?: "Authorization error"
-                    }
-                },
-            )
+            tempTokenForOtp?.let { token ->
+                otpViewModel.verifyOtp(
+                    tempToken = token,
+                    otp = enteredCode,
+                    onResult = { result ->
+                        result.onSuccess {
+                            tempTokenForOtp = null
+                            otpError = null
+                            onAuthorized()
+                        }.onFailure { error ->
+                            otpError = error.message ?: "OTP verification failed"
+                            errorDialogMessage = error.message ?: "OTP verification failed"
+                        }
+                    },
+                )
+            }
         },
         onOtpDismiss = {
             tempTokenForOtp = null

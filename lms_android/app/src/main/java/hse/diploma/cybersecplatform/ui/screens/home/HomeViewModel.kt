@@ -1,55 +1,76 @@
 package hse.diploma.cybersecplatform.ui.screens.home
 
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Module
+import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.CoursesSharedViewModel
+import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
+import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
+import hse.diploma.cybersecplatform.utils.logD
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Module
 class HomeViewModel @Inject constructor(
     private val coursesRepo: CoursesRepo,
-) : CoursesSharedViewModel() {
+) : ViewModel() {
+    private val _allCoursesState = MutableStateFlow<AllCoursesState>(AllCoursesState.Loading)
+    val allCoursesState: StateFlow<AllCoursesState> = _allCoursesState.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow(TextFieldValue(""))
+    val searchQuery = _searchQuery.asStateFlow()
+
     init {
         loadCourses()
     }
 
-    override fun loadCourses() {
+    fun loadCourses() {
+        logD(TAG, "loadCourses")
         viewModelScope.launch {
-            _coursesState.value = CoursesState.Loading
-            try {
-                val result = coursesRepo.getAllCourses()
-                result.onSuccess { response ->
-                    _coursesState.value =
-                        CoursesState.Success(
-                            courses = response.courses,
-                            filteredCourses = response.courses,
-                        )
-                }.onFailure { e ->
-                    _coursesState.value = CoursesState.Error(e.toErrorType(TAG))
-                }
-            } catch (e: Exception) {
-                _coursesState.value = CoursesState.Error(e.toErrorType(TAG))
+            _allCoursesState.value = AllCoursesState.Loading
+            val result = coursesRepo.getAllCourses()
+            logD(TAG, "loadCourses result = $result")
+            if (result.isSuccess) {
+                val courses = result.getOrNull()!!
+                _allCoursesState.value =
+                    AllCoursesState.Success(
+                        CoursesUiState(
+                            courses = courses,
+                            startedCourses = courses.filter { it.isStarted },
+                            completedCourses = courses.filter { !it.isStarted },
+                        ),
+                    )
+            } else {
+                _allCoursesState.value =
+                    AllCoursesState.Error(result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other)
             }
         }
     }
 
-    override fun filterCourses(query: String) {
-        val currentState = _coursesState.value
-        if (currentState is CoursesState.Success) {
+    fun onSearchQueryChange(newSearchQuery: TextFieldValue) {
+        logD(TAG, "onSearchQueryChange query = $newSearchQuery")
+        _searchQuery.value = newSearchQuery
+        val currentState = _allCoursesState.value
+        if (currentState is AllCoursesState.Success) {
+            val query = newSearchQuery.text.trim().lowercase()
             val filtered =
                 if (query.isBlank()) {
-                    currentState.courses
+                    currentState.uiState.courses
                 } else {
-                    currentState.courses.filter { course ->
-                        course.title.contains(query, ignoreCase = true) ||
-                            course.description.contains(query, ignoreCase = true) ||
-                            course.vulnerabilityType.toString().contains(query, ignoreCase = true)
+                    currentState.uiState.courses.filter {
+                        it.vulnerabilityType.name.lowercase().contains(query)
                     }
                 }
-            _coursesState.value = currentState.copy(filteredCourses = filtered)
+            _allCoursesState.value =
+                currentState.copy(
+                    uiState = currentState.uiState.copy(filteredCourses = filtered),
+                )
         }
     }
 

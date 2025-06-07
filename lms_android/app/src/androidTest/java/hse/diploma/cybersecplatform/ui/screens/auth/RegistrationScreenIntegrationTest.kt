@@ -26,7 +26,7 @@ class RegistrationScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private lateinit var registrationViewModel: RegistrationViewModel
+    private lateinit var viewModel: RegistrationViewModel
     private lateinit var onNavigateToAuthorization: () -> Unit
     private lateinit var onRegistered: () -> Unit
     private lateinit var onError: (String) -> Unit
@@ -35,32 +35,31 @@ class RegistrationScreenIntegrationTest {
 
     @Before
     fun setUp() {
-        registrationViewModel = mockk(relaxed = true)
+        viewModel = mockk(relaxed = true)
         onNavigateToAuthorization = mockk(relaxed = true)
         onRegistered = mockk(relaxed = true)
         onError = mockk(relaxed = true)
 
-        every { registrationViewModel.fullName } returns MutableStateFlow(TextFieldValue(""))
-        every { registrationViewModel.username } returns MutableStateFlow(TextFieldValue(""))
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue(""))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue(""))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(""))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(false)
-        every { registrationViewModel.isLoading } returns MutableStateFlow(false)
+        every { viewModel.isTeacher } returns MutableStateFlow(false)
+        every { viewModel.fullName } returns MutableStateFlow(TextFieldValue(""))
+        every { viewModel.username } returns MutableStateFlow(TextFieldValue(""))
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue(""))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue(""))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(""))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(false)
+        every { viewModel.isLoading } returns MutableStateFlow(false)
     }
 
-    private fun getString(resId: Int): String {
-        return context.getString(resId)
-    }
+    private fun getString(resId: Int): String = context.getString(resId)
 
     @Test
-    fun registrationScreen_displaysAllFields() {
+    fun shouldDisplayAllRequiredFieldsWhenScreenLoaded() {
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
 
@@ -75,19 +74,18 @@ class RegistrationScreenIntegrationTest {
     }
 
     @Test
-    fun enteringValidCredentials_enablesRegisterButton() {
-
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue("test@example.com"))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue("Password123"))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue("Password123"))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
+    fun shouldEnableRegisterButtonWhenValidCredentialsEntered() {
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue("test@example.com"))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue("Password123"))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue("Password123"))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
 
@@ -95,19 +93,18 @@ class RegistrationScreenIntegrationTest {
     }
 
     @Test
-    fun enteringInvalidCredentials_disablesRegisterButton() {
-
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue("invalid-email"))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue("short"))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue("mismatch"))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(false)
+    fun shouldDisableRegisterButtonWhenInvalidCredentialsEntered() {
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue("invalid-email"))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue("short"))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue("mismatch"))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(false)
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
 
@@ -115,33 +112,31 @@ class RegistrationScreenIntegrationTest {
     }
 
     @Test
-    fun clickingRegisterButton_callsRegisterMethod() {
-
+    fun shouldCallRegisterMethodWhenRegisterButtonClickedWithValidData() {
         val testFullName = "John Doe"
         val testUsername = "johndoe"
         val testEmail = "john@example.com"
         val testPassword = "Password123"
 
-        every { registrationViewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
-        every { registrationViewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
+        every { viewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
+        every { viewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
-
         composeRule.onNodeWithText(getString(R.string.register_button)).performClick()
 
         verify {
-            registrationViewModel.register(
+            viewModel.register(
                 username = testUsername,
                 password = testPassword,
                 email = testEmail,
@@ -152,23 +147,22 @@ class RegistrationScreenIntegrationTest {
     }
 
     @Test
-    fun successfulRegistration_callsOnRegisteredCallback() {
-
+    fun shouldCallOnRegisteredCallbackWhenRegistrationSucceeds() {
         val testFullName = "John Doe"
         val testUsername = "johndoe"
         val testEmail = "john@example.com"
         val testPassword = "Password123"
 
-        every { registrationViewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
-        every { registrationViewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
+        every { viewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
+        every { viewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         val callbackSlot = slot<(Result<RegisterResponse>) -> Unit>()
         every {
-            registrationViewModel.register(
+            viewModel.register(
                 username = any(),
                 password = any(),
                 email = any(),
@@ -181,37 +175,35 @@ class RegistrationScreenIntegrationTest {
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
-
         composeRule.onNodeWithText(getString(R.string.register_button)).performClick()
 
         verify { onRegistered.invoke() }
     }
 
     @Test
-    fun failedRegistration_callsOnErrorCallback() {
-
+    fun shouldCallOnErrorCallbackWhenRegistrationFails() {
         val testFullName = "John Doe"
         val testUsername = "johndoe"
         val testEmail = "john@example.com"
         val testPassword = "Password123"
         val errorMessage = "Registration failed"
 
-        every { registrationViewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
-        every { registrationViewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
-        every { registrationViewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
-        every { registrationViewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
-        every { registrationViewModel.isRegistrationEnabled } returns MutableStateFlow(true)
+        every { viewModel.fullName } returns MutableStateFlow(TextFieldValue(testFullName))
+        every { viewModel.username } returns MutableStateFlow(TextFieldValue(testUsername))
+        every { viewModel.login } returns MutableStateFlow(TextFieldValue(testEmail))
+        every { viewModel.password } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.passwordConfirmation } returns MutableStateFlow(TextFieldValue(testPassword))
+        every { viewModel.isRegistrationEnabled } returns MutableStateFlow(true)
 
         val callbackSlot = slot<(Result<RegisterResponse>) -> Unit>()
         every {
-            registrationViewModel.register(
+            viewModel.register(
                 username = any(),
                 password = any(),
                 email = any(),
@@ -224,45 +216,42 @@ class RegistrationScreenIntegrationTest {
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
-
         composeRule.onNodeWithText(getString(R.string.register_button)).performClick()
 
         verify { onError.invoke(errorMessage) }
     }
 
     @Test
-    fun clickingHaveAccountButton_navigatesToAuthorization() {
+    fun shouldNavigateToAuthorizationWhenHaveAccountButtonClicked() {
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
-
         composeRule.onNodeWithText(getString(R.string.have_account_button)).performClick()
 
         verify { onNavigateToAuthorization.invoke() }
     }
 
     @Test
-    fun loadingState_showsProgressIndicator() {
-
-        every { registrationViewModel.isLoading } returns MutableStateFlow(true)
+    fun shouldShowProgressIndicatorWhenLoadingStateActive() {
+        every { viewModel.isLoading } returns MutableStateFlow(true)
 
         composeRule.setContent {
             RegistrationScreenWrapper(
+                viewModel = viewModel,
                 onNavigateToAuthorization = onNavigateToAuthorization,
                 onRegistered = onRegistered,
                 onError = onError,
-                viewModel = registrationViewModel,
             )
         }
 

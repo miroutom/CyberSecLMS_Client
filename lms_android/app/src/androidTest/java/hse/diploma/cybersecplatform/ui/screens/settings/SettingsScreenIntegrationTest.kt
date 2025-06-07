@@ -1,5 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.settings
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -7,10 +9,16 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.user.UserData
+import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.domain.model.AppTheme
 import hse.diploma.cybersecplatform.domain.model.Language
+import hse.diploma.cybersecplatform.mock.mockStats
+import hse.diploma.cybersecplatform.mock.mockUser
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
+import hse.diploma.cybersecplatform.ui.screens.isCircularProgressIndicator
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
+import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
+import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,100 +32,110 @@ class SettingsScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private lateinit var viewModel: SettingsViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var profileViewModel: ProfileViewModel
     private lateinit var authStateViewModel: AuthStateViewModel
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Before
     fun setUp() {
-        viewModel = mockk()
-        authStateViewModel = mockk()
+        settingsViewModel = mockk(relaxed = true)
+        profileViewModel = mockk(relaxed = true)
+        authStateViewModel = mockk(relaxed = true)
 
-        every { viewModel.isLoading } returns MutableStateFlow(false)
-        every { viewModel.themePreference } returns MutableStateFlow(AppTheme.SYSTEM)
-        every { viewModel.languagePreference } returns MutableStateFlow(Language.ENGLISH)
-        every { viewModel.user } returns
+        every { settingsViewModel.isLoading } returns MutableStateFlow(false)
+        every { settingsViewModel.themePreference } returns MutableStateFlow(AppTheme.SYSTEM)
+        every { settingsViewModel.languagePreference } returns MutableStateFlow(Language.ENGLISH)
+        every { settingsViewModel.deleteTempToken } returns MutableStateFlow(null)
+        every { settingsViewModel.deleteOtpError } returns MutableStateFlow(null)
+        every { profileViewModel.profileState } returns
             MutableStateFlow(
-                UserData(
-                    username = "testuser",
-                    fullName = "Test User",
-                    email = "test@example.com",
-                    profileImage = null,
+                ProfileState.Success(
+                    ProfileUiState(userData = mockUser, stats = mockStats),
                 ),
             )
-        every { viewModel.passwordTempToken } returns MutableStateFlow(null)
-        every { viewModel.deleteTempToken } returns MutableStateFlow(null)
-        every { viewModel.passwordOtpError } returns MutableStateFlow(null)
-        every { viewModel.deleteOtpError } returns MutableStateFlow(null)
     }
 
     private fun getString(resId: Int): String = context.getString(resId)
 
+    private fun setContent() {
+        composeRule.setContent {
+            CompositionLocalProvider(
+                LocalAuthStateViewModel provides authStateViewModel,
+            ) {
+                SettingsScreenWrapper(
+                    viewModel = settingsViewModel,
+                    profileViewModel = profileViewModel,
+                    authStateViewModel = authStateViewModel,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun loadingState_displaysLoadingIndicator() {
+        every { settingsViewModel.isLoading } returns MutableStateFlow(true)
+        setContent()
+
+        composeRule.onNode(isCircularProgressIndicator())
+            .assertIsDisplayed()
+    }
+
     @Test
     fun settingsMenu_displaysAllOptions() {
-        composeRule.setContent {
-            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
-        }
+        setContent()
 
         composeRule.onNodeWithText(getString(R.string.theme_setting))
-            .assertExists()
+            .assertIsDisplayed()
         composeRule.onNodeWithText(getString(R.string.language_setting))
-            .assertExists()
+            .assertIsDisplayed()
         composeRule.onNodeWithText(getString(R.string.update_password_setting))
-            .assertExists()
+            .assertIsDisplayed()
         composeRule.onNodeWithText(getString(R.string.delete_account))
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test
     fun themeDialog_displaysWhenThemeOptionClicked() {
-        composeRule.setContent {
-            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
-        }
+        setContent()
 
         composeRule.onNodeWithText(getString(R.string.theme_setting))
             .performClick()
 
         composeRule.onNode(isDialog())
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test
     fun languageDialog_displaysWhenLanguageOptionClicked() {
-        composeRule.setContent {
-            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
-        }
+        setContent()
 
         composeRule.onNodeWithText(getString(R.string.language_setting))
             .performClick()
 
         composeRule.onNode(isDialog())
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test
     fun passwordDialog_displaysWhenPasswordOptionClicked() {
-        composeRule.setContent {
-            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
-        }
+        setContent()
 
         composeRule.onNodeWithText(getString(R.string.update_password_setting))
             .performClick()
 
         composeRule.onNode(isDialog())
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test
     fun deleteDialog_displaysWhenDeleteOptionClicked() {
-        composeRule.setContent {
-            SettingsScreenWrapper(viewModel = viewModel, authStateViewModel = authStateViewModel)
-        }
+        setContent()
 
         composeRule.onNodeWithText(getString(R.string.delete_account))
             .performClick()
 
         composeRule.onNode(isDialog())
-            .assertExists()
+            .assertIsDisplayed()
     }
 }

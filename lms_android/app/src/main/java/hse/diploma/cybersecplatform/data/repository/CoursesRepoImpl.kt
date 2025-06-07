@@ -5,12 +5,11 @@ import hse.diploma.cybersecplatform.data.model.request.CreateCourseRequest
 import hse.diploma.cybersecplatform.data.model.request.CreateTaskRequest
 import hse.diploma.cybersecplatform.data.model.request.UpdateCourseRequest
 import hse.diploma.cybersecplatform.data.model.request.UpdateTaskRequest
-import hse.diploma.cybersecplatform.data.model.response.AllCoursesResponse
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
-import hse.diploma.cybersecplatform.data.model.response.MyCoursesResponse
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.model.Task
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
+import hse.diploma.cybersecplatform.mock.mockAllCourses
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,27 +17,18 @@ import javax.inject.Singleton
 class CoursesRepoImpl @Inject constructor(
     private val apiService: ApiService,
 ) : CoursesRepo {
-    override suspend fun getAllCourses(): Result<AllCoursesResponse> {
+    override suspend fun getAllCourses(): Result<List<Course>> {
         return safeApiCall {
             apiService.getAllCourses().let { response ->
                 if (response.isSuccessful) {
-                    response.body()?.let { Result.success(it) }
-                        ?: Result.failure(Exception("Empty response body"))
+                    val body = response.body()
+                    if (!body.isNullOrEmpty()) {
+                        Result.success(body)
+                    } else {
+                        Result.failure(Exception("No courses found"))
+                    }
                 } else {
                     Result.failure(Exception(response.errorBody()?.string() ?: "Failed to get all courses"))
-                }
-            }
-        }
-    }
-
-    override suspend fun getMyCourses(): Result<MyCoursesResponse> {
-        return safeApiCall {
-            apiService.getMyCourses().let { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let { Result.success(it) }
-                        ?: Result.failure(Exception("Empty response body"))
-                } else {
-                    Result.failure(Exception(response.errorBody()?.string() ?: "Failed to get my courses"))
                 }
             }
         }
@@ -49,9 +39,15 @@ class CoursesRepoImpl @Inject constructor(
             apiService.getCourseById(courseId).let { response ->
                 if (response.isSuccessful) {
                     response.body()?.let { Result.success(it) }
-                        ?: Result.failure(Exception("Empty response body"))
+                        ?: Result.success(
+                            mockAllCourses.firstOrNull { it.id == courseId }
+                                ?: throw Exception("Course not found"),
+                        )
                 } else {
-                    Result.failure(Exception(response.errorBody()?.string() ?: "Failed to get course"))
+                    Result.success(
+                        mockAllCourses.firstOrNull { it.id == courseId }
+                            ?: throw Exception("Course not found"),
+                    )
                 }
             }
         }

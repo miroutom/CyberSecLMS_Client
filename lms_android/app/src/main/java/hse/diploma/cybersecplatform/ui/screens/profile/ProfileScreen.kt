@@ -1,9 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.profile
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,15 +23,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.data.model.analytics.UserStatistics
+import hse.diploma.cybersecplatform.mock.mockStats
 import hse.diploma.cybersecplatform.mock.mockUser
 import hse.diploma.cybersecplatform.ui.components.menu.ProfileMenu
 import hse.diploma.cybersecplatform.ui.screens.error.ErrorScreen
@@ -42,6 +42,7 @@ import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
 import hse.diploma.cybersecplatform.ui.theme.Typography
+import hse.diploma.cybersecplatform.utils.formatIsoDateToReadable
 
 @Composable
 fun ProfileScreen(
@@ -82,9 +83,12 @@ private fun ProfileContent(
         modifier =
             Modifier
                 .fillMaxSize()
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         ElevatedCard(
             modifier =
                 modifier
@@ -131,7 +135,7 @@ private fun ProfileContent(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_activity),
@@ -142,22 +146,150 @@ private fun ProfileContent(
             Text(
                 text = stringResource(R.string.profile_statistics_section),
                 style = Typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
             )
         }
 
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(colorResource(R.color.profile_content_background)),
-        )
+        StatisticsOverviewSection(stats = profile.stats)
 
         ProfileMenu(
             onTheoryClick = {},
             onSettingsClick = onSettingsClick,
             onLogoutClick = onLogoutClick,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun StatisticsOverviewSection(stats: UserStatistics) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors =
+            CardDefaults.elevatedCardColors(
+                containerColor = colorResource(R.color.profile_content_background),
+            ),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.completed_courses),
+                    value = "${stats.completedCourses}/${stats.totalCourses}",
+                )
+
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.total_points),
+                    value = "${stats.totalPoints}",
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.completed_tasks),
+                    value = "${stats.completedTasks}/${stats.totalTasks}",
+                )
+
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.average_score, stats.averageScore),
+                    value = String.format("%.1f", stats.averageScore),
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                InfoItem(
+                    title = stringResource(R.string.joined_date),
+                    value = stats.joinedDate,
+                )
+
+                InfoItem(
+                    title = stringResource(R.string.last_activity_session),
+                    value = formatIsoDateToReadable(stats.lastActive),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+) {
+    ElevatedCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.elevatedCardColors(
+                containerColor = colorResource(R.color.xss_card_color),
+            ),
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                maxLines = 1,
+                style = Typography.bodySmall,
+                color = colorResource(R.color.main_text_color),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                style = Typography.bodyMedium,
+                color = colorResource(R.color.main_text_color),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoItem(
+    title: String,
+    value: String,
+) {
+    Column {
+        Text(
+            text = title,
+            fontSize = 12.sp,
+            maxLines = 1,
+            style = Typography.bodySmall,
+            color = colorResource(R.color.main_text_color),
+            textAlign = TextAlign.Center,
+        )
+
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            style = Typography.bodyMedium,
+            color = colorResource(R.color.main_text_color),
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -167,7 +299,7 @@ private fun ProfileContent(
 private fun ProfileScreenPreview() {
     CyberSecPlatformTheme {
         ProfileScreen(
-            state = ProfileState.Success(ProfileUiState(mockUser)),
+            state = ProfileState.Success(ProfileUiState(mockUser, mockStats)),
             onLogoutClick = {},
             onSettingsClick = {},
             onReload = {},

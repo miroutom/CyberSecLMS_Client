@@ -14,6 +14,7 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class OnBoardingViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
+
     private lateinit var viewModel: OnBoardingViewModel
 
     @Before
@@ -28,13 +29,13 @@ class OnBoardingViewModelTests {
     }
 
     @Test
-    fun `initial page is 0`() =
+    fun `when viewModel is initialized, then initial page is 0`() =
         runTest {
             assertEquals(0, viewModel.currentPage.value)
         }
 
     @Test
-    fun `onNextPage increases page number`() =
+    fun `when onNextPage is called, then page number increases`() =
         runTest {
             viewModel.onNextPage()
             assertEquals(1, viewModel.currentPage.value)
@@ -44,7 +45,7 @@ class OnBoardingViewModelTests {
         }
 
     @Test
-    fun `onNextPage does not exceed maximum page`() =
+    fun `when onNextPage is called at maximum page, then page number does not change`() =
         runTest {
             viewModel.setPage(2)
             assertEquals(2, viewModel.currentPage.value)
@@ -54,7 +55,7 @@ class OnBoardingViewModelTests {
         }
 
     @Test
-    fun `setPage updates current page correctly`() =
+    fun `when setPage is called, then current page is updated correctly`() =
         runTest {
             viewModel.setPage(1)
             assertEquals(1, viewModel.currentPage.value)

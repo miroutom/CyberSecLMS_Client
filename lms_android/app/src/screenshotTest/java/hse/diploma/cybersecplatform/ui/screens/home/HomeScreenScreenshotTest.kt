@@ -26,5 +26,7 @@ fun PreviewHomeScreen() =
             onSearchQueryChange = {},
             onCourseClick = {},
             onReload = {},
+            onCreateCourseClick = {},
+            isTeacher = true,
         )
     }

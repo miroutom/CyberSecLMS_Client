@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
@@ -87,7 +87,7 @@ fun StartedCourseCard(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(R.string.course_progress, course.progress) + '%',
+                text = stringResource(R.string.course_progress, course.progress ?: 0) + '%',
                 fontFamily = Montserrat,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
@@ -104,7 +104,7 @@ fun StartedCourseCard(
                     ),
             ) {
                 OutlinedLinearProgressBar(
-                    progress = course.progress.toFloat() / 100f,
+                    progress = (course.progress?.toFloat()?.div(100f)) ?: 0f,
                     color = colorResource(config.signatureColor),
                 )
             }
@@ -112,13 +112,24 @@ fun StartedCourseCard(
     }
 }
 
-@PreviewLightDark
 @Composable
+@Preview(showBackground = true, apiLevel = 30)
 private fun StartedCourseCardPreview() {
     CyberSecPlatformTheme {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             StartedCourseCard(
-                course = Course(vulnerabilityType = VulnerabilityType.XSS, completedTasks = 3, tasksCount = 10),
+                course =
+                    Course(
+                        id = 1,
+                        title = "XSS Attacks Course",
+                        description = "Learn about different types of XSS vulnerabilities",
+                        vulnerabilityType = VulnerabilityType.XSS,
+                        difficultyLevel = "medium",
+                        category = "web",
+                        tasks = emptyList(),
+                        completedTasks = 3,
+                        tasksCount = 10,
+                    ),
                 onClick = {},
             )
         }

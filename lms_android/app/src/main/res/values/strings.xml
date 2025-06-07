@@ -131,4 +131,37 @@
     <string name="otp_sent_general_message">Код подтверждения отправлен на ваш e-mail</string>
     <string name="camera_permission_required">Отсутствует разрешение на камеру</string>
     <string name="choose_photo_source">Выберите источник загрузки фото</string>
+
+    <string name="create_course">Создать курс</string>
+    <string name="edit_course">Редактировать курс</string>
+    <string name="course_title">Название курса</string>
+    <string name="course_description">Описание курса</string>
+    <string name="vulnerability_type">Тип уязвимости</string>
+
+    <string name="create_task">Создать задание</string>
+    <string name="edit_task">Редактировать задание</string>
+    <string name="task_title">Название задания</string>
+    <string name="task_description">Описание задания</string>
+    <string name="difficulty">Сложность</string>
+
+    <string name="course_editor_title">Редактор курсов</string>
+
+    <string name="register_as_teacher">Зарегистрироваться как преподаватель</string>
+    <string name="completed_courses">Завершённые курсы</string>
+    <string name="total_points">Набрано очков</string>
+    <string name="completed_tasks">Завершённые задания</string>
+    <string name="average_score">Средний балл</string>
+    <string name="joined_date">Дата регистрации</string>
+    <string name="last_activity_session">Последняя активность</string>
+
+    <string name="success_dialog_title">Успех</string>
+
+    <string name="submit_button" translatable="false">Submit</string>
+
+    <string name="task_points">Счет: %d</string>
+    <string name="success">✓ Успех!</string>
+    <string name="failure">\"✗ Неудача!\"</string>
+
+    <string name="description_tab">Описание</string>
+    <string name="editor_tab">Редактор кода</string>
 </resources>

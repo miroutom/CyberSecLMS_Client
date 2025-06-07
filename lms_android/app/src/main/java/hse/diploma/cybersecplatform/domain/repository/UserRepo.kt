@@ -2,6 +2,7 @@ package hse.diploma.cybersecplatform.domain.repository
 
 import android.content.ContentResolver
 import android.net.Uri
+import hse.diploma.cybersecplatform.data.model.analytics.UserStatistics
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.data.model.user.UserProgress
@@ -22,4 +23,6 @@ interface UserRepo {
         userId: Int,
         taskId: Int,
     ): Result<MessageResponse>
+
+    suspend fun getUserStatistics(userId: Int): Result<UserStatistics>
 }

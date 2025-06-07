@@ -19,9 +19,19 @@ sealed class Screen(
 
     data object Profile : Screen("profile", R.string.profile_title)
 
-    data object TaskScreen : Screen("taskScreen/{vulnerabilityType}", R.string.tasks_title) {
-        fun createRoute(vulnerabilityTypeName: String) = "taskScreen/$vulnerabilityTypeName"
+    data object TasksScreen : Screen("tasksScreen/{courseId}", R.string.tasks_title) {
+        fun createRoute(courseId: Int) = "tasksScreen/$courseId"
+    }
+
+    data object CodeEditor : Screen("code_editor/{taskId}") {
+        fun createRoute(taskId: Int) = "code_editor/$taskId"
     }
 
     data object Settings : Screen("settings", R.string.settings_title)
+
+    data object CourseEditor : Screen("course_editor", R.string.course_editor_title)
+
+    data object TaskEditor : Screen("task_editor/{taskId}") {
+        fun createRoute(taskId: Int? = null) = "task_editor/${taskId ?: "new"}"
+    }
 }

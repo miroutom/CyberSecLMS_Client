@@ -4,15 +4,13 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.data.model.analytics.UserStatistics
 import hse.diploma.cybersecplatform.data.model.user.UserData
-import hse.diploma.cybersecplatform.data.model.user.UserStats
 import hse.diploma.cybersecplatform.domain.error.ErrorType
-import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
-import hse.diploma.cybersecplatform.ui.state.shared.AccountDeletionState
-import hse.diploma.cybersecplatform.ui.state.shared.PasswordState
 import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
+import hse.diploma.cybersecplatform.utils.logE
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,16 +19,9 @@ import javax.inject.Inject
 
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepo,
-    private val authRepository: AuthRepo,
 ) : ViewModel() {
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
     val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
-
-    private val _passwordState = MutableStateFlow<PasswordState>(PasswordState.Idle)
-    val passwordState: StateFlow<PasswordState> = _passwordState.asStateFlow()
-
-    private val _accountDeletionState = MutableStateFlow<AccountDeletionState>(AccountDeletionState.Idle)
-    val accountDeletionState: StateFlow<AccountDeletionState> = _accountDeletionState.asStateFlow()
 
     init {
         loadProfile()
@@ -40,27 +31,59 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
             try {
-                val result = userRepository.getUserProfile()
+                val userProfileResult = userRepository.getUserProfile()
 
-                result.onSuccess { user ->
-                    _profileState.value =
-                        ProfileState.Success(
-                            ProfileUiState(
-                                userData = user,
-                                stats =
-                                    UserStats(
-                                        totalCourses = user.courses.size,
-                                        completedTasks = user.completedTasks,
-                                        totalTasks = user.totalTasks,
-                                        progress = user.progress,
-                                    ),
-                            ),
-                        )
+                userProfileResult.onSuccess { user ->
+                    val statsResult = userRepository.getUserStatistics(user.id)
+
+                    statsResult.onSuccess { stats ->
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = stats,
+                                ),
+                            )
+                    }.onFailure { e ->
+                        val courses = user.courses ?: emptyList()
+
+                        val courseProgressList =
+                            courses.map { course ->
+                                UserStatistics.CourseProgress(
+                                    averageScore = 0.0,
+                                    completionPercentage = course.progress,
+                                    courseId = course.courseId,
+                                    courseName = course.title ?: "N/A",
+                                    lastActivity = user.lastLogin ?: "N/A",
+                                )
+                            }
+
+                        val basicStats =
+                            UserStatistics(
+                                averageScore = 0.0,
+                                completedCourses = courses.count { it.progress >= 100.0 },
+                                completedTasks = user.completedTasks,
+                                coursesProgress = courseProgressList,
+                                joinedDate = "N/A",
+                                lastActive = user.lastLogin ?: "N/A",
+                                totalCourses = courses.size,
+                                totalPoints = 0,
+                                totalTasks = user.totalTasks,
+                                userId = user.id,
+                            )
+
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = basicStats,
+                                ),
+                            )
+
+                        logE(TAG, "Failed to load statistics", e)
+                    }
                 }.onFailure { e ->
-                    _profileState.value =
-                        ProfileState.Error(
-                            e.toErrorType(TAG) ?: ErrorType.Other,
-                        )
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
                 }
             } catch (e: Exception) {
                 _profileState.value = ProfileState.Error(e.toErrorType(TAG))
@@ -69,6 +92,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun updateProfile(
+        username: String,
         fullName: String,
         email: String,
     ) {
@@ -92,7 +116,7 @@ class ProfileViewModel @Inject constructor(
                 result.onSuccess {
                     loadProfile()
                 }.onFailure { e ->
-                    _profileState.value = ProfileState.Error(e.toErrorType(TAG) ?: ErrorType.Other)
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
                 }
             } catch (e: Exception) {
                 _profileState.value = ProfileState.Error(e.toErrorType(TAG))
@@ -109,82 +133,60 @@ class ProfileViewModel @Inject constructor(
             try {
                 val result = userRepository.uploadAvatar(avatarUri, contentResolver)
                 result.onSuccess { user ->
-                    _profileState.value =
-                        ProfileState.Success(
-                            ProfileUiState(
-                                userData = user,
-                                stats =
-                                    UserStats(
-                                        totalCourses = user.courses.size,
-                                        completedTasks = user.completedTasks,
-                                        totalTasks = user.totalTasks,
-                                        progress = user.progress,
-                                    ),
-                            ),
-                        )
+                    val currentState = (_profileState.value as? ProfileState.Success)?.uiState
+                    val currentStats = currentState?.stats
+
+                    if (currentStats != null) {
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = currentStats,
+                                ),
+                            )
+                    } else {
+                        val courses = user.courses ?: emptyList()
+
+                        val courseProgressList =
+                            courses.map { course ->
+                                UserStatistics.CourseProgress(
+                                    averageScore = 0.0,
+                                    completionPercentage = course.progress,
+                                    courseId = course.courseId,
+                                    courseName = course.title ?: "N/A",
+                                    lastActivity = user.lastLogin ?: "N/A",
+                                )
+                            }
+
+                        val basicStats =
+                            UserStatistics(
+                                averageScore = 0.0,
+                                completedCourses = courses.count { it.progress >= 100.0 },
+                                completedTasks = user.completedTasks,
+                                coursesProgress = courseProgressList,
+                                joinedDate = "N/A",
+                                lastActive = user.lastLogin ?: "N/A",
+                                totalCourses = courses.size,
+                                totalPoints = 0,
+                                totalTasks = user.totalTasks,
+                                userId = user.id,
+                            )
+
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = basicStats,
+                                ),
+                            )
+                    }
                 }.onFailure { e ->
-                    _profileState.value = ProfileState.Error(e.toErrorType(TAG) ?: ErrorType.Other)
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
                 }
             } catch (e: Exception) {
                 _profileState.value = ProfileState.Error(e.toErrorType(TAG))
             }
         }
-    }
-
-    fun changePassword(
-        currentPassword: String,
-        newPassword: String,
-    ) {
-        viewModelScope.launch {
-            _passwordState.value = PasswordState.Loading
-            try {
-                val result = authRepository.changePassword(currentPassword, newPassword)
-                result.onSuccess {
-                    _passwordState.value = PasswordState.Success
-                }.onFailure { e ->
-                    _passwordState.value = PasswordState.Error(e.toErrorType(TAG) ?: ErrorType.Other)
-                }
-            } catch (e: Exception) {
-                _passwordState.value = PasswordState.Error(e.toErrorType(TAG))
-            }
-        }
-    }
-
-    fun requestAccountDeletion(password: String) {
-        viewModelScope.launch {
-            _accountDeletionState.value = AccountDeletionState.Loading
-            try {
-                val result = authRepository.requestDeleteAccount(password)
-                result.onSuccess {
-                    _accountDeletionState.value = AccountDeletionState.ConfirmationRequired
-                }.onFailure { e ->
-                    _accountDeletionState.value = AccountDeletionState.Error(e.toErrorType(TAG) ?: ErrorType.Other)
-                }
-            } catch (e: Exception) {
-                _accountDeletionState.value = AccountDeletionState.Error(e.toErrorType(TAG))
-            }
-        }
-    }
-
-    fun confirmAccountDeletion(code: String) {
-        viewModelScope.launch {
-            _accountDeletionState.value = AccountDeletionState.Loading
-            try {
-                val result = authRepository.confirmDeleteAccount(code)
-                result.onSuccess {
-                    _accountDeletionState.value = AccountDeletionState.Success
-                    authRepository.logout()
-                }.onFailure { e ->
-                    _accountDeletionState.value = AccountDeletionState.Error(e.toErrorType(TAG) ?: ErrorType.Other)
-                }
-            } catch (e: Exception) {
-                _accountDeletionState.value = AccountDeletionState.Error(e.toErrorType(TAG))
-            }
-        }
-    }
-
-    fun logout() {
-        authRepository.logout()
     }
 
     companion object {
@@ -194,5 +196,5 @@ class ProfileViewModel @Inject constructor(
 
 data class ProfileUiState(
     val userData: UserData,
-    val stats: UserStats,
+    val stats: UserStatistics,
 )
