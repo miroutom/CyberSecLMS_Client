@@ -242,10 +242,11 @@ type LoginResponse struct {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required" example:"newuser"`
-	Password string `json:"password" binding:"required" example:"newpassword123"`
-	Email    string `json:"email" binding:"required" example:"user@example.com"`
-	FullName string `json:"fullName" binding:"required" example:"New User"`
+	Username  string `json:"username" binding:"required" example:"newuser"`
+	Password  string `json:"password" binding:"required" example:"newpassword123"`
+	Email     string `json:"email" binding:"required" example:"user@example.com"`
+	FullName  string `json:"fullName" binding:"required" example:"New User"`
+	IsTeacher bool   `json:"isTeacher" binding:"required"`
 }
 
 type RegisterResponse struct {
