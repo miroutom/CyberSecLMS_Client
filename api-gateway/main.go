@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "./configs/config.yaml", "Path to configuration file")
+	configPath := flag.String("config", "./api-gateway/configs/config.yaml", "Path to configuration file")
 	flag.Parse()
 
 	config, err := utils.LoadConfig(*configPath)
