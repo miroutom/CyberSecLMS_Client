@@ -73,22 +73,3 @@ func (suite *FunctionalTestSuite) TestGetUserLearningPath() {
 	assert.Equal(t, 2, learningPath.UserID)
 	assert.NotEmpty(t, learningPath.Recommendations)
 }
-
-func (suite *FunctionalTestSuite) getAdminToken() string {
-	loginReq := models.LoginRequest{
-		Username: "admin",
-		Password: "1",
-	}
-
-	resp, err := suite.client.R().
-		SetBody(loginReq).
-		SetResult(&models.LoginResponse{}).
-		Post("/api/login")
-
-	if err != nil || resp.StatusCode() != http.StatusOK {
-		return ""
-	}
-
-	result := resp.Result().(*models.LoginResponse)
-	return result.Token
-}
