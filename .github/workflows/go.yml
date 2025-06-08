@@ -1,4 +1,4 @@
-name: Go Lint
+name: Go CI
 
 on:
   push:
@@ -23,12 +23,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24'
+          go-version: '1.21'
 
       - name: Download dependencies
         run: |
           go mod download
-     
+
       - name: Clean modcache
         run: |
           go clean -modcache
@@ -40,3 +40,84 @@ jobs:
         with:
           version: latest
           args: --out-format=colored-line-number
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: ["backend-svc", "api-gateway"]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install go-junit-report
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
+
+      - name: Run unit tests
+        run: |
+          cd ${{ matrix.module }}/test/ut && \
+          go test -v ./... 2>&1 | tee test-output.txt && \
+          cat test-output.txt | go-junit-report -set-exit-code > ../report.xml
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report-${{ matrix.module }}
+          path: ${{ matrix.module }}/test/report.xml
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: ${{ matrix.module }}/test/report.xml
+
+  functional-tests:
+    name: Functional Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: ["backend-svc", "api-gateway"]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install go-junit-report
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
+
+      - name: Build application
+        run: cd ${{ matrix.module }} && go build -o ./bin/app .
+
+      - name: Run functional tests
+        run: |
+          cd ${{ matrix.module }}/test/ft && \
+          go test -v ./... 2>&1 | tee test-output.txt && \
+          cat test-output.txt | go-junit-report -set-exit-code > ../report.xml
+
+      - name: Upload Functional Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: functional-test-report-${{ matrix.module }}
+          path: ${{ matrix.module }}/test/report.xml
+
+      - name: Publish Functional Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: ${{ matrix.module }}/test/report.xml
