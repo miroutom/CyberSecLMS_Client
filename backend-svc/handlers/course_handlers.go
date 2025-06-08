@@ -527,3 +527,45 @@ func DeleteTask(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, models.SuccessResponse{Message: "Task deleted successfully"})
 }
+
+// GetTaskByID
+// @Summary Get task by ID
+// @Tags Tasks
+// @Produce json
+// @Param course_id path int true "Course ID"
+// @Param task_id path int true "Task ID"
+// @Success 200 {object} models.Task
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /courses/{course_id}/tasks/{task_id} [get]
+func GetTaskByID(c *gin.Context) {
+	courseID, err := strconv.Atoi(c.Param("course_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid course ID"})
+		return
+	}
+
+	taskID, err := strconv.Atoi(c.Param("task_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid task ID"})
+		return
+	}
+
+	task, err := Store.GetTaskByID(courseID, taskID)
+	if err != nil {
+		if err.Error() == "task not found" {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Task not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to retrieve task: " + err.Error()})
+		return
+	}
+
+	if task.CourseID != courseID {
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Task does not belong to the specified course"})
+		return
+	}
+
+	c.JSON(http.StatusOK, task)
+}

@@ -554,3 +554,8 @@ func (s *MockStorage) GetUserLearningPath(userID int) (models.LearningPath, erro
 	//TODO implement me
 	panic("implement me")
 }
+
+func (s *MockStorage) GetTaskByID(courseID, taskID int) (models.Task, error) {
+	//TODO implement me
+	panic("implement me")
+}
