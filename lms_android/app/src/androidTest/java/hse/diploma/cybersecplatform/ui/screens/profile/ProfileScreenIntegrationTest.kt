@@ -9,9 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.domain.error.ErrorType
+import hse.diploma.cybersecplatform.mock.mockStats
+import hse.diploma.cybersecplatform.mock.mockUser
 import hse.diploma.cybersecplatform.navigation.Screen
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.isCircularProgressIndicator
@@ -51,7 +52,11 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(
+                    profileViewModel = viewModel,
+                    authStateViewModel = authStateViewModel,
+                    navHostController = navController,
+                )
             }
         }
 
@@ -66,7 +71,11 @@ class ProfileScreenIntegrationTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(
+                    profileViewModel = viewModel,
+                    authStateViewModel = authStateViewModel,
+                    navHostController = navController,
+                )
             }
         }
 
@@ -79,23 +88,27 @@ class ProfileScreenIntegrationTest {
         every { viewModel.profileState } returns
             MutableStateFlow(
                 ProfileState.Success(
-                    ProfileUiState(userData = testUser),
+                    ProfileUiState(userData = mockUser, stats = mockStats),
                 ),
             )
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(
+                    profileViewModel = viewModel,
+                    authStateViewModel = authStateViewModel,
+                    navHostController = navController,
+                )
             }
         }
 
         composeRule.onNodeWithText(
-            text = context.getString(R.string.welcome_text, testUser.fullName),
+            text = context.getString(R.string.welcome_text, mockUser.fullName),
             ignoreCase = true,
         ).assertIsDisplayed()
 
         composeRule.onNodeWithText(
-            text = context.getString(R.string.email_label, testUser.email),
+            text = context.getString(R.string.email_label, mockUser.email),
             ignoreCase = true,
         ).assertIsDisplayed()
     }
@@ -105,13 +118,17 @@ class ProfileScreenIntegrationTest {
         every { viewModel.profileState } returns
             MutableStateFlow(
                 ProfileState.Success(
-                    ProfileUiState(userData = testUser),
+                    ProfileUiState(userData = mockUser, stats = mockStats),
                 ),
             )
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(
+                    profileViewModel = viewModel,
+                    authStateViewModel = authStateViewModel,
+                    navHostController = navController,
+                )
             }
         }
 
@@ -126,13 +143,17 @@ class ProfileScreenIntegrationTest {
         every { viewModel.profileState } returns
             MutableStateFlow(
                 ProfileState.Success(
-                    ProfileUiState(userData = testUser),
+                    ProfileUiState(userData = mockUser, stats = mockStats),
                 ),
             )
 
         composeRule.setContent {
             CompositionLocalProvider(LocalAuthStateViewModel provides authStateViewModel) {
-                ProfileScreenWrapper(profileViewModel = viewModel, navHostController = navController)
+                ProfileScreenWrapper(
+                    profileViewModel = viewModel,
+                    authStateViewModel = authStateViewModel,
+                    navHostController = navController,
+                )
             }
         }
 
@@ -140,15 +161,5 @@ class ProfileScreenIntegrationTest {
             .performClick()
 
         verify { authStateViewModel.logout() }
-    }
-
-    companion object {
-        private val testUser =
-            UserData(
-                username = "testuser",
-                fullName = "Test User",
-                email = "test@example.com",
-                null,
-            )
     }
 }

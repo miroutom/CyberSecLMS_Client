@@ -25,6 +25,7 @@ fun PreviewRegistrationScreen() =
             onFullNameChange = {},
             onUsernameChange = {},
             onLoginChange = {},
+            onTeacherStatusChange = {},
             onPasswordChange = {},
             onConfirmPasswordChange = {},
             onRegisterClick = {},

@@ -15,26 +15,27 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Task
-import hse.diploma.cybersecplatform.mock.mockTasksItems
-import hse.diploma.cybersecplatform.ui.components.SearchBar
+import hse.diploma.cybersecplatform.navigation.Screen
+import hse.diploma.cybersecplatform.ui.components.bars.SearchBar
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
 import hse.diploma.cybersecplatform.ui.components.dialogs.FilterSelectionDialog
 import hse.diploma.cybersecplatform.ui.model.Difficulty
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.state.screen_state.TasksScreenState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 
 @Composable
 fun TasksScreen(
     state: TasksScreenState,
-    vulnerabilityType: VulnerabilityType,
     onSearchQueryChange: (TextFieldValue) -> Unit,
     onFilterClick: () -> Unit,
     onFilterSelected: (List<Difficulty>) -> Unit,
     onDismissFilter: () -> Unit,
     onClearFilters: () -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -49,7 +50,7 @@ fun TasksScreen(
 
         TasksContent(
             items = state.tasks,
-            vulnerabilityType = vulnerabilityType,
+            navController = navController,
         )
     }
 
@@ -67,11 +68,9 @@ fun TasksScreen(
 @Composable
 private fun TasksContent(
     items: List<Task>,
-    vulnerabilityType: VulnerabilityType,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
-    val filteredItems = items.filter { it.vulnerabilityType == vulnerabilityType }
-
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier =
@@ -79,10 +78,10 @@ private fun TasksContent(
                 .fillMaxWidth()
                 .padding(top = 8.dp),
     ) {
-        items(filteredItems) { item ->
+        items(items) { item ->
             TaskCard(
                 task = item,
-                onClick = {},
+                onClick = { navController.navigate(Screen.CodeEditor.createRoute(item.id)) },
             )
         }
 
@@ -97,13 +96,13 @@ private fun TasksContent(
 private fun TasksScreenPreview() {
     CyberSecPlatformTheme {
         TasksScreen(
-            state = TasksScreenState(tasks = mockTasksItems),
-            vulnerabilityType = VulnerabilityType.SQL,
+            state = TasksScreenState(tasks = emptyList()),
             onSearchQueryChange = {},
             onFilterClick = {},
             onFilterSelected = {},
             onDismissFilter = {},
             onClearFilters = {},
+            rememberNavController(),
         )
     }
 }

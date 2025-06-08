@@ -68,7 +68,7 @@ private fun errorText(errorType: ErrorType): String {
     return when (errorType) {
         ErrorType.NoInternet -> stringResource(R.string.no_internet_error)
         is ErrorType.Server -> stringResource(R.string.server_error)
-        ErrorType.Other -> stringResource(R.string.other_error)
+        ErrorType.Other, ErrorType.AccessDenied -> stringResource(R.string.other_error)
     }
 }
 
@@ -77,7 +77,7 @@ private fun errorImage(errorType: ErrorType): Painter {
     return when (errorType) {
         ErrorType.NoInternet -> painterResource(R.drawable.ic_no_wifi)
         is ErrorType.Server -> painterResource(R.drawable.ic_server_error)
-        ErrorType.Other -> painterResource(R.drawable.ic_other_error)
+        ErrorType.Other, ErrorType.AccessDenied -> painterResource(R.drawable.ic_other_error)
     }
 }
 

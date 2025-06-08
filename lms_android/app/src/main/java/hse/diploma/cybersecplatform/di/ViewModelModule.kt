@@ -10,12 +10,15 @@ import hse.diploma.cybersecplatform.di.vm.ViewModelKey
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.AuthorizationViewModel
 import hse.diploma.cybersecplatform.ui.screens.auth.RegistrationViewModel
+import hse.diploma.cybersecplatform.ui.screens.code_editor.CodeEditorViewModel
 import hse.diploma.cybersecplatform.ui.screens.courses.MyCoursesViewModel
 import hse.diploma.cybersecplatform.ui.screens.home.HomeViewModel
+import hse.diploma.cybersecplatform.ui.screens.onboarding.OnBoardingViewModel
 import hse.diploma.cybersecplatform.ui.screens.otp.OtpViewModel
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileViewModel
 import hse.diploma.cybersecplatform.ui.screens.settings.SettingsViewModel
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksViewModel
+import hse.diploma.cybersecplatform.ui.screens.teacher.TeacherCoursesViewModel
 
 @Module
 abstract class ViewModelModule {
@@ -66,4 +69,19 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SettingsViewModel::class)
     abstract fun provideSettingsViewModel(viewModel: SettingsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TeacherCoursesViewModel::class)
+    abstract fun provideTeacherCoursesViewModel(viewModel: TeacherCoursesViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(OnBoardingViewModel::class)
+    abstract fun provideOnBoardingViewModel(viewModel: OnBoardingViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CodeEditorViewModel::class)
+    abstract fun provideCodeEditorViewModel(viewModel: CodeEditorViewModel): ViewModel
 }

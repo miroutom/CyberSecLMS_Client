@@ -2,6 +2,7 @@ package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.TokenManager
+import hse.diploma.cybersecplatform.data.model.request.ChangePasswordRequest
 import hse.diploma.cybersecplatform.data.model.request.DeleteAccountConfirmRequest
 import hse.diploma.cybersecplatform.data.model.request.DeleteAccountInitRequest
 import hse.diploma.cybersecplatform.data.model.request.ForgotPasswordRequest
@@ -46,9 +47,10 @@ class AuthRepoImpl @Inject constructor(
         password: String,
         email: String,
         fullName: String,
+        isTeacher: Boolean,
     ): Result<RegisterResponse> {
         return try {
-            val response = apiService.register(RegisterRequest(username, password, email, fullName))
+            val response = apiService.register(RegisterRequest(username, password, email, fullName, isTeacher))
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
@@ -136,6 +138,26 @@ class AuthRepoImpl @Inject constructor(
         }
     }
 
+    override suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String,
+    ): Result<Map<String, String>> {
+        return try {
+            val request = ChangePasswordRequest(currentPassword, newPassword)
+            val response = apiService.changePassword(request)
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Password change failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun requestDeleteAccount(password: String): Result<TempTokenResponse> {
         return try {
             val request = DeleteAccountInitRequest(password = password)
@@ -152,20 +174,18 @@ class AuthRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun confirmDeleteAccount(
-        otpValue: String,
-        tempToken: String,
-    ): Result<MessageResponse> {
+    override suspend fun confirmDeleteAccount(code: String): Result<MessageResponse> {
         return try {
-            val request = DeleteAccountConfirmRequest(code = otpValue)
+            val request = DeleteAccountConfirmRequest(code)
             val response = apiService.confirmDeleteAccount(request)
 
-            if (response.isSuccessful && response.body() != null) {
+            if (response.isSuccessful) {
                 logout()
-                Result.success(response.body()!!)
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response body"))
             } else {
-                val errorMessage = response.errorBody()?.string() ?: "Failed to delete account"
-                Result.failure(Exception(errorMessage))
+                Result.failure(Exception(response.errorBody()?.string() ?: "Account deletion failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)

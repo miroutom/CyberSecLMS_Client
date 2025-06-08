@@ -6,17 +6,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import hse.diploma.cybersecplatform.di.vm.LocalAuthStateViewModel
 import hse.diploma.cybersecplatform.di.vm.LocalViewModelFactory
 import hse.diploma.cybersecplatform.navigation.Screen
+import hse.diploma.cybersecplatform.ui.screens.auth.AuthStateViewModel
 
 @Composable
 fun ProfileScreenWrapper(
     profileViewModel: ProfileViewModel = viewModel(factory = LocalViewModelFactory.current),
+    authStateViewModel: AuthStateViewModel,
     navHostController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val authStateViewModel = LocalAuthStateViewModel.current
     val profileState by profileViewModel.profileState.collectAsState()
 
     ProfileScreen(

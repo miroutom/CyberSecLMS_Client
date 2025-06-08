@@ -26,10 +26,16 @@ class HomeViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow(TextFieldValue(""))
     val searchQuery = _searchQuery.asStateFlow()
 
+    init {
+        loadCourses()
+    }
+
     fun loadCourses() {
+        logD(TAG, "loadCourses")
         viewModelScope.launch {
             _allCoursesState.value = AllCoursesState.Loading
             val result = coursesRepo.getAllCourses()
+            logD(TAG, "loadCourses result = $result")
             if (result.isSuccess) {
                 val courses = result.getOrNull()!!
                 _allCoursesState.value =

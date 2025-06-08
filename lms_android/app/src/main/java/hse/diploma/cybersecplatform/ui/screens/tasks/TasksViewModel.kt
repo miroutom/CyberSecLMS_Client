@@ -2,20 +2,43 @@ package hse.diploma.cybersecplatform.ui.screens.tasks
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import hse.diploma.cybersecplatform.mock.mockTasksItems
+import androidx.lifecycle.viewModelScope
+import hse.diploma.cybersecplatform.domain.model.Task
+import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.utils.logD
+import hse.diploma.cybersecplatform.utils.logE
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class TasksViewModel @Inject constructor() : ViewModel() {
-    // TODO: replace with api service
-    private val _tasks = MutableStateFlow(mockTasksItems)
+class TasksViewModel @Inject constructor(
+    private val coursesRepo: CoursesRepo,
+) : ViewModel() {
+    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks = _tasks.asStateFlow()
 
     private val _searchQuery = MutableStateFlow(TextFieldValue(""))
     val searchQuery = _searchQuery.asStateFlow()
+
+    private var courseId: Int = -1
+    private var originalTasks: List<Task> = emptyList()
+
+    fun loadTasksForCourse(courseId: Int) {
+        this.courseId = courseId
+        viewModelScope.launch {
+            logD(TAG, "Loading tasks for course: $courseId")
+            coursesRepo.getCourseById(courseId).onSuccess { course ->
+                originalTasks = course.tasks
+                _tasks.value = originalTasks
+                logD(TAG, "Loaded ${course.tasks.size} tasks for course ${course.title}")
+            }.onFailure { e ->
+                logE(TAG, "Failed to load tasks for course $courseId", e)
+                _tasks.value = emptyList()
+            }
+        }
+    }
 
     fun onSearchQueryChange(newSearchQuery: TextFieldValue) {
         _searchQuery.value = newSearchQuery
@@ -25,19 +48,32 @@ class TasksViewModel @Inject constructor() : ViewModel() {
     fun filterTaskByDifficulty(selectedDifficulties: List<Difficulty>) {
         logD(TAG, "filterTaskByDifficulty: ${selectedDifficulties.joinToString(" ")}")
         _tasks.value =
-            mockTasksItems.filter { task ->
-                selectedDifficulties.contains(task.difficulty)
+            if (selectedDifficulties.isEmpty()) {
+                originalTasks
+            } else {
+                originalTasks.filter { task ->
+                    selectedDifficulties.contains(task.difficulty)
+                }
             }
     }
 
     fun resetFilters() {
         logD(TAG, "resetFilters")
-        _tasks.value = mockTasksItems
+        _tasks.value = originalTasks
+        _searchQuery.value = TextFieldValue("")
     }
 
     private fun searchForTask(query: String) {
         logD(TAG, "searchForTask: $query")
-        _tasks.value = mockTasksItems.filter { it.description.contains(query, true) }
+        _tasks.value =
+            if (query.isEmpty()) {
+                originalTasks
+            } else {
+                originalTasks.filter {
+                    it.description.contains(query, true) ||
+                        it.title.contains(query, true)
+                }
+            }
     }
 
     companion object {

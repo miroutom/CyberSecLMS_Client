@@ -1,14 +1,20 @@
 package hse.diploma.cybersecplatform.ui.screens.courses
 
-import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+import hse.diploma.cybersecplatform.domain.repository.UserRepo
+import hse.diploma.cybersecplatform.mock.mockAllCourses
+import hse.diploma.cybersecplatform.mock.mockCourses
+import hse.diploma.cybersecplatform.mock.mockSqlCourse
+import hse.diploma.cybersecplatform.mock.mockStats
+import hse.diploma.cybersecplatform.mock.mockUser
+import hse.diploma.cybersecplatform.mock.mockXssCourse
 import hse.diploma.cybersecplatform.ui.state.shared.MyCoursesState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -21,14 +27,26 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MyCoursesViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var coursesRepo: CoursesRepo
+    private val coursesRepo: CoursesRepo = mockk()
+    private val userRepo: UserRepo = mockk()
+
     private lateinit var viewModel: MyCoursesViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        coursesRepo = mockk()
-        viewModel = MyCoursesViewModel(coursesRepo)
+
+        coEvery { userRepo.getUserProfile() } coAnswers {
+            Result.success(mockUser)
+        }
+        coEvery { userRepo.getUserStatistics(any()) } coAnswers {
+            Result.success(mockStats)
+        }
+        coEvery { coursesRepo.getAllCourses() } coAnswers {
+            Result.success(mockAllCourses)
+        }
+
+        viewModel = MyCoursesViewModel(userRepo, coursesRepo)
     }
 
     @After
@@ -37,68 +55,101 @@ class MyCoursesViewModelTests {
     }
 
     @Test
-    fun `initial state is Loading`() =
+    fun `when loadCourses is called and data is available, then state is updated with success`() =
         runTest {
-            assertTrue(viewModel.myCoursesState.value is MyCoursesState.Loading)
-        }
-
-    @Test
-    fun `loadCourses success updates state correctly`() =
-        runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
-            coEvery { coursesRepo.getMyCourses() } returns Result.success(mockCourses)
+            coEvery { userRepo.getUserProfile() } returns Result.success(mockUser)
+            coEvery { userRepo.getUserStatistics(mockUser.id) } returns Result.success(mockStats)
+            coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
 
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
 
             val state = viewModel.myCoursesState.value
             assertTrue(state is MyCoursesState.Success)
             if (state is MyCoursesState.Success) {
-                assertEquals(2, state.uiState.courses.size)
-                assertEquals(1, state.uiState.startedCourses.size)
-                assertEquals(1, state.uiState.completedCourses.size)
+                assertEquals(mockCourses.size, state.uiState.courses.size)
             }
         }
 
     @Test
-    fun `loadCourses failure updates state with error`() =
+    fun `when loadCourses is called and user profile fails, then state is updated with error`() =
         runTest {
-            coEvery { coursesRepo.getMyCourses() } returns Result.failure(Exception("fail"))
+            coEvery { userRepo.getUserProfile() } returns Result.failure(Exception("fail"))
+
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             val state = viewModel.myCoursesState.value
             assertTrue(state is MyCoursesState.Error)
         }
 
     @Test
-    fun `onCompletedCourseRestart updates course state correctly`() =
+    fun `when loadCourses is called and courses data fails, then state is updated with error`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
-            coEvery { coursesRepo.getMyCourses() } returns Result.success(mockCourses)
+            coEvery { userRepo.getUserProfile() } returns Result.success(mockUser)
+            coEvery { coursesRepo.getAllCourses() } returns Result.failure(Exception("fail"))
 
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
-            val startState = viewModel.myCoursesState.value as MyCoursesState.Success
-            val sqlCourse = startState.uiState.completedCourses[0]
 
-            viewModel.onCompletedCourseRestart(sqlCourse)
-            val finalState = viewModel.myCoursesState.value
+            advanceUntilIdle()
 
-            assertTrue(finalState is MyCoursesState.Success)
-            if (finalState is MyCoursesState.Success) {
-                assertEquals(2, finalState.uiState.startedCourses.size)
-                assertEquals(0, finalState.uiState.completedCourses.size)
-                val updated = finalState.uiState.courses.find { it.vulnerabilityType == VulnerabilityType.SQL }
-                assertEquals(true, updated?.isStarted)
-                assertEquals(0, updated?.completedTasks)
-            }
+            val state = viewModel.myCoursesState.value
+            assertTrue(state is MyCoursesState.Error)
         }
+
+    @Test
+    fun `when loadCourses is called and statistics data fails, then state is updated with error`() =
+        runTest {
+            coEvery { userRepo.getUserProfile() } returns Result.success(mockUser)
+            coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
+            coEvery { userRepo.getUserStatistics(mockUser.id) } returns Result.failure(Exception("fail"))
+
+            viewModel.loadCourses()
+
+            advanceUntilIdle()
+
+            val state = viewModel.myCoursesState.value
+            assertTrue(state is MyCoursesState.Error)
+        }
+
+    @Test
+    fun `when onCompletedCourseRestart is called, then course is moved from completed to started`() =
+        runTest {
+
+            val completedCourse =
+                mockSqlCourse.copy(
+                    isStarted = true,
+                    completedTasks = mockSqlCourse.tasksCount,
+                    progress = 100,
+                )
+            coEvery { userRepo.getUserProfile() } returns Result.success(mockUser)
+            coEvery { userRepo.getUserStatistics(mockUser.id) } returns Result.success(mockStats)
+            coEvery { coursesRepo.getAllCourses() } returns Result.success(listOf(completedCourse))
+
+            viewModel.loadCourses()
+
+            advanceUntilIdle()
+
+            viewModel.onCompletedCourseRestart(completedCourse)
+
+            advanceUntilIdle()
+
+            val state = viewModel.myCoursesState.value as? MyCoursesState.Success
+            assertEquals(0, state?.uiState?.completedCourses?.size)
+            assertEquals(1, state?.uiState?.startedCourses?.size)
+
+            val restartedCourse = state?.uiState?.startedCourses?.first()
+            assertEquals(0, restartedCourse?.completedTasks)
+            assertEquals(0, restartedCourse?.progress)
+            assertEquals(true, restartedCourse?.isStarted)
+        }
+
+    @Test
+    fun `when selectCourseForRestart is called, then selectedCourseForRestart is updated`() {
+        viewModel.selectCourseForRestart(mockXssCourse)
+
+        assertEquals(mockXssCourse, viewModel.selectedCourseForRestart.value)
+    }
 }

@@ -8,10 +8,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.mock.mockTasksItems
+import hse.diploma.cybersecplatform.mock.mockTasks
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import io.mockk.every
 import io.mockk.mockk
@@ -33,18 +34,19 @@ class TasksScreenIntegrationTest {
 
     @Before
     fun setUp() {
-        viewModel = mockk()
+        viewModel = mockk(relaxed = true)
         navController = mockk(relaxed = true)
 
-        every { viewModel.tasks } returns MutableStateFlow(mockTasksItems)
+        every { viewModel.tasks } returns MutableStateFlow(mockTasks)
         every { viewModel.searchQuery } returns MutableStateFlow(TextFieldValue(""))
         every { viewModel.onSearchQueryChange(any()) } answers {
             val query = firstArg<TextFieldValue>().text
             every { viewModel.tasks } returns
                 MutableStateFlow(
-                    mockTasksItems.filter { it.description.contains(query, true) },
+                    mockTasks.filter { it.description.contains(query, true) },
                 )
         }
+        every { viewModel.loadTasksForCourse(any()) } returns Unit
     }
 
     private fun getString(resId: Int): String = context.getString(resId)
@@ -54,11 +56,12 @@ class TasksScreenIntegrationTest {
         composeRule.setContent {
             TasksScreenWrapper(
                 viewModel = viewModel,
-                vulnerabilityType = testVulnerabilityType,
+                courseId = 1,
+                rememberNavController(),
             )
         }
 
-        mockTasksItems
+        mockTasks
             .filter { it.vulnerabilityType == testVulnerabilityType }
             .forEach { task ->
                 composeRule.onNodeWithText(task.description)
@@ -71,7 +74,8 @@ class TasksScreenIntegrationTest {
         composeRule.setContent {
             TasksScreenWrapper(
                 viewModel = viewModel,
-                vulnerabilityType = testVulnerabilityType,
+                courseId = 1,
+                rememberNavController(),
             )
         }
 
@@ -79,7 +83,7 @@ class TasksScreenIntegrationTest {
         composeRule.onNodeWithText(getString(R.string.search_bar_label))
             .performTextInput(testQuery)
 
-        mockTasksItems
+        mockTasks
             .filter { it.description.contains(testQuery, true) }
             .forEach { task ->
                 composeRule.onNodeWithText(task.description)
@@ -92,7 +96,8 @@ class TasksScreenIntegrationTest {
         composeRule.setContent {
             TasksScreenWrapper(
                 viewModel = viewModel,
-                vulnerabilityType = testVulnerabilityType,
+                courseId = 1,
+                rememberNavController(),
             )
         }
 

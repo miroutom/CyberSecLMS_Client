@@ -2,11 +2,11 @@ package hse.diploma.cybersecplatform.data.repository
 
 import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.api.TokenManager
-import hse.diploma.cybersecplatform.data.model.UserData
 import hse.diploma.cybersecplatform.data.model.response.LoginResponse
 import hse.diploma.cybersecplatform.data.model.response.MessageResponse
 import hse.diploma.cybersecplatform.data.model.response.RegisterResponse
 import hse.diploma.cybersecplatform.data.model.response.TempTokenResponse
+import hse.diploma.cybersecplatform.mock.mockUser
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +31,7 @@ class AuthRepoImplTests {
     }
 
     @Test
-    fun `login should return success when response is successful`() =
+    fun `when login is called with valid credentials, then return success with token`() =
         runTest {
             val mockResponse =
                 mockk<Response<TempTokenResponse>> {
@@ -47,7 +47,7 @@ class AuthRepoImplTests {
         }
 
     @Test
-    fun `login should return failure when response fails`() =
+    fun `when login is called with invalid credentials, then return failure with error message`() =
         runTest {
             val mockResponse =
                 mockk<Response<TempTokenResponse>> {
@@ -63,7 +63,7 @@ class AuthRepoImplTests {
         }
 
     @Test
-    fun `register should save token when successful`() =
+    fun `when register is called and succeeds, then save token and return success`() =
         runTest {
             val mockResponse =
                 mockk<Response<RegisterResponse>> {
@@ -72,19 +72,19 @@ class AuthRepoImplTests {
                 }
             coEvery { apiService.register(any()) } returns mockResponse
 
-            val result = authRepo.register("user", "pass", "email@test.com", "Full Name")
+            val result = authRepo.register("user", "pass", "email@test.com", "Full Name", isTeacher = false)
 
             verify { tokenManager.saveToken("auth_token") }
             assertTrue(result.isSuccess)
         }
 
     @Test
-    fun `verifyOtp should save token when successful`() =
+    fun `when verifyOtp is called with valid code, then save token and return success`() =
         runTest {
             val mockResponse =
                 mockk<Response<LoginResponse>> {
                     every { isSuccessful } returns true
-                    every { body() } returns LoginResponse("auth_token", UserData("u", "f", "e", null))
+                    every { body() } returns LoginResponse("auth_token", mockUser)
                 }
             coEvery { apiService.verifyOtp(any()) } returns mockResponse
 
@@ -95,65 +95,81 @@ class AuthRepoImplTests {
         }
 
     @Test
-    fun `logout should clear token`() {
+    fun `when logout is called, then token is cleared`() {
         authRepo.logout()
         verify { tokenManager.clearToken() }
     }
 
     @Test
-    fun `isAuthorized should return tokenManager hasToken`() {
+    fun `when isAuthorized is called and token exists, then return true`() {
         every { tokenManager.hasToken() } returns true
         assertTrue(authRepo.isAuthorized())
+    }
 
+    @Test
+    fun `when isAuthorized is called and token does not exist, then return false`() {
         every { tokenManager.hasToken() } returns false
         assertFalse(authRepo.isAuthorized())
     }
 
     @Test
-    fun `forgotPassword should return success when response is successful`() =
+    fun `when forgotPassword is called with valid email, then return success with token`() =
         runTest {
-            val mockResponse =
-                mockk<Response<TempTokenResponse>> {
-                    every { isSuccessful } returns true
-                    every { body() } returns TempTokenResponse("success", "temp_token")
-                }
-            coEvery { apiService.forgotPassword(any()) } returns mockResponse
+            val expected = TempTokenResponse("success", "temp")
+            coEvery { apiService.forgotPassword(any()) } returns Response.success(expected)
 
-            val result = authRepo.forgotPassword(email = "test@example.com")
+            val result = authRepo.forgotPassword(email = "test@test.com")
 
             assertTrue(result.isSuccess)
-            assertEquals("temp_token", result.getOrNull()?.tempToken)
+            assertEquals(expected, result.getOrNull())
         }
 
     @Test
-    fun `resetPassword should return success message when successful`() =
+    fun `when resetPassword is called with valid code, then return success message`() =
         runTest {
-            val mockResponse =
-                mockk<Response<MessageResponse>> {
-                    every { isSuccessful } returns true
-                    every { body() } returns MessageResponse("Password reset successful")
-                }
-            coEvery { apiService.resetPassword(any()) } returns mockResponse
+            val expected = MessageResponse("success")
+            coEvery { apiService.resetPassword(any()) } returns Response.success(expected)
 
-            val result = authRepo.resetPassword("temp", "code", "newPass")
+            val result = authRepo.resetPassword("temp", "code", "new")
 
             assertTrue(result.isSuccess)
-            assertEquals("Password reset successful", result.getOrNull()?.message)
+            assertEquals(expected, result.getOrNull())
         }
 
     @Test
-    fun `confirmDeleteAccount should logout when successful`() =
+    fun `when changePassword is called with valid credentials, then return success message`() =
         runTest {
-            val mockResponse =
-                mockk<Response<MessageResponse>> {
-                    every { isSuccessful } returns true
-                    every { body() } returns MessageResponse("Account deleted")
-                }
-            coEvery { apiService.confirmDeleteAccount(any()) } returns mockResponse
+            val expected = mapOf("status" to "success")
+            coEvery { apiService.changePassword(any()) } returns Response.success(expected)
 
-            val result = authRepo.confirmDeleteAccount("123456", "temp_token")
+            val result = authRepo.changePassword("old", "new")
+
+            assertTrue(result.isSuccess)
+            assertEquals(expected, result.getOrNull())
+        }
+
+    @Test
+    fun `when requestDeleteAccount is called with valid password, then return success with token`() =
+        runTest {
+            val expected = TempTokenResponse("success", "temp")
+            coEvery { apiService.requestDeleteAccount(any()) } returns Response.success(expected)
+
+            val result = authRepo.requestDeleteAccount("pass")
+
+            assertTrue(result.isSuccess)
+            assertEquals(expected, result.getOrNull())
+        }
+
+    @Test
+    fun `when confirmDeleteAccount is called with valid code, then logout and return success`() =
+        runTest {
+            val expected = MessageResponse("success")
+            coEvery { apiService.confirmDeleteAccount(any()) } returns Response.success(expected)
+
+            val result = authRepo.confirmDeleteAccount("code")
 
             verify { tokenManager.clearToken() }
             assertTrue(result.isSuccess)
+            assertEquals(expected, result.getOrNull())
         }
 }

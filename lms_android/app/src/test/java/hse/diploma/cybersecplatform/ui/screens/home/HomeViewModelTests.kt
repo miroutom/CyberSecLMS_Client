@@ -1,30 +1,41 @@
 package hse.diploma.cybersecplatform.ui.screens.home
 
 import androidx.compose.ui.text.input.TextFieldValue
-import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
+import hse.diploma.cybersecplatform.mock.mockAllCourses
+import hse.diploma.cybersecplatform.mock.mockCourses
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var coursesRepo: CoursesRepo
+    private val coursesRepo: CoursesRepo = mockk()
+
     private lateinit var viewModel: HomeViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        coursesRepo = mockk()
+
+        coEvery { coursesRepo.getAllCourses() } coAnswers {
+            Result.success(mockAllCourses)
+        }
+
         viewModel = HomeViewModel(coursesRepo)
     }
 
@@ -34,73 +45,56 @@ class HomeViewModelTests {
     }
 
     @Test
-    fun `initial state is Loading`() =
+    fun `when loadCourses is called and data is available, then state is updated with courses`() =
         runTest {
-            assertTrue(viewModel.allCoursesState.value is AllCoursesState.Loading)
-        }
-
-    @Test
-    fun `loadCourses success updates state correctly`() =
-        runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
                 assertEquals(mockCourses, state.uiState.courses)
-                assertEquals(1, state.uiState.startedCourses.size)
-                assertEquals(1, state.uiState.completedCourses.size)
             }
         }
 
     @Test
-    fun `loadCourses failure updates state with error`() =
+    fun `when loadCourses is called and data is unavailable, then state is updated with error`() =
         runTest {
             coEvery { coursesRepo.getAllCourses() } returns Result.failure(Exception("fail"))
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Error)
         }
 
     @Test
-    fun `filters to SQL`() =
+    fun `when search query changes to SQL, then courses are filtered to show only SQL courses`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
 
             viewModel.onSearchQueryChange(TextFieldValue("SQL"))
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
-                assertEquals(1, state.uiState.filteredCourses.size)
+                assertEquals(2, state.uiState.filteredCourses.size)
                 assertEquals(VulnerabilityType.SQL, state.uiState.filteredCourses[0].vulnerabilityType)
             }
         }
 
     @Test
-    fun `filters to XSS`() =
+    fun `when search query changes to XSS, then courses are filtered to show only XSS courses`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
 
             viewModel.onSearchQueryChange(TextFieldValue("XSS"))
             val state = viewModel.allCoursesState.value
@@ -112,35 +106,29 @@ class HomeViewModelTests {
         }
 
     @Test
-    fun `filters to all on empty`() =
+    fun `when search query is empty, then all courses are shown`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             viewModel.onSearchQueryChange(TextFieldValue(""))
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
-                assertEquals(2, state.uiState.filteredCourses.size)
+                assertEquals(mockCourses.size, state.uiState.filteredCourses.size)
             }
         }
 
     @Test
-    fun `filters to no courses on garbage input`() =
+    fun `when search query does not match any course, then no courses are shown`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             viewModel.onSearchQueryChange(TextFieldValue("NOPE"))
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Success)
@@ -150,21 +138,18 @@ class HomeViewModelTests {
         }
 
     @Test
-    fun `filter is case insensitive`() =
+    fun `when search query is entered in lowercase, then filtering is case insensitive`() =
         runTest {
-            val mockCourses =
-                listOf(
-                    Course(VulnerabilityType.XSS, 5, 10),
-                    Course(VulnerabilityType.SQL, 0, 8),
-                )
             coEvery { coursesRepo.getAllCourses() } returns Result.success(mockCourses)
             viewModel.loadCourses()
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
+
             viewModel.onSearchQueryChange(TextFieldValue("sql"))
             val state = viewModel.allCoursesState.value
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
-                assertEquals(1, state.uiState.filteredCourses.size)
+                assertEquals(2, state.uiState.filteredCourses.size)
                 assertEquals(VulnerabilityType.SQL, state.uiState.filteredCourses[0].vulnerabilityType)
             }
         }

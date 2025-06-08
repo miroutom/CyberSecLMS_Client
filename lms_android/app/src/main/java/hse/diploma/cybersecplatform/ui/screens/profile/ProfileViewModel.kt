@@ -4,14 +4,13 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.analytics.UserStatistics
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.domain.repository.UserRepo
 import hse.diploma.cybersecplatform.extensions.toErrorType
 import hse.diploma.cybersecplatform.ui.state.shared.ProfileState
-import hse.diploma.cybersecplatform.utils.logD
 import hse.diploma.cybersecplatform.utils.logE
-import hse.diploma.cybersecplatform.utils.retry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,20 +30,63 @@ class ProfileViewModel @Inject constructor(
     fun loadProfile() {
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
+            try {
+                val userProfileResult = userRepository.getUserProfile()
 
-            val result = retry { userRepository.getUserProfile() }
+                userProfileResult.onSuccess { user ->
+                    val statsResult = userRepository.getUserStatistics(user.id)
 
-            if (result.isSuccess) {
-                val user = result.getOrNull()!!
-                _profileState.value =
-                    ProfileState.Success(
-                        ProfileUiState(userData = user),
-                    )
-            } else {
-                _profileState.value =
-                    ProfileState.Error(
-                        result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other,
-                    )
+                    statsResult.onSuccess { stats ->
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = stats,
+                                ),
+                            )
+                    }.onFailure { e ->
+                        val courses = user.courses ?: emptyList()
+
+                        val courseProgressList =
+                            courses.map { course ->
+                                UserStatistics.CourseProgress(
+                                    averageScore = 0.0,
+                                    completionPercentage = course.progress,
+                                    courseId = course.courseId,
+                                    courseName = course.title ?: "N/A",
+                                    lastActivity = user.lastLogin ?: "N/A",
+                                )
+                            }
+
+                        val basicStats =
+                            UserStatistics(
+                                averageScore = 0.0,
+                                completedCourses = courses.count { it.progress >= 100.0 },
+                                completedTasks = user.completedTasks,
+                                coursesProgress = courseProgressList,
+                                joinedDate = "N/A",
+                                lastActive = user.lastLogin ?: "N/A",
+                                totalCourses = courses.size,
+                                totalPoints = 0,
+                                totalTasks = user.totalTasks,
+                                userId = user.id,
+                            )
+
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = basicStats,
+                                ),
+                            )
+
+                        logE(TAG, "Failed to load statistics", e)
+                    }
+                }.onFailure { e ->
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
+                }
+            } catch (e: Exception) {
+                _profileState.value = ProfileState.Error(e.toErrorType(TAG))
             }
         }
     }
@@ -54,71 +96,95 @@ class ProfileViewModel @Inject constructor(
         fullName: String,
         email: String,
     ) {
-        logD(TAG, "updateProfile username: $username, fullName: $fullName, email: $email")
-        val currentState = (profileState.value as? ProfileState.Success)?.uiState
-        if (currentState == null) {
-            _profileState.value = ProfileState.Error(ErrorType.Other)
-            return
-        }
-
-        val currentImage = currentState.userData.profileImage
-
         viewModelScope.launch {
             try {
-                val userData =
-                    UserData(
-                        username = username,
-                        fullName = fullName,
-                        email = email,
-                        profileImage = currentImage,
-                    )
+                val currentState = (_profileState.value as? ProfileState.Success)?.uiState
+                if (currentState == null) {
+                    _profileState.value = ProfileState.Error(ErrorType.Other)
+                    return@launch
+                }
 
                 _profileState.value = ProfileState.Loading
 
-                val result = userRepository.updateProfile(userData)
-                if (result.isSuccess) {
-                    val loadResult = userRepository.getUserProfile()
-                    if (loadResult.isSuccess) {
-                        val user = loadResult.getOrNull()!!
-                        _profileState.value = ProfileState.Success(ProfileUiState(userData = user))
-                    } else {
-                        val errorType = loadResult.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other
-                        _profileState.value = ProfileState.Error(errorType)
-                    }
-                } else {
-                    val errorType = result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other
-                    logD(TAG, "Update profile error: $errorType")
-                    _profileState.value = ProfileState.Error(errorType)
+                val updatedUser =
+                    currentState.userData.copy(
+                        fullName = fullName,
+                        email = email,
+                    )
+
+                val result = userRepository.updateProfile(updatedUser)
+                result.onSuccess {
+                    loadProfile()
+                }.onFailure { e ->
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
                 }
             } catch (e: Exception) {
-                logE(TAG, "Exception while updating profile", e)
                 _profileState.value = ProfileState.Error(e.toErrorType(TAG))
             }
         }
     }
 
-    fun uploadPhoto(
-        avatarUri: Uri?,
+    fun uploadAvatar(
+        avatarUri: Uri,
         contentResolver: ContentResolver,
     ) {
-        if (avatarUri == null) return
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
-            val result = userRepository.uploadAvatar(avatarUri, contentResolver)
-            if (result.isSuccess) {
-                loadProfile()
-                val user = result.getOrNull()!!
-                _profileState.value =
-                    ProfileState.Success(
-                        ProfileUiState(
-                            userData = user,
-                        ),
-                    )
-            } else {
-                _profileState.value =
-                    ProfileState.Error(
-                        result.exceptionOrNull()?.toErrorType(TAG) ?: ErrorType.Other,
-                    )
+            try {
+                val result = userRepository.uploadAvatar(avatarUri, contentResolver)
+                result.onSuccess { user ->
+                    val currentState = (_profileState.value as? ProfileState.Success)?.uiState
+                    val currentStats = currentState?.stats
+
+                    if (currentStats != null) {
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = currentStats,
+                                ),
+                            )
+                    } else {
+                        val courses = user.courses ?: emptyList()
+
+                        val courseProgressList =
+                            courses.map { course ->
+                                UserStatistics.CourseProgress(
+                                    averageScore = 0.0,
+                                    completionPercentage = course.progress,
+                                    courseId = course.courseId,
+                                    courseName = course.title ?: "N/A",
+                                    lastActivity = user.lastLogin ?: "N/A",
+                                )
+                            }
+
+                        val basicStats =
+                            UserStatistics(
+                                averageScore = 0.0,
+                                completedCourses = courses.count { it.progress >= 100.0 },
+                                completedTasks = user.completedTasks,
+                                coursesProgress = courseProgressList,
+                                joinedDate = "N/A",
+                                lastActive = user.lastLogin ?: "N/A",
+                                totalCourses = courses.size,
+                                totalPoints = 0,
+                                totalTasks = user.totalTasks,
+                                userId = user.id,
+                            )
+
+                        _profileState.value =
+                            ProfileState.Success(
+                                ProfileUiState(
+                                    userData = user,
+                                    stats = basicStats,
+                                ),
+                            )
+                    }
+                }.onFailure { e ->
+                    _profileState.value = ProfileState.Error(e.toErrorType(TAG))
+                }
+            } catch (e: Exception) {
+                _profileState.value = ProfileState.Error(e.toErrorType(TAG))
             }
         }
     }
@@ -130,4 +196,5 @@ class ProfileViewModel @Inject constructor(
 
 data class ProfileUiState(
     val userData: UserData,
+    val stats: UserStatistics,
 )

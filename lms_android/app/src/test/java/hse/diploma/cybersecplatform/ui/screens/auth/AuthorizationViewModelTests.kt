@@ -8,7 +8,8 @@ import hse.diploma.cybersecplatform.domain.repository.AuthRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -21,13 +22,15 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class AuthorizationViewModelTests {
-    private lateinit var viewModel: AuthorizationViewModel
     private val authRepo: AuthRepo = mock()
-    private val testDispatcher = UnconfinedTestDispatcher()
+    private val testDispatcher = StandardTestDispatcher()
+
+    private lateinit var viewModel: AuthorizationViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+
         viewModel = AuthorizationViewModel(authRepo)
     }
 
@@ -37,7 +40,7 @@ class AuthorizationViewModelTests {
     }
 
     @Test
-    fun `initial state should have empty credentials and disabled login`() =
+    fun `when viewModel is initialized, then credentials are empty and login is disabled`() =
         runTest {
             assertEquals(TextFieldValue(EMPTY_STRING), viewModel.username.first())
             assertEquals(TextFieldValue(EMPTY_STRING), viewModel.password.first())
@@ -46,7 +49,7 @@ class AuthorizationViewModelTests {
         }
 
     @Test
-    fun `onUsernameChange should update username state`() =
+    fun `when onUsernameChange is called, then username state is updated`() =
         runTest {
             val newUsername = TextFieldValue(VALID_USERNAME)
             viewModel.onUsernameChange(newUsername)
@@ -54,7 +57,7 @@ class AuthorizationViewModelTests {
         }
 
     @Test
-    fun `onPasswordChange should update password state`() =
+    fun `when onPasswordChange is called, then password state is updated`() =
         runTest {
             val newPassword = TextFieldValue(VALID_PASSWORD)
             viewModel.onPasswordChange(newPassword)
@@ -62,15 +65,18 @@ class AuthorizationViewModelTests {
         }
 
     @Test
-    fun `authorization should be enabled with valid username and password`() =
+    fun `when username and password are valid, then authorization is enabled`() =
         runTest {
             viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
             viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
+
+            advanceUntilIdle()
+
             assertTrue(viewModel.isAuthorizationEnabled.first())
         }
 
     @Test
-    fun `authorization should be disabled with empty username`() =
+    fun `when username is empty, then authorization is disabled`() =
         runTest {
             viewModel.onUsernameChange(TextFieldValue(EMPTY_STRING))
             viewModel.onPasswordChange(TextFieldValue(VALID_PASSWORD))
@@ -78,7 +84,7 @@ class AuthorizationViewModelTests {
         }
 
     @Test
-    fun `authorization should be disabled with invalid password`() =
+    fun `when password is invalid, then authorization is disabled`() =
         runTest {
             viewModel.onUsernameChange(TextFieldValue(VALID_USERNAME))
             viewModel.onPasswordChange(TextFieldValue(INVALID_PASSWORD))
@@ -86,14 +92,16 @@ class AuthorizationViewModelTests {
         }
 
     @Test
-    fun `isLoading should be true during login and false after completion`() =
+    fun `when login is called, then isLoading changes to true during process and false after completion`() =
         runTest {
             whenever(authRepo.login(VALID_USERNAME, VALID_PASSWORD))
                 .thenReturn(Result.success(tempTokenResponse))
 
             assertFalse(viewModel.isLoading.first())
 
-            viewModel.login(VALID_USERNAME, VALID_PASSWORD) { }
+            viewModel.login { result ->
+                assertTrue(result.isSuccess)
+            }
 
             assertFalse(viewModel.isLoading.first())
         }
@@ -105,6 +113,5 @@ class AuthorizationViewModelTests {
         private const val VALID_PASSWORD = "Password123!"
         private const val INVALID_PASSWORD = "weak"
         private const val EMPTY_STRING = ""
-        private const val AUTH_ERROR_MESSAGE = "Auth failed"
     }
 }

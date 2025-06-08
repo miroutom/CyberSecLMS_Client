@@ -16,6 +16,7 @@ interface AuthRepo {
         password: String,
         email: String,
         fullName: String,
+        isTeacher: Boolean,
     ): Result<RegisterResponse>
 
     suspend fun verifyOtp(
@@ -34,12 +35,14 @@ interface AuthRepo {
         newPassword: String,
     ): Result<MessageResponse>
 
+    suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String,
+    ): Result<Map<String, String>>
+
     suspend fun requestDeleteAccount(password: String): Result<TempTokenResponse>
 
-    suspend fun confirmDeleteAccount(
-        otpValue: String,
-        tempToken: String,
-    ): Result<MessageResponse>
+    suspend fun confirmDeleteAccount(code: String): Result<MessageResponse>
 
     fun logout()
 

@@ -31,19 +31,19 @@ class AppPreferencesManagerTests {
     }
 
     @Test
-    fun `isFirstLaunch should return true by default`() {
+    fun `when isFirstLaunch is called by default, then return true`() {
         every { sharedPreferences.getBoolean(any(), true) } returns true
         assertTrue(prefsManager.isFirstLaunch())
     }
 
     @Test
-    fun `markAppLaunched should set first launch to false`() {
+    fun `when markAppLaunched is called, then first launch is set to false`() {
         prefsManager.markAppLaunched()
         verify { editor.putBoolean("is_first_launch", false) }
     }
 
     @Test
-    fun `setTheme should update theme in prefs and flow`() =
+    fun `when setTheme is called, then theme is updated in prefs and flow`() =
         runTest {
             every { sharedPreferences.getInt(any(), any()) } returns AppTheme.DARK.ordinal
 
@@ -54,13 +54,13 @@ class AppPreferencesManagerTests {
         }
 
     @Test
-    fun `getTheme should return SYSTEM when no value stored`() {
+    fun `when getTheme is called with no stored value, then return SYSTEM theme`() {
         every { sharedPreferences.getInt(any(), any()) } returns -1
         assertEquals(AppTheme.SYSTEM, prefsManager.getTheme())
     }
 
     @Test
-    fun `setLanguage should update language in prefs and flow`() =
+    fun `when setLanguage is called, then language is updated in prefs and flow`() =
         runTest {
             every { sharedPreferences.getInt(any(), any()) } returns Language.ENGLISH.ordinal
 

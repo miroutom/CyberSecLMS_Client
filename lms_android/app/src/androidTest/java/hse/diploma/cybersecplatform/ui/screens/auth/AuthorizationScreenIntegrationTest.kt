@@ -129,8 +129,6 @@ class AuthorizationScreenIntegrationTest {
 
         verify {
             authViewModel.login(
-                username = "user@example.com",
-                password = "password123",
                 onResult = any(),
             )
         }
@@ -167,8 +165,6 @@ class AuthorizationScreenIntegrationTest {
         val callbackSlot = slot<(Result<TempTokenResponse>) -> Unit>()
         every {
             authViewModel.login(
-                username = any(),
-                password = any(),
                 onResult = capture(callbackSlot),
             )
         } answers {
@@ -207,8 +203,6 @@ class AuthorizationScreenIntegrationTest {
         val callbackSlot = slot<(Result<TempTokenResponse>) -> Unit>()
         every {
             authViewModel.login(
-                username = any(),
-                password = any(),
                 onResult = capture(callbackSlot),
             )
         } answers {

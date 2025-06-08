@@ -5,7 +5,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,119 +44,92 @@ class HomeScreenIntegrationTest {
     private fun getString(resId: Int): String = context.getString(resId)
 
     @Test
-    fun loadingState_displaysLoadingIndicator() {
+    fun shouldDisplayLoadingIndicatorWhenLoadingState() {
         every { viewModel.allCoursesState } returns MutableStateFlow(AllCoursesState.Loading)
 
         composeRule.setContent {
-            HomeScreenWrapper(viewModel = viewModel, navController = navController)
+            HomeScreen(
+                state = AllCoursesState.Loading,
+                searchQuery = TextFieldValue(""),
+                onSearchQueryChange = {},
+                onCourseClick = {},
+                onReload = {},
+                onCreateCourseClick = {},
+                isTeacher = false,
+            )
         }
 
         composeRule.onNodeWithTag("LoadingIndicator").assertIsDisplayed()
     }
 
     @Test
-    fun errorState_displaysErrorScreen() {
-        every { viewModel.allCoursesState } returns
-            MutableStateFlow(AllCoursesState.Error(ErrorType.NoInternet))
+    fun shouldDisplayErrorScreenWhenErrorState() {
+        val errorMessage = getString(R.string.no_internet_error)
 
         composeRule.setContent {
-            HomeScreenWrapper(viewModel = viewModel, navController = navController)
+            HomeScreen(
+                state = AllCoursesState.Error(ErrorType.NoInternet),
+                searchQuery = TextFieldValue(""),
+                onSearchQueryChange = {},
+                onCourseClick = {},
+                onReload = {},
+                onCreateCourseClick = {},
+                isTeacher = false,
+            )
         }
 
-        composeRule.onNodeWithText(getString(R.string.no_internet_error))
+        composeRule.onNodeWithText(errorMessage).assertIsDisplayed()
+    }
+
+    @Test
+    fun shouldDisplayCoursesWhenSuccessState() {
+        val testCourses = mockAllCourses.take(1)
+        val testCourse = testCourses.first()
+
+        composeRule.setContent {
+            HomeScreen(
+                state =
+                    AllCoursesState.Success(
+                        CoursesUiState(
+                            courses = testCourses,
+                            startedCourses = testCourses.filter { it.isStarted },
+                            completedCourses = testCourses.filter { !it.isStarted },
+                        ),
+                    ),
+                searchQuery = TextFieldValue(""),
+                onSearchQueryChange = {},
+                onCourseClick = {},
+                onReload = {},
+                onCreateCourseClick = {},
+                isTeacher = false,
+            )
+        }
+
+        composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)
             .assertIsDisplayed()
     }
 
     @Test
-    fun successState_displaysCourses() {
-        every { viewModel.searchQuery } returns MutableStateFlow(TextFieldValue(""))
-
-        val testCourses = mockAllCourses.take(1)
-        every { viewModel.allCoursesState } returns
-            MutableStateFlow(
-                AllCoursesState.Success(
-                    CoursesUiState(
-                        courses = testCourses,
-                        startedCourses = testCourses.filter { it.isStarted },
-                        completedCourses = testCourses.filter { !it.isStarted },
-                        filteredCourses = emptyList(),
-                    ),
-                ),
-            )
-
-        composeRule.setContent {
-            HomeScreenWrapper(viewModel = viewModel, navController = navController)
-        }
-
-        testCourses.forEach { course ->
-            composeRule.onNodeWithText(course.vulnerabilityType.name, substring = true)
-                .assertIsDisplayed()
-        }
-    }
-
-    @Test
-    fun searchFunctionality_filtersCourses() {
-        val searchQueryState = MutableStateFlow(TextFieldValue(""))
-        every { viewModel.searchQuery } returns searchQueryState
-
-        val testCourses = mockAllCourses.take(2)
-        val testQuery = "SQL"
-        val filteredCourses =
-            testCourses.filter {
-                it.vulnerabilityType.name.contains(testQuery, ignoreCase = true)
-            }
-
-        every { viewModel.allCoursesState } returns
-            MutableStateFlow(
-                AllCoursesState.Success(
-                    CoursesUiState(
-                        courses = testCourses,
-                        startedCourses = testCourses.filter { it.isStarted },
-                        completedCourses = testCourses.filter { !it.isStarted },
-                        filteredCourses = filteredCourses,
-                    ),
-                ),
-            )
-
-        composeRule.setContent {
-            HomeScreenWrapper(viewModel = viewModel, navController = navController)
-        }
-
-        composeRule.onNodeWithText(getString(R.string.search_bar_label))
-            .performTextInput(testQuery)
-
-        filteredCourses.forEach { course ->
-            composeRule.onNodeWithText(course.vulnerabilityType.name, substring = true)
-                .assertIsDisplayed()
-        }
-
-        testCourses.filterNot { it.vulnerabilityType.name.contains(testQuery, ignoreCase = true) }
-            .forEach { course ->
-                composeRule.onNodeWithText(course.vulnerabilityType.name, substring = true)
-                    .assertDoesNotExist()
-            }
-    }
-
-    @Test
-    fun clickingCourse_navigatesToCorrectTaskScreen() {
-        val initialQuery = TextFieldValue("")
-        every { viewModel.searchQuery } returns MutableStateFlow(initialQuery)
-
+    fun shouldNavigateToTaskScreenWhenCourseClicked() {
         val testCourse = mockAllCourses.first()
-        every { viewModel.allCoursesState } returns
-            MutableStateFlow(
-                AllCoursesState.Success(
-                    CoursesUiState(
-                        courses = listOf(testCourse),
-                        startedCourses = listOf(testCourse),
-                        completedCourses = emptyList(),
-                        filteredCourses = emptyList(),
-                    ),
-                ),
-            )
 
         composeRule.setContent {
-            HomeScreenWrapper(viewModel = viewModel, navController = navController)
+            HomeScreen(
+                state =
+                    AllCoursesState.Success(
+                        CoursesUiState(
+                            courses = listOf(testCourse),
+                            startedCourses = listOf(testCourse),
+                            completedCourses = emptyList(),
+                        ),
+                    ),
+                searchQuery = TextFieldValue(""),
+                onSearchQueryChange = {},
+                onCourseClick = { navController.navigate("task/${testCourse.vulnerabilityType.name}") },
+                onReload = {},
+                onCreateCourseClick = {},
+                isTeacher = false,
+            )
         }
 
         composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)

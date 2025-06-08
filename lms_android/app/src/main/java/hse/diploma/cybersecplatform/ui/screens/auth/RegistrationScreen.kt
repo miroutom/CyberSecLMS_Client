@@ -3,6 +3,7 @@ package hse.diploma.cybersecplatform.ui.screens.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +44,7 @@ fun RegistrationScreen(
     onFullNameChange: (TextFieldValue) -> Unit,
     onUsernameChange: (TextFieldValue) -> Unit,
     onLoginChange: (TextFieldValue) -> Unit,
+    onTeacherStatusChange: (Boolean) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onConfirmPasswordChange: (TextFieldValue) -> Unit,
     onRegisterClick: () -> Unit,
@@ -118,7 +122,30 @@ fun RegistrationScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                    ) {
+                        Checkbox(
+                            checked = state.isTeacher,
+                            onCheckedChange = onTeacherStatusChange,
+                            colors =
+                                CheckboxDefaults.colors(
+                                    checkedColor = colorResource(R.color.button_enabled),
+                                    uncheckedColor = colorResource(R.color.button_disabled),
+                                ),
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(
+                            text = stringResource(R.string.register_as_teacher),
+                            style = Typography.bodyMedium,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     FilledButton(
                         text = stringResource(R.string.register_button),
                         onClick = onRegisterClick,
@@ -154,6 +181,7 @@ fun RegistrationScreenPreview() {
         onFullNameChange = {},
         onUsernameChange = {},
         onLoginChange = {},
+        onTeacherStatusChange = {},
         onPasswordChange = {},
         onConfirmPasswordChange = {},
         onRegisterClick = {},

@@ -34,7 +34,7 @@ fun MyCoursesScreen(
     state: MyCoursesState,
     isStartedSelected: Boolean,
     onTabChange: (Boolean) -> Unit,
-    onCourseClick: (String) -> Unit,
+    onCourseClick: (Int) -> Unit,
     onRestartRequest: (Course) -> Unit,
     onRestartConfirm: (Course) -> Unit,
     onReload: () -> Unit,
@@ -93,7 +93,7 @@ fun MyCoursesScreen(
 @Composable
 private fun StartedCoursesScreen(
     courses: List<Course>,
-    onCourseClick: (String) -> Unit,
+    onCourseClick: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -108,7 +108,7 @@ private fun StartedCoursesScreen(
         items(courses) { item ->
             StartedCourseCard(
                 course = item,
-                onClick = { onCourseClick(item.vulnerabilityType.name) },
+                onClick = { onCourseClick(item.id) },
             )
         }
 
@@ -121,7 +121,7 @@ private fun StartedCoursesScreen(
 @Composable
 private fun CompletedCoursesScreen(
     courses: List<Course>,
-    onCourseClick: (String) -> Unit,
+    onCourseClick: (Int) -> Unit,
     onRestartRequest: (Course) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -137,7 +137,7 @@ private fun CompletedCoursesScreen(
         items(courses) { item ->
             CompletedCourseCard(
                 course = item,
-                onCardClick = { onCourseClick(item.vulnerabilityType.name) },
+                onCardClick = { onCourseClick(item.id) },
                 onRestartClick = { onRestartRequest(item) },
             )
         }

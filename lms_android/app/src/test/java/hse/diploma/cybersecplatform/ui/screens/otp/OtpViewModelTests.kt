@@ -11,6 +11,7 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -21,13 +22,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class OtpViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var authRepo: AuthRepo
+    private val authRepo: AuthRepo = mockk()
+
     private lateinit var viewModel: OtpViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        authRepo = mockk()
+
         viewModel = OtpViewModel(authRepo)
     }
 
@@ -37,13 +39,13 @@ class OtpViewModelTests {
     }
 
     @Test
-    fun `initial isLoading state is false`() =
+    fun `when viewModel is initialized, then isLoading is false`() =
         runTest {
             assertFalse(viewModel.isLoading.value)
         }
 
     @Test
-    fun `verifyOtp calls onResult with success when repo succeeds`() =
+    fun `when verifyOtp is called and repo succeeds, then onResult is called with success`() =
         runTest {
             val mockResponse = mockk<LoginResponse>()
             coEvery { authRepo.verifyOtp(any(), any()) } returns Result.success(mockResponse)
@@ -52,7 +54,8 @@ class OtpViewModelTests {
             viewModel.verifyOtp("tempToken", "123456") { result ->
                 receivedResult = result
             }
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
 
             assertNotNull(receivedResult)
             assertTrue(receivedResult!!.isSuccess)
@@ -60,7 +63,7 @@ class OtpViewModelTests {
         }
 
     @Test
-    fun `verifyOtp calls onResult with failure when repo fails`() =
+    fun `when verifyOtp is called and repo fails, then onResult is called with failure`() =
         runTest {
             val exception = Exception("Verification failed")
             coEvery { authRepo.verifyOtp(any(), any()) } returns Result.failure(exception)
@@ -69,7 +72,8 @@ class OtpViewModelTests {
             viewModel.verifyOtp("tempToken", "123456") { result ->
                 receivedResult = result
             }
-            testDispatcher.scheduler.advanceUntilIdle()
+
+            advanceUntilIdle()
 
             assertNotNull(receivedResult)
             assertTrue(receivedResult!!.isFailure)

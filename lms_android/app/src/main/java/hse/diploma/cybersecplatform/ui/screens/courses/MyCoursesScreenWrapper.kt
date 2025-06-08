@@ -1,6 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.courses
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,8 +20,13 @@ fun MyCoursesScreenWrapper(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.myCoursesState.collectAsState()
+
     var isStartedSelected by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCourses()
+    }
 
     MyCoursesScreen(
         state = state,
@@ -28,8 +34,8 @@ fun MyCoursesScreenWrapper(
         onTabChange = { selected ->
             isStartedSelected = selected
         },
-        onCourseClick = { vulnerabilityTypeName ->
-            navController.navigate(Screen.TaskScreen.createRoute(vulnerabilityTypeName))
+        onCourseClick = { courseId ->
+            navController.navigate(Screen.TasksScreen.createRoute(courseId))
         },
         onRestartRequest = { course ->
             viewModel.selectCourseForRestart(course)

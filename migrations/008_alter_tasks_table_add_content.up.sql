@@ -1,0 +1,5 @@
+ALTER TABLE tasks
+    ADD COLUMN points INT NOT NULL DEFAULT 10 AFTER task_order,
+    ADD COLUMN content TEXT NOT NULL AFTER points,
+    ADD COLUMN solution TEXT NOT NULL AFTER content,
+    ADD COLUMN is_completed BOOLEAN NOT NULL DEFAULT FALSE AFTER solution;

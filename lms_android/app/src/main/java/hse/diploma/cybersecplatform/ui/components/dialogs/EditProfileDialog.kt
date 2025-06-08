@@ -19,11 +19,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
-import hse.diploma.cybersecplatform.data.model.UserData
+import hse.diploma.cybersecplatform.data.model.analytics.UserStatistics
+import hse.diploma.cybersecplatform.data.model.user.CourseProgress
+import hse.diploma.cybersecplatform.data.model.user.UserData
 import hse.diploma.cybersecplatform.ui.screens.profile.ProfileUiState
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
@@ -127,19 +129,66 @@ fun EditProfileDialog(
     )
 }
 
-@PreviewLightDark
 @Composable
+@Preview(showBackground = true, apiLevel = 30)
 private fun EditProfileDialogPreview() {
     CyberSecPlatformTheme {
+        val courses =
+            listOf(
+                CourseProgress(
+                    courseId = 1,
+                    title = "SQL Injection",
+                    completedTasks = 5,
+                    tasksCount = 10,
+                ),
+                CourseProgress(
+                    courseId = 2,
+                    title = "XSS",
+                    completedTasks = 3,
+                    tasksCount = 8,
+                ),
+            )
+
+        val statsCoursesProgress =
+            courses.map { course ->
+                UserStatistics.CourseProgress(
+                    averageScore = 85.0,
+                    completionPercentage = course.progress,
+                    courseId = course.courseId,
+                    courseName = course.title ?: "Курс ${course.courseId}",
+                    lastActivity = "2023-05-20T14:30:00Z",
+                )
+            }
+
         EditProfileDialog(
             uiState =
                 ProfileUiState(
-                    UserData(
-                        username = "lika",
-                        fullName = "lika s",
-                        email = "example.com",
-                        profileImage = "image",
-                    ),
+                    userData =
+                        UserData(
+                            id = 1,
+                            username = "lika",
+                            fullName = "Lika S",
+                            email = "lika@example.com",
+                            profileImage = "https://example.com/profile.jpg",
+                            isAdmin = false,
+                            isTeacher = true,
+                            isActive = true,
+                            lastLogin = "2023-05-20T14:30:00Z",
+                            courses = courses,
+                        ),
+                    stats =
+                        UserStatistics(
+                            averageScore = 85.0,
+                            completedCourses = 0,
+                            completedTasks = courses.sumOf { it.completedTasks },
+                            coursesProgress = statsCoursesProgress,
+                            joinedDate = "2023-01-01",
+                            lastActive = "2023-05-20T14:30:00Z",
+                            totalCourses = courses.size,
+                            totalPoints = 250,
+                            totalTasks = courses.sumOf { it.tasksCount },
+                            userId = 1,
+                        ),
                 ),
             onDismiss = {},
             onSave = { _, _, _ -> },
