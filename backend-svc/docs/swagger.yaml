@@ -208,6 +208,8 @@ definitions:
       fullName:
         example: New User
         type: string
+      isTeacher:
+        type: boolean
       password:
         example: newpassword123
         type: string
@@ -217,6 +219,7 @@ definitions:
     required:
     - email
     - fullName
+    - isTeacher
     - password
     - username
     type: object
@@ -257,6 +260,8 @@ definitions:
       id:
         type: integer
       order:
+        type: integer
+      points:
         type: integer
       title:
         type: string
@@ -332,6 +337,8 @@ definitions:
       fullName:
         type: string
       password:
+        type: string
+      username:
         type: string
     type: object
   models.UpdateStatusRequest:
@@ -434,7 +441,7 @@ info:
   contact: {}
   description: API for Learning Management System
   title: LMS API
-  version: "1.0"
+  version: "1.12"
 paths:
   /account/2fa/enable:
     post:
@@ -1306,6 +1313,41 @@ paths:
       summary: Get all courses
       tags:
       - Courses
+  /courses/{course_id}/tasks/{task_id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get task by ID
+      tags:
+      - Tasks
   /courses/{id}:
     get:
       parameters:

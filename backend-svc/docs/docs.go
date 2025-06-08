@@ -1357,6 +1357,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/courses/{course_id}/tasks/{task_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Get task by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/courses/{id}": {
             "get": {
                 "produces": [
@@ -2306,6 +2359,7 @@ const docTemplate = `{
             "required": [
                 "email",
                 "fullName",
+                "isTeacher",
                 "password",
                 "username"
             ],
@@ -2317,6 +2371,9 @@ const docTemplate = `{
                 "fullName": {
                     "type": "string",
                     "example": "New User"
+                },
+                "isTeacher": {
+                    "type": "boolean"
                 },
                 "password": {
                     "type": "string",
@@ -2383,6 +2440,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "order": {
+                    "type": "integer"
+                },
+                "points": {
                     "type": "integer"
                 },
                 "title": {
@@ -2498,6 +2558,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -2659,7 +2722,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.12",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{"https"},
