@@ -441,7 +441,7 @@ info:
   contact: {}
   description: API for Learning Management System
   title: LMS API
-  version: "1.12"
+  version: "1.13"
 paths:
   /account/2fa/enable:
     post:

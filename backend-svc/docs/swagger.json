@@ -7,7 +7,7 @@
         "description": "API for Learning Management System",
         "title": "LMS API",
         "contact": {},
-        "version": "1.12"
+        "version": "1.13"
     },
     "host": "localhost:8080",
     "basePath": "/api",
