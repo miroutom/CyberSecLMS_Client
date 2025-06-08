@@ -45,10 +45,6 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        module: ["backend-svc", "api-gateway"]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -82,10 +78,6 @@ jobs:
   functional-tests:
     name: Functional Tests
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        module: ["backend-svc", "api-gateway"]
 
     steps:
       - name: Checkout code
