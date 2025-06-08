@@ -342,10 +342,11 @@ func (suite *FunctionalTestSuite) TestRegisterHandler() {
 	t := suite.T()
 
 	registerReq := models.RegisterRequest{
-		Username: "newuser",
-		Password: "password123",
-		Email:    "new@example.com",
-		FullName: "New User",
+		Username:  "newuser",
+		Password:  "password123",
+		Email:     "new@example.com",
+		FullName:  "New User",
+		IsTeacher: false,
 	}
 
 	resp, err := suite.client.R().
@@ -361,9 +362,11 @@ func (suite *FunctionalTestSuite) TestRegisterHandler() {
 	assert.NotEmpty(t, registerResp.Token)
 
 	var count int
-	err = suite.db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", "newuser").Scan(&count)
+	var isTeacher bool
+	err = suite.db.QueryRow("SELECT COUNT(*), is_teacher FROM users WHERE username = ?", "newuser").Scan(&count, &isTeacher)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, count)
+	assert.Equal(t, registerReq.IsTeacher, isTeacher)
 }
 
 func TestFunctionalTestSuite(t *testing.T) {
