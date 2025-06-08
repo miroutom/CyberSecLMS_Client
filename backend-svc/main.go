@@ -24,7 +24,7 @@ import (
 )
 
 // @title LMS API
-// @version 1.0
+// @version 1.12
 // @description API for Learning Management System
 // @host localhost:8080
 // @schemes https

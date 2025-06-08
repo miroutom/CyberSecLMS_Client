@@ -7,7 +7,7 @@
         "description": "API for Learning Management System",
         "title": "LMS API",
         "contact": {},
-        "version": "1.0"
+        "version": "1.12"
     },
     "host": "localhost:8080",
     "basePath": "/api",
@@ -1354,6 +1354,59 @@
                 }
             }
         },
+        "/courses/{course_id}/tasks/{task_id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Get task by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/courses/{id}": {
             "get": {
                 "produces": [
@@ -2303,6 +2356,7 @@
             "required": [
                 "email",
                 "fullName",
+                "isTeacher",
                 "password",
                 "username"
             ],
@@ -2314,6 +2368,9 @@
                 "fullName": {
                     "type": "string",
                     "example": "New User"
+                },
+                "isTeacher": {
+                    "type": "boolean"
                 },
                 "password": {
                     "type": "string",
@@ -2380,6 +2437,9 @@
                     "type": "integer"
                 },
                 "order": {
+                    "type": "integer"
+                },
+                "points": {
                     "type": "integer"
                 },
                 "title": {
@@ -2495,6 +2555,9 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
