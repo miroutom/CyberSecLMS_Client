@@ -969,7 +969,7 @@ func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 func (s *DBStorage) GetTaskByID(courseID, taskID int) (models.Task, error) {
 	stmt, err := s.DB.Prepare(`
 		SELECT 
-			id, course_id, title, description, difficulty, task_order, points
+			id, course_id, title, description, difficulty, task_order, points, content, solution
 		FROM tasks
 		WHERE id = ? AND course_id = ?
 	`)
@@ -987,6 +987,8 @@ func (s *DBStorage) GetTaskByID(courseID, taskID int) (models.Task, error) {
 		&task.Difficulty,
 		&task.Order,
 		&task.Points,
+		&task.Content,
+		&task.Solution,
 	)
 
 	if err != nil {
@@ -1017,7 +1019,7 @@ func (s *DBStorage) CompleteTask(userID, taskID int) error {
 	}
 
 	if !taskExists {
-		return ErrTaskNotFound
+		return errors.New("task not found")
 	}
 
 	stmt, err := s.DB.Prepare(
@@ -1036,18 +1038,32 @@ func (s *DBStorage) CompleteTask(userID, taskID int) error {
 }
 
 func (s *DBStorage) SubmitTaskAnswer(submission models.TaskSubmission) (models.TaskSubmissionResponse, error) {
-	err := s.CompleteTask(submission.UserID, submission.TaskID)
+	task, err := s.GetTaskByID(submission.CourseID, submission.TaskID)
 	if err != nil {
-		return models.TaskSubmissionResponse{}, fmt.Errorf("complete task: %w", err)
+		return models.TaskSubmissionResponse{}, fmt.Errorf("get task: %w", err)
 	}
 
-	return models.TaskSubmissionResponse{
+	isCorrect := submission.Answer == task.Solution
+	response := models.TaskSubmissionResponse{
 		SubmissionID: 0,
 		TaskID:       submission.TaskID,
 		Status:       "completed",
 		SubmittedAt:  submission.SubmittedAt,
-		Message:      "Task marked as completed",
-	}, nil
+		Message:      "Solution submitted",
+		IsCorrect:    isCorrect,
+	}
+
+	if isCorrect {
+		err = s.CompleteTask(submission.UserID, submission.TaskID)
+		if err != nil {
+			return response, fmt.Errorf("complete task: %w", err)
+		}
+		response.Message = "Correct solution! Task marked as completed"
+	} else {
+		response.Message = "Incorrect solution, please try again"
+	}
+
+	return response, nil
 }
 
 func (s *DBStorage) GetUserSubmissions(userID int) ([]models.TaskSubmissionDetails, error) {
@@ -1694,14 +1710,23 @@ func (s *DBStorage) DeleteCourse(id int) error {
 
 func (s *DBStorage) CreateTask(courseID int, task models.Task) (models.Task, error) {
 	insertStmt, err := s.DB.Prepare(
-		"INSERT INTO tasks (course_id, title, description, difficulty, task_order) " +
-			"VALUES (?, ?, ?, ?, ?)")
+		"INSERT INTO tasks (course_id, title, description, difficulty, task_order, points, content, solution) " +
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return models.Task{}, err
 	}
 	defer insertStmt.Close()
 
-	result, err := insertStmt.Exec(courseID, task.Title, task.Description, task.Difficulty, task.Order)
+	result, err := insertStmt.Exec(
+		courseID,
+		task.Title,
+		task.Description,
+		task.Difficulty,
+		task.Order,
+		task.Points,
+		task.Content,
+		task.Solution,
+	)
 	if err != nil {
 		return models.Task{}, err
 	}
@@ -1717,17 +1742,27 @@ func (s *DBStorage) CreateTask(courseID int, task models.Task) (models.Task, err
 
 func (s *DBStorage) UpdateTask(courseID, taskID int, task models.Task) (models.Task, error) {
 	updateStmt, err := s.DB.Prepare(
-		"UPDATE tasks SET title = ?, description = ?, difficulty = ?, task_order = ? " +
+		"UPDATE tasks SET title = ?, description = ?, difficulty = ?, task_order = ?, points = ?, content = ?, solution = ? " +
 			"WHERE course_id = ? AND id = ?")
 	if err != nil {
 		return models.Task{}, err
 	}
 	defer updateStmt.Close()
 
-	_, err = updateStmt.Exec(task.Title, task.Description, task.Difficulty, task.Order, courseID, taskID)
+	_, err = updateStmt.Exec(
+		task.Title,
+		task.Description,
+		task.Difficulty,
+		task.Order,
+		task.Points,
+		task.Content,
+		task.Solution,
+		courseID,
+		taskID,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.Task{}, ErrTaskNotFound
+			return models.Task{}, errors.New("task not found")
 		}
 		return models.Task{}, err
 	}

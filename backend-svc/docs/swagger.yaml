@@ -251,6 +251,8 @@ definitions:
     type: object
   models.Task:
     properties:
+      content:
+        type: string
       courseId:
         type: integer
       description:
@@ -259,10 +261,14 @@ definitions:
         type: string
       id:
         type: integer
+      isCompleted:
+        type: boolean
       order:
         type: integer
       points:
         type: integer
+      solution:
+        type: string
       title:
         type: string
     type: object
@@ -274,6 +280,8 @@ definitions:
         items:
           type: string
         type: array
+      courseID:
+        type: integer
       id:
         type: integer
       status:
@@ -312,6 +320,8 @@ definitions:
     type: object
   models.TaskSubmissionResponse:
     properties:
+      is_correct:
+        type: boolean
       message:
         type: string
       status:

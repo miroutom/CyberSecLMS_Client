@@ -2427,6 +2427,9 @@ const docTemplate = `{
         "models.Task": {
             "type": "object",
             "properties": {
+                "content": {
+                    "type": "string"
+                },
                 "courseId": {
                     "type": "integer"
                 },
@@ -2439,11 +2442,17 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isCompleted": {
+                    "type": "boolean"
+                },
                 "order": {
                     "type": "integer"
                 },
                 "points": {
                     "type": "integer"
+                },
+                "solution": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -2461,6 +2470,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "courseID": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -2520,6 +2532,9 @@ const docTemplate = `{
         "models.TaskSubmissionResponse": {
             "type": "object",
             "properties": {
+                "is_correct": {
+                    "type": "boolean"
+                },
                 "message": {
                     "type": "string"
                 },
