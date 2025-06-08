@@ -2424,6 +2424,9 @@
         "models.Task": {
             "type": "object",
             "properties": {
+                "content": {
+                    "type": "string"
+                },
                 "courseId": {
                     "type": "integer"
                 },
@@ -2436,11 +2439,17 @@
                 "id": {
                     "type": "integer"
                 },
+                "isCompleted": {
+                    "type": "boolean"
+                },
                 "order": {
                     "type": "integer"
                 },
                 "points": {
                     "type": "integer"
+                },
+                "solution": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -2458,6 +2467,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "courseID": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -2517,6 +2529,9 @@
         "models.TaskSubmissionResponse": {
             "type": "object",
             "properties": {
+                "is_correct": {
+                    "type": "boolean"
+                },
                 "message": {
                     "type": "string"
                 },

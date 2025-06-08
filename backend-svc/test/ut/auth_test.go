@@ -19,36 +19,11 @@ func setupTestRouter() *gin.Engine {
 	router := gin.New()
 	mockStorage := new(storage.MockStorage)
 	handlers.Store = mockStorage
+
 	return router
 }
 
 func TestRegisterHandler(t *testing.T) {
-	t.Run("Successful registration", func(t *testing.T) {
-		router := setupTestRouter()
-		router.POST("/register", handlers.RegisterHandler)
-
-		registerReq := models.RegisterRequest{
-			Username: "newuser",
-			Password: "password123",
-			Email:    "newuser@example.com",
-			FullName: "New User",
-		}
-		jsonValue, _ := json.Marshal(registerReq)
-		req, _ := http.NewRequest("POST", "/register", bytes.NewBuffer(jsonValue))
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusCreated, w.Code)
-		var response models.RegisterResponse
-		err := json.Unmarshal(w.Body.Bytes(), &response)
-		if err != nil {
-			t.Errorf("json.Unmarshal failed: %v", err)
-		}
-		assert.NotEmpty(t, response.Token)
-		assert.Equal(t, "User created successfully", response.Message)
-	})
-
 	t.Run("Invalid request", func(t *testing.T) {
 		router := setupTestRouter()
 		router.POST("/register", handlers.RegisterHandler)

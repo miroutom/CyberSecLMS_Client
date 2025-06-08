@@ -49,6 +49,9 @@ type Task struct {
 	Difficulty  string `json:"difficulty"`
 	Order       int    `json:"order"`
 	Points      int    `json:"points"`
+	Content     string `json:"content"`
+	Solution    string `json:"solution"`
+	IsCompleted bool   `json:"isCompleted"`
 }
 
 type UserProgress struct {
@@ -64,6 +67,7 @@ type TaskSubmission struct {
 	Attachments []string  `json:"attachments,omitempty"`
 	SubmittedAt time.Time `json:"submitted_at"`
 	Status      string    `json:"status"`
+	CourseID    int       `json:"courseID"`
 }
 
 type TaskSubmissionResponse struct {
@@ -72,6 +76,7 @@ type TaskSubmissionResponse struct {
 	Status       string    `json:"status"`
 	SubmittedAt  time.Time `json:"submitted_at"`
 	Message      string    `json:"message,omitempty"`
+	IsCorrect    bool      `json:"is_correct"`
 }
 
 type TaskSubmissionDetails struct {
