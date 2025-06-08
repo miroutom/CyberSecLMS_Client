@@ -23,7 +23,7 @@ func SetupRoutes(router *gin.Engine, proxyHandler ProxyHandlerFunc) {
 	{
 		api.Any("/courses", proxyHandler("BACKEND-SERVICE"))
 		api.Any("/courses/:id", proxyHandler("BACKEND-SERVICE"))
-		api.GET("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
+		api.GET("/courses/:id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
 
 		api.Any("/progress/:user_id", proxyHandler("BACKEND-SERVICE"))
 		api.Any("/progress/:user_id/tasks/:task_id/complete", proxyHandler("BACKEND-SERVICE"))
