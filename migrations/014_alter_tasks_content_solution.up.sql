@@ -1,0 +1,3 @@
+ALTER TABLE tasks
+ADD COLUMN content TEXT NOT NULL AFTER points,
+ADD COLUMN solution TEXT NOT NULL AFTER content;

@@ -1,0 +1,1 @@
+ALTER TABLE courses ADD COLUMN tasks_count INT DEFAULT 0;
