@@ -130,7 +130,6 @@ func sendOTPEmailFallback(email, code string) error {
 
 func SendDeleteAccountEmail(email, code string) error {
 	subject := "Account Deletion Confirmation"
-
 	plainText := fmt.Sprintf("You have requested to delete your account. To confirm, please use this verification code: %s\n\n"+
 		"This code is valid for 5 minutes.\n\n"+
 		"If you did not request account deletion, please ignore this email or contact support immediately.", code)
@@ -147,10 +146,75 @@ func SendDeleteAccountEmail(email, code string) error {
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, smtpUsername, []string{email}, message)
 	if err != nil {
 		fmt.Printf("Error sending delete account email: %v\n", err)
+		fmt.Printf("Trying fallback method for deletion code email...\n")
+		return sendDeleteAccountEmailFallback(email, code)
+	}
+
+	fmt.Printf("Delete account email sent successfully to %s\n", email)
+	return nil
+}
+
+func sendDeleteAccountEmailFallback(email, code string) error {
+	tlsConfig := &tls.Config{
+		ServerName: smtpHost,
+	}
+
+	conn, err := tls.Dial("tcp", smtpHost+":"+smtpPort, tlsConfig)
+	if err != nil {
+		fmt.Printf("SSL connection error: %v\n", err)
 		fmt.Printf("Deletion code for %s: %s\n", email, code)
 		return err
 	}
 
-	fmt.Printf("Delete account email sent successfully to %s\n", email)
+	client, err := smtp.NewClient(conn, smtpHost)
+	if err != nil {
+		fmt.Printf("Error creating SMTP client: %v\n", err)
+		return err
+	}
+	defer client.Close()
+
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	if err = client.Auth(auth); err != nil {
+		fmt.Printf("Authentication error: %v\n", err)
+		fmt.Printf("Deletion code for %s: %s\n", email, code)
+		return err
+	}
+
+	if err = client.Mail(smtpUsername); err != nil {
+		return err
+	}
+
+	if err = client.Rcpt(email); err != nil {
+		return err
+	}
+
+	w, err := client.Data()
+	if err != nil {
+		return err
+	}
+
+	plainText := fmt.Sprintf("You have requested to delete your account. To confirm, please use this verification code: %s\n\n"+
+		"This code is valid for 5 minutes.\n\n"+
+		"If you did not request account deletion, please ignore this email or contact support immediately.", code)
+
+	message := []byte(fmt.Sprintf("From: %s\r\n"+
+		"To: %s\r\n"+
+		"Subject: Account Deletion Confirmation\r\n"+
+		"Content-Type: text/plain; charset=UTF-8\r\n"+
+		"\r\n"+
+		"%s",
+		smtpFrom, email, plainText))
+
+	_, err = w.Write(message)
+	if err != nil {
+		return err
+	}
+
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Fallback deletion email sent successfully to %s\n", email)
 	return nil
 }
