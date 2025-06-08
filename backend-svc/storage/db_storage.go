@@ -393,6 +393,19 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 		}
 	}
 
+	if data.Username != "" {
+		stmt, err := tx.Prepare("UPDATE users SET username = ? WHERE id = ? AND is_deleted = FALSE")
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(data.Username, userID)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = tx.Commit()
 	if err == nil {
 		commit = true
