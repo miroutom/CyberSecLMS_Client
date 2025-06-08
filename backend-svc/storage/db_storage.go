@@ -1264,7 +1264,23 @@ func (s *DBStorage) GetUserStatistics(userID int) (models.UserStatistics, error)
 	var stats models.UserStatistics
 	stats.UserID = userID
 
+	var createdAt, lastActive time.Time
 	err := s.DB.QueryRow(`
+		SELECT 
+			created_at,
+			IFNULL((SELECT MAX(created_at) FROM user_progress WHERE user_id = ?), created_at) as last_active
+		FROM users
+		WHERE id = ? AND is_deleted = 0
+	`, userID, userID).Scan(&createdAt, &lastActive)
+
+	if err != nil {
+		return stats, fmt.Errorf("get user base info: %w", err)
+	}
+
+	stats.JoinedDate = createdAt
+	stats.LastActive = lastActive
+
+	err = s.DB.QueryRow(`
 		SELECT
 			(SELECT COUNT(DISTINCT course_id) FROM tasks t JOIN user_progress up ON t.id = up.task_id WHERE up.user_id = ?) as total_courses,
 			(SELECT COUNT(DISTINCT course_id) FROM (
@@ -1275,18 +1291,12 @@ func (s *DBStorage) GetUserStatistics(userID int) (models.UserStatistics, error)
 				HAVING total_tasks = completed_tasks AND total_tasks > 0
 			) as completed_courses) as completed_courses,
 			(SELECT COUNT(*) FROM tasks) as total_tasks,
-			(SELECT COUNT(*) FROM user_progress WHERE user_id = ?) as completed_tasks,
-			u.created_at as joined_date,
-			IFNULL((SELECT MAX(created_at) FROM user_progress WHERE user_id = ?), u.created_at) as last_active
-		FROM users u
-		WHERE u.id = ? AND u.is_deleted = 0
-	`, userID, userID, userID, userID, userID).Scan(
+			(SELECT COUNT(*) FROM user_progress WHERE user_id = ?) as completed_tasks
+	`, userID, userID, userID).Scan(
 		&stats.TotalCourses,
 		&stats.CompletedCourses,
 		&stats.TotalTasks,
 		&stats.CompletedTasks,
-		&stats.JoinedDate,
-		&stats.LastActive,
 	)
 	if err != nil {
 		return stats, fmt.Errorf("get user stats: %w", err)
@@ -1302,7 +1312,7 @@ func (s *DBStorage) GetUserStatistics(userID int) (models.UserStatistics, error)
 		JOIN tasks t ON c.id = t.course_id
 		JOIN user_progress up ON t.id = up.task_id
 		WHERE up.user_id = ?
-		GROUP BY c.id
+		GROUP BY c.id, c.vulnerability_type
 		ORDER BY last_activity DESC
 	`)
 	if err != nil {
