@@ -2,11 +2,15 @@ package api
 
 import (
 	"fmt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"lmsmodule/api-gateway/internal/circuitbreaker"
 	"lmsmodule/api-gateway/internal/metrics"
+	"lmsmodule/api-gateway/internal/models"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -29,10 +33,33 @@ type Server struct {
 }
 
 func NewServer(config *utils.Config, logger *logger.Logger) *Server {
+	dsn := "user:pass@tcp(db:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	if err := db.AutoMigrate(&models.Lab{}); err != nil {
+		panic(err)
+	}
+
+	labHandler := NewLabHandler(db)
+	submissionHandler := NewSubmissionHandler(db)
+
 	router := gin.New()
 	router.Use(middleware.LoggerMiddleware(logger))
 	router.Use(gin.Recovery())
 	router.Use(middleware.SecurityHeadersMiddleware())
+
+	router.GET("/api/labs", labHandler.GetLabs)
+	router.GET("/api/labs/:id", labHandler.GetLab)
+	router.POST("/api/labs/:id/submit", submissionHandler.SubmitSolution)
+
+	if os.Getenv("INIT_LABS") == "true" {
+		if err := labHandler.InitLabs(); err != nil {
+			panic(err)
+		}
+	}
 
 	httpClient := &http.Client{
 		Timeout: time.Duration(30) * time.Second,
