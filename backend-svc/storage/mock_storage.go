@@ -559,3 +559,8 @@ func (s *MockStorage) GetTaskByID(courseID, taskID int) (models.Task, error) {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (s *MockStorage) UpdatePassword(userID int, data models.UpdateProfileRequest) error {
+	//TODO implement me
+	panic("implement me")
+}

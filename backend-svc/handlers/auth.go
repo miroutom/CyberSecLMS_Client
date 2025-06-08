@@ -58,6 +58,7 @@ func RegisterHandler(c *gin.Context) {
 		TOTPSecret:   key.Secret(),
 		Is2FAEnabled: true,
 		IsActive:     true,
+		IsTeacher:    req.IsTeacher,
 	}
 
 	err = Store.CreateUser(user)

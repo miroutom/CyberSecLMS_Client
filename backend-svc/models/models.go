@@ -205,6 +205,7 @@ type LearningPath struct {
 
 type UpdateProfileRequest struct {
 	Email    string `json:"email,omitempty"`
+	Username string `json:"username,omitempty"`
 	FullName string `json:"fullName,omitempty"`
 	Password string `json:"password,omitempty"`
 }
