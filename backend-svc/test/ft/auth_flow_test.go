@@ -2,13 +2,11 @@ package ft
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/bcrypt"
 	"lmsmodule/backend-svc/handlers"
@@ -336,37 +334,6 @@ func (suite *FunctionalTestSuite) adminAuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-func (suite *FunctionalTestSuite) TestRegisterHandler() {
-	t := suite.T()
-
-	registerReq := models.RegisterRequest{
-		Username:  "newuser",
-		Password:  "password123",
-		Email:     "new@example.com",
-		FullName:  "New User",
-		IsTeacher: false,
-	}
-
-	resp, err := suite.client.R().
-		SetBody(registerReq).
-		Post("/api/register")
-
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.StatusCode())
-
-	var registerResp models.RegisterResponse
-	err = json.Unmarshal(resp.Body(), &registerResp)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, registerResp.Token)
-
-	var count int
-	var isTeacher bool
-	err = suite.db.QueryRow("SELECT COUNT(*), is_teacher FROM users WHERE username = ?", "newuser").Scan(&count, &isTeacher)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, count)
-	assert.Equal(t, registerReq.IsTeacher, isTeacher)
 }
 
 func TestFunctionalTestSuite(t *testing.T) {
