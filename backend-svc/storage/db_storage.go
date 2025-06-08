@@ -413,6 +413,52 @@ func (s *DBStorage) UpdateUserProfile(userID int, data models.UpdateProfileReque
 	return err
 }
 
+func (s *DBStorage) UpdatePassword(userID int, data models.UpdateProfileRequest) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	commit := false
+	defer func() {
+		if !commit {
+			rbErr := tx.Rollback()
+			if rbErr != nil && err == nil {
+				err = rbErr
+			}
+		}
+	}()
+
+	var exists bool
+	err = tx.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND is_deleted = FALSE)", userID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("user not found or already deleted")
+	}
+
+	if data.Password != "" {
+		stmt, err := tx.Prepare("UPDATE users SET password_hash = ? WHERE id = ? AND is_deleted = FALSE")
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(data.Username, userID)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err == nil {
+		commit = true
+	}
+	return err
+}
+
 func (s *DBStorage) UpdateUserProfileImage(userID int, imageURL string) error {
 	stmt, err := s.DB.Prepare("UPDATE users SET profile_image = ? WHERE id = ?")
 	if err != nil {

@@ -16,6 +16,7 @@ type Storage interface {
 	CreateUser(user models.User) error
 	GetUserByUsername(username string) (models.User, error)
 	GetUserByID(id int) (models.User, error)
+	UpdatePassword(userID int, data models.UpdateProfileRequest) error
 	UpdateUserLastLogin(userID int) error
 	UpdateUserProfile(userID int, data models.UpdateProfileRequest) error
 	Enable2FA(userID int) error

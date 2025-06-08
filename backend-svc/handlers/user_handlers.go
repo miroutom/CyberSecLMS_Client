@@ -311,7 +311,7 @@ func ChangePassword(c *gin.Context) {
 		Password: string(hashedPassword),
 	}
 
-	err = Store.UpdateUserProfile(userID.(int), updateReq)
+	err = Store.UpdatePassword(userID.(int), updateReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to update password"})
 		return
