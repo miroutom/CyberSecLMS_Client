@@ -38,17 +38,9 @@ func SetupRoutes(router *gin.Engine, proxyHandler ProxyHandlerFunc) {
 			account.Any("/delete/confirm", proxyHandler("BACKEND-SERVICE"))
 		}
 
-		admin := api.Group("/admin")
+		analytics := api.Group("/analytics")
 		{
-			admin.Any("/reload-templates", proxyHandler("BACKEND-SERVICE"))
-
-			admin.Any("/users", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/:id", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/by-role", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/search", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/:id/status", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/:id/promote", proxyHandler("BACKEND-SERVICE"))
-			admin.Any("/users/:id/demote", proxyHandler("BACKEND-SERVICE"))
+			analytics.GET("/users/:user_id/statistics", proxyHandler("BACKEND-SERVICE"))
 		}
 
 		teacher := api.Group("/teacher")
@@ -59,6 +51,21 @@ func SetupRoutes(router *gin.Engine, proxyHandler ProxyHandlerFunc) {
 			teacher.POST("/courses/:course_id/tasks", proxyHandler("BACKEND-SERVICE"))
 			teacher.PUT("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
 			teacher.DELETE("/courses/:course_id/tasks/:task_id", proxyHandler("BACKEND-SERVICE"))
+			teacher.GET("/courses/:id/statistics", proxyHandler("BACKEND-SERVICE"))
+		}
+
+		admin := api.Group("/admin")
+		{
+			admin.POST("/reload-templates", proxyHandler("BACKEND-SERVICE"))
+
+			admin.GET("/users", proxyHandler("BACKEND-SERVICE"))
+			admin.GET("/users/:id", proxyHandler("BACKEND-SERVICE"))
+			admin.GET("/users/by-role", proxyHandler("BACKEND-SERVICE"))
+			admin.GET("/users/search", proxyHandler("BACKEND-SERVICE"))
+			admin.PUT("/users/:id/status", proxyHandler("BACKEND-SERVICE"))
+			admin.POST("/users/:id/promote", proxyHandler("BACKEND-SERVICE"))
+			admin.POST("/users/:id/demote", proxyHandler("BACKEND-SERVICE"))
+			admin.GET("/analytics/courses/:course_id/statistics", proxyHandler("BACKEND-SERVICE"))
 		}
 
 		executor := api.Group("/executor")

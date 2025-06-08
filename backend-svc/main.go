@@ -203,6 +203,7 @@ func main() {
 	{
 		api.GET("/courses", handlers.GetCourses)
 		api.GET("/courses/:id", handlers.GetCourseByID)
+		r.GET("/api/courses/:course_id/tasks/:task_id", handlers.GetTaskByID)
 		api.GET("/progress/:user_id", handlers.GetUserProgress)
 		api.POST("/progress/:user_id/tasks/:task_id/complete", handlers.CompleteTask)
 		api.GET("/progress/:user_id/submissions", handlers.GetUserSubmissions)

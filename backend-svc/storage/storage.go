@@ -11,6 +11,7 @@ type Storage interface {
 	GetCourseByID(id int) (models.Course, error)
 	GetUserProgress(userID int) (models.UserProgress, error)
 	CompleteTask(userID, taskID int) error
+	GetTaskByID(courseID, taskID int) (models.Task, error)
 
 	CreateUser(user models.User) error
 	GetUserByUsername(username string) (models.User, error)

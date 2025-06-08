@@ -48,6 +48,7 @@ type Task struct {
 	Description string `json:"description"`
 	Difficulty  string `json:"difficulty"`
 	Order       int    `json:"order"`
+	Points      int    `json:"points"`
 }
 
 type UserProgress struct {

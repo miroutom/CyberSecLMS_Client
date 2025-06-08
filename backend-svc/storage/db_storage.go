@@ -907,6 +907,39 @@ func (s *DBStorage) GetUserProgress(userID int) (models.UserProgress, error) {
 	}, nil
 }
 
+func (s *DBStorage) GetTaskByID(courseID, taskID int) (models.Task, error) {
+	stmt, err := s.DB.Prepare(`
+		SELECT 
+			id, course_id, title, description, difficulty, task_order, points
+		FROM tasks
+		WHERE id = ? AND course_id = ?
+	`)
+	if err != nil {
+		return models.Task{}, fmt.Errorf("prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	var task models.Task
+	err = stmt.QueryRow(taskID, courseID).Scan(
+		&task.ID,
+		&task.CourseID,
+		&task.Title,
+		&task.Description,
+		&task.Difficulty,
+		&task.Order,
+		&task.Points,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Task{}, errors.New("task not found")
+		}
+		return models.Task{}, fmt.Errorf("query task: %w", err)
+	}
+
+	return task, nil
+}
+
 func (s *DBStorage) CompleteTask(userID, taskID int) error {
 	var userExists bool
 	err := s.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND is_deleted = FALSE)", userID).Scan(&userExists)
