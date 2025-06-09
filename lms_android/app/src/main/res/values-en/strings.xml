@@ -139,4 +139,5 @@
     <string name="failure">\"✗ Failure!\"</string>
     <string name="description_tab">Description</string>
     <string name="editor_tab">Code editor</string>
+    <string name="code_editor_title">Task</string>
 </resources>

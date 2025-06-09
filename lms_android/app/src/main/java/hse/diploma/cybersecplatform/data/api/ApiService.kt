@@ -82,9 +82,9 @@ interface ApiService {
         @Path("id") courseId: Int,
     ): Response<Course>
 
-    @GET("api/courses/{id}/tasks/{task_id}")
+    @GET("api/courses/{course_id}/tasks/{task_id}")
     suspend fun getTaskById(
-        @Path("id") courseId: Int,
+        @Path("course_id") courseId: Int,
         @Path("task_id") taskId: Int,
     ): Response<Task>
 

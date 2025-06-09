@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hse.diploma.cybersecplatform.data.model.submission.SubmissionResult
 import hse.diploma.cybersecplatform.domain.model.Task
+import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.domain.repository.TasksRepo
 import hse.diploma.cybersecplatform.utils.logD
 import hse.diploma.cybersecplatform.utils.logE
@@ -15,6 +16,7 @@ import javax.inject.Inject
 
 class CodeEditorViewModel @Inject constructor(
     private val tasksRepo: TasksRepo,
+    private val coursesRepo: CoursesRepo,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CodeEditorUiState())
     val uiState: StateFlow<CodeEditorUiState> = _uiState.asStateFlow()
@@ -30,15 +32,25 @@ class CodeEditorViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            tasksRepo.getTaskById(courseId, taskId).onSuccess { task ->
-                currentTask = task
-                _uiState.value =
-                    CodeEditorUiState(
-                        task = task,
-                        code = task.content,
-                        isLoading = false,
-                    )
-                logD(TAG, "Task loaded: ${task.title}")
+            coursesRepo.getCourseById(courseId).onSuccess { course ->
+                val task = course.tasks.firstOrNull { it.id == taskId }
+                if (task != null) {
+                    currentTask = task
+                    _uiState.value =
+                        CodeEditorUiState(
+                            task = task,
+                            code = task.content,
+                            isLoading = false,
+                        )
+                    logD(TAG, "Task loaded: ${task.title}")
+                } else {
+                    logE(TAG, "Task with ID $taskId not found in course $courseId", Throwable())
+                    _uiState.value =
+                        _uiState.value.copy(
+                            isLoading = false,
+                            error = "Task not found",
+                        )
+                }
             }.onFailure { e ->
                 logE(TAG, "Failed to load task $taskId", e)
                 _uiState.value =

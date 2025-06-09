@@ -14,6 +14,7 @@ import hse.diploma.cybersecplatform.domain.error.ErrorType
 import hse.diploma.cybersecplatform.mock.mockAllCourses
 import hse.diploma.cybersecplatform.ui.screens.courses.CoursesUiState
 import hse.diploma.cybersecplatform.ui.state.shared.AllCoursesState
+import hse.diploma.cybersecplatform.utils.toVulnerabilityType
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -105,7 +106,7 @@ class HomeScreenIntegrationTest {
             )
         }
 
-        composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)
+        composeRule.onNodeWithText(testCourse.vulnerabilityType.toVulnerabilityType().name, substring = true)
             .assertIsDisplayed()
     }
 
@@ -125,16 +126,27 @@ class HomeScreenIntegrationTest {
                     ),
                 searchQuery = TextFieldValue(""),
                 onSearchQueryChange = {},
-                onCourseClick = { navController.navigate("task/${testCourse.vulnerabilityType.name}") },
+                onCourseClick = {
+                    navController.navigate(
+                        "task/${testCourse.vulnerabilityType.toVulnerabilityType().name}",
+                    )
+                },
                 onReload = {},
                 onCreateCourseClick = {},
                 isTeacher = false,
             )
         }
 
-        composeRule.onNodeWithText(testCourse.vulnerabilityType.name, substring = true)
+        composeRule.onNodeWithText(
+            testCourse.vulnerabilityType.toVulnerabilityType().name,
+            substring = true,
+        )
             .performClick()
 
-        verify { navController.navigate("task/${testCourse.vulnerabilityType.name}") }
+        verify {
+            navController.navigate(
+                "task/${testCourse.vulnerabilityType.toVulnerabilityType().name}",
+            )
+        }
     }
 }

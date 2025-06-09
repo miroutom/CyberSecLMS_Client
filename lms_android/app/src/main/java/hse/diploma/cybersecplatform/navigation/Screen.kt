@@ -23,8 +23,11 @@ sealed class Screen(
         fun createRoute(courseId: Int) = "tasksScreen/$courseId"
     }
 
-    data object CodeEditor : Screen("code_editor/{taskId}") {
-        fun createRoute(taskId: Int) = "code_editor/$taskId"
+    data object CodeEditor : Screen("code_editor/{courseId}/{taskId}", R.string.course_editor_title) {
+        fun createRoute(
+            courseId: Int,
+            taskId: Int,
+        ) = "code_editor/$courseId/$taskId"
     }
 
     data object Settings : Screen("settings", R.string.settings_title)

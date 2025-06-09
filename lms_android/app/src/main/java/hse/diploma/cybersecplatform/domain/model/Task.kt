@@ -1,26 +1,31 @@
 package hse.diploma.cybersecplatform.domain.model
 
 import com.google.gson.annotations.SerializedName
-import hse.diploma.cybersecplatform.ui.model.Difficulty
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
 data class Task(
+    @SerializedName("id")
     val id: Int,
-    @SerializedName("course_id")
+    @SerializedName("courseId")
     val courseId: Int,
+    @SerializedName("title")
     val title: String,
+    @SerializedName("description")
     val description: String,
+    @SerializedName("content")
     val content: String,
+    @SerializedName("solution")
     val solution: String,
-    @SerializedName("vulnerability_type")
-    val vulnerabilityType: VulnerabilityType,
+    @SerializedName("vulnerabilityType")
+    val vulnerabilityType: String,
+    @SerializedName("order")
     val number: Int,
-    val difficulty: Difficulty,
+    @SerializedName("difficulty")
+    val difficulty: String,
     val type: String,
+    @SerializedName("points")
     val points: Int,
-    @SerializedName("is_completed")
+    @SerializedName("isCompleted")
     var isCompleted: Boolean = false,
-    @SerializedName("language")
     val language: String = "javascript",
 ) {
     fun checkSolution(userCode: String): Boolean {

@@ -84,7 +84,7 @@ class HomeViewModelTests {
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
                 assertEquals(2, state.uiState.filteredCourses.size)
-                assertEquals(VulnerabilityType.SQL, state.uiState.filteredCourses[0].vulnerabilityType)
+                assertEquals(VulnerabilityType.SQL.name, state.uiState.filteredCourses[0].vulnerabilityType)
             }
         }
 
@@ -101,7 +101,7 @@ class HomeViewModelTests {
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
                 assertEquals(1, state.uiState.filteredCourses.size)
-                assertEquals(VulnerabilityType.XSS, state.uiState.filteredCourses[0].vulnerabilityType)
+                assertEquals(VulnerabilityType.XSS.name, state.uiState.filteredCourses[0].vulnerabilityType)
             }
         }
 
@@ -150,7 +150,7 @@ class HomeViewModelTests {
             assertTrue(state is AllCoursesState.Success)
             if (state is AllCoursesState.Success) {
                 assertEquals(2, state.uiState.filteredCourses.size)
-                assertEquals(VulnerabilityType.SQL, state.uiState.filteredCourses[0].vulnerabilityType)
+                assertEquals(VulnerabilityType.SQL.name, state.uiState.filteredCourses[0].vulnerabilityType)
             }
         }
 }

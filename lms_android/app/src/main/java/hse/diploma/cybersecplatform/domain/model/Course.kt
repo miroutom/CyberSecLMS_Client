@@ -1,21 +1,20 @@
 package hse.diploma.cybersecplatform.domain.model
 
 import com.google.gson.annotations.SerializedName
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 
 data class Course(
     val id: Int,
     val title: String,
     val description: String,
-    @SerializedName("vulnerability_type")
-    val vulnerabilityType: VulnerabilityType,
+    @SerializedName("vulnerabilityType")
+    val vulnerabilityType: String,
     @SerializedName("difficulty_level")
     val difficultyLevel: String,
     val category: String,
+    @SerializedName("tasks")
     val tasks: List<Task> = emptyList(),
     @SerializedName("completed_tasks")
     val completedTasks: Int = tasks.count { it.isCompleted },
-    @SerializedName("tasks_count")
     val tasksCount: Int = tasks.size,
     @SerializedName("is_started")
     val isStarted: Boolean = completedTasks > 0,

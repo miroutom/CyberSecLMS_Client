@@ -1,5 +1,6 @@
 package hse.diploma.cybersecplatform.ui.screens.profile
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -162,6 +163,7 @@ private fun ProfileContent(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun StatisticsOverviewSection(stats: UserStatistics) {
     ElevatedCard(

@@ -88,7 +88,7 @@ class MyCoursesViewModel @Inject constructor(
                         courses = enrichedCourses,
                         startedCourses =
                             enrichedCourses.filter {
-                                it.progress != null && it.progress < 100
+                                it.progress < 100
                             },
                         completedCourses = enrichedCourses.filter { it.isCompleted() },
                     ),
@@ -116,7 +116,7 @@ class MyCoursesViewModel @Inject constructor(
                     courses = updatedCourses,
                     startedCourses =
                         updatedCourses.filter {
-                            it.progress != null && it.progress < 100
+                            it.progress < 100
                         },
                     completedCourses = updatedCourses.filter { it.isCompleted() },
                 )

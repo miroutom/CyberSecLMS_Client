@@ -62,7 +62,7 @@ class TasksScreenIntegrationTest {
         }
 
         mockTasks
-            .filter { it.vulnerabilityType == testVulnerabilityType }
+            .filter { it.vulnerabilityType == testVulnerabilityType.name }
             .forEach { task ->
                 composeRule.onNodeWithText(task.description)
                     .assertIsDisplayed()

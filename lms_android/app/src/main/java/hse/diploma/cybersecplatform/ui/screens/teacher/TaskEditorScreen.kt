@@ -29,6 +29,7 @@ import hse.diploma.cybersecplatform.ui.components.textFields.EditorTextField
 import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.theme.Typography
+import hse.diploma.cybersecplatform.utils.toDifficulty
 
 @Composable
 fun TaskEditorScreen(
@@ -41,11 +42,10 @@ fun TaskEditorScreen(
     var description by remember { mutableStateOf(task?.description ?: "") }
     var content by remember { mutableStateOf(task?.content ?: "") }
     var solution by remember { mutableStateOf(task?.solution ?: "") }
-    var difficulty by remember { mutableStateOf(task?.difficulty ?: Difficulty.MEDIUM) }
-    var type by remember { mutableStateOf(task?.vulnerabilityType ?: VulnerabilityType.XSS) }
+    var difficulty by remember { mutableStateOf(task?.difficulty ?: Difficulty.MEDIUM.name) }
+    var type by remember { mutableStateOf(task?.vulnerabilityType ?: VulnerabilityType.XSS.name) }
 
     val difficulties = Difficulty.entries
-    val vulnerabilityTypes = VulnerabilityType.entries
 
     Column(
         modifier =
@@ -90,25 +90,9 @@ fun TaskEditorScreen(
             Spacer(modifier = Modifier.height(8.dp))
             SegmentedButton(
                 items = difficulties.map { it.name },
-                selectedItem = difficulty.name,
+                selectedItem = difficulty,
                 onItemSelected = { selected ->
-                    difficulty = Difficulty.valueOf(selected)
-                },
-            )
-        }
-
-        Column {
-            Text(
-                text = stringResource(R.string.vulnerability_type),
-                style = Typography.titleMedium,
-                color = colorResource(R.color.main_text_color),
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            SegmentedButton(
-                items = vulnerabilityTypes.map { it.name },
-                selectedItem = type.name,
-                onItemSelected = { selected ->
-                    type = VulnerabilityType.valueOf(selected)
+                    difficulty = Difficulty.valueOf(selected).name
                 },
             )
         }
@@ -137,9 +121,9 @@ fun TaskEditorScreen(
                             vulnerabilityType = type,
                             difficulty = difficulty,
                             number = task?.number ?: 0,
-                            type = type.name,
+                            type = type,
                             points =
-                                when (difficulty) {
+                                when (difficulty.toDifficulty()) {
                                     Difficulty.EASY -> 10
                                     Difficulty.MEDIUM -> 20
                                     Difficulty.HARD -> 30

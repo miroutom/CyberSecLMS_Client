@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.sp
 import hse.diploma.cybersecplatform.R
 import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.ui.components.buttons.RestartCourseButton
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import hse.diploma.cybersecplatform.utils.toVulnerabilityType
 
 @Composable
 fun CompletedCourseCard(
@@ -39,7 +39,7 @@ fun CompletedCourseCard(
     onRestartClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val config = course.vulnerabilityType.config
+    val config = course.vulnerabilityType.toVulnerabilityType().config
 
     ElevatedCard(
         onClick = onCardClick,
@@ -116,7 +116,7 @@ private fun CompletedCourseCardPreview() {
                         id = 1,
                         title = "XSS Attacks Course",
                         description = "Learn about different types of XSS vulnerabilities",
-                        vulnerabilityType = VulnerabilityType.XSS,
+                        vulnerabilityType = "XSS",
                         difficultyLevel = "medium",
                         category = "web",
                         tasks = emptyList(),

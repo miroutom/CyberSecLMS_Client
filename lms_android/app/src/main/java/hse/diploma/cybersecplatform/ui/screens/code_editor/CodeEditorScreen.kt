@@ -1,5 +1,7 @@
 package hse.diploma.cybersecplatform.ui.screens.code_editor
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +34,8 @@ import hse.diploma.cybersecplatform.ui.components.bars.SubmissionResultBar
 import hse.diploma.cybersecplatform.ui.components.buttons.SubmitButton
 import hse.diploma.cybersecplatform.ui.screens.loading.LoadingScreen
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import hse.diploma.cybersecplatform.utils.logD
+import hse.diploma.cybersecplatform.utils.toVulnerabilityType
 
 @Composable
 fun CodeEditorScreen(
@@ -42,7 +47,8 @@ fun CodeEditorScreen(
     onCodeChange: (String) -> Unit,
     onSubmit: () -> Unit,
 ) {
-    var activeTab by remember { mutableIntStateOf(1) }
+    logD("CodeEditorScreen", "code: $code")
+    var activeTab by remember { mutableIntStateOf(0) }
 
     if (isLoading) {
         LoadingScreen()
@@ -146,7 +152,11 @@ private fun TaskDescriptionScreen(task: Task) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.vulnerability_type, task.vulnerabilityType.name),
+                text =
+                    stringResource(
+                        R.string.vulnerability_type,
+                        task.vulnerabilityType.toVulnerabilityType().name,
+                    ),
                 fontSize = 14.sp,
                 fontFamily = Montserrat,
                 color = colorResource(R.color.main_text_color),
@@ -161,15 +171,19 @@ private fun CodeEditorContent(
     onCodeChange: (String) -> Unit,
     language: String,
 ) {
-    MonacoEditor(
-        initialCode = code,
-        language = language,
-        onCodeChange = onCodeChange,
+    Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-    )
+                .background(Color.DarkGray),
+    ) {
+        MonacoEditor(
+            initialCode = code,
+            language = language,
+            onCodeChange = onCodeChange,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
 }
 
 @Composable

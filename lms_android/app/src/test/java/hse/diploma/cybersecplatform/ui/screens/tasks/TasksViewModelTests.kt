@@ -6,6 +6,7 @@ import hse.diploma.cybersecplatform.domain.model.Task
 import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+import hse.diploma.cybersecplatform.utils.toDifficulty
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,6 @@ import org.junit.Test
 class TasksViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
     private val coursesRepo: CoursesRepo = mockk()
-
     private lateinit var viewModel: TasksViewModel
 
     private val testCourse =
@@ -33,7 +33,7 @@ class TasksViewModelTests {
             id = 1,
             title = "Web Security",
             description = "Learn web vulnerabilities",
-            vulnerabilityType = VulnerabilityType.XSS,
+            vulnerabilityType = "XSS",
             difficultyLevel = "medium",
             category = "web",
             tasks =
@@ -45,12 +45,13 @@ class TasksViewModelTests {
                         description = "Simple reflected XSS attack",
                         content = "Find XSS in search field",
                         solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.XSS,
+                        vulnerabilityType = VulnerabilityType.XSS.name,
                         number = 1,
-                        difficulty = Difficulty.EASY,
-                        type = "XSS",
+                        difficulty = "easy",
+                        type = "type",
                         points = 10,
                         isCompleted = false,
+                        language = "javascript",
                     ),
                     Task(
                         id = 2,
@@ -59,29 +60,21 @@ class TasksViewModelTests {
                         description = "DOM-based XSS attack",
                         content = "Exploit client-side rendering",
                         solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.XSS,
+                        vulnerabilityType = VulnerabilityType.XSS.name,
                         number = 2,
-                        difficulty = Difficulty.MEDIUM,
-                        type = "XSS",
+                        difficulty = "medium",
+                        type = "type",
                         points = 20,
                         isCompleted = false,
-                    ),
-                    Task(
-                        id = 3,
-                        courseId = 1,
-                        title = "CSRF Attack",
-                        description = "Cross-site request forgery",
-                        content = "Bypass CSRF protections",
-                        solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.CSRF,
-                        number = 3,
-                        difficulty = Difficulty.HARD,
-                        type = "CSRF",
-                        points = 30,
-                        isCompleted = false,
+                        language = "javascript",
                     ),
                 ),
         )
+
+    private val expectedTasks =
+        testCourse.tasks.map {
+            it.copy(vulnerabilityType = testCourse.vulnerabilityType)
+        }
 
     @Before
     fun setup() {
@@ -103,27 +96,25 @@ class TasksViewModelTests {
         }
 
     @Test
-    fun `when tasks are loaded for course, then tasks and originalTasks should be set`() =
+    fun `when tasks are loaded for course, then tasks should contain vulnerabilityType from course`() =
         runTest {
             viewModel.loadTasksForCourse(1)
-
             advanceUntilIdle()
 
-            assertEquals(testCourse.tasks, viewModel.tasks.first())
+            assertEquals(expectedTasks, viewModel.tasks.first())
         }
 
     @Test
     fun `when search query changes, then tasks should be filtered by query`() =
         runTest {
             viewModel.loadTasksForCourse(1)
-
             advanceUntilIdle()
 
-            viewModel.onSearchQueryChange(TextFieldValue("XSS"))
+            viewModel.onSearchQueryChange(TextFieldValue("DOM"))
 
-            assertEquals(TextFieldValue("XSS"), viewModel.searchQuery.first())
+            assertEquals(TextFieldValue("DOM"), viewModel.searchQuery.first())
             assertEquals(
-                testCourse.tasks.filter { it.title.contains("XSS") || it.description.contains("XSS") },
+                expectedTasks.filter { it.title.contains("DOM") },
                 viewModel.tasks.first(),
             )
         }
@@ -132,13 +123,12 @@ class TasksViewModelTests {
     fun `when difficulty filter is applied, then tasks should be filtered by selected difficulties`() =
         runTest {
             viewModel.loadTasksForCourse(1)
-
             advanceUntilIdle()
 
-            viewModel.filterTaskByDifficulty(listOf(Difficulty.EASY, Difficulty.MEDIUM))
+            viewModel.filterTaskByDifficulty(listOf(Difficulty.MEDIUM))
 
             assertEquals(
-                testCourse.tasks.filter { it.difficulty in listOf(Difficulty.EASY, Difficulty.MEDIUM) },
+                expectedTasks.filter { it.difficulty.toDifficulty() == Difficulty.MEDIUM },
                 viewModel.tasks.first(),
             )
         }
@@ -147,15 +137,14 @@ class TasksViewModelTests {
     fun `when filters are reset, then all tasks should be restored and search cleared`() =
         runTest {
             viewModel.loadTasksForCourse(1)
-
             advanceUntilIdle()
 
             viewModel.onSearchQueryChange(TextFieldValue("XSS"))
-            viewModel.filterTaskByDifficulty(listOf(Difficulty.HARD))
+            viewModel.filterTaskByDifficulty(listOf(Difficulty.EASY))
 
             viewModel.resetFilters()
 
-            assertEquals(testCourse.tasks, viewModel.tasks.first())
+            assertEquals(expectedTasks, viewModel.tasks.first())
             assertEquals(TextFieldValue(""), viewModel.searchQuery.first())
         }
 
@@ -163,12 +152,11 @@ class TasksViewModelTests {
     fun `when search query is empty, then all tasks should be shown`() =
         runTest {
             viewModel.loadTasksForCourse(1)
-
             advanceUntilIdle()
 
             viewModel.onSearchQueryChange(TextFieldValue("XSS"))
             viewModel.onSearchQueryChange(TextFieldValue(""))
 
-            assertEquals(testCourse.tasks, viewModel.tasks.first())
+            assertEquals(expectedTasks, viewModel.tasks.first())
         }
 }

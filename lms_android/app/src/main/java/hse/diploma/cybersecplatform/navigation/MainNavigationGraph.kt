@@ -17,6 +17,7 @@ import hse.diploma.cybersecplatform.ui.screens.settings.SettingsScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.tasks.TasksScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.teacher.CourseEditorScreenWrapper
 import hse.diploma.cybersecplatform.ui.screens.teacher.TaskEditorScreenWrapper
+import hse.diploma.cybersecplatform.utils.logD
 
 @Composable
 fun MainNavigationGraph(authStateViewModel: AuthStateViewModel) {
@@ -55,6 +56,7 @@ fun MainNavigationGraph(authStateViewModel: AuthStateViewModel) {
             animatedComposable(Screen.CodeEditor.route) { backStackEntry ->
                 val courseId = backStackEntry.arguments?.getString("courseId")?.toIntOrNull()
                 val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull()
+                logD("CodeEditorScreen", "courseId: $courseId, taskId: $taskId")
                 if (courseId != null && taskId != null) {
                     CodeEditorScreenWrapper(courseId, taskId)
                 }

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data:">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
     <style>
         html, body {
             margin: 0;
@@ -14,49 +14,72 @@
         #container {
             width: 100%;
             height: 100%;
+            background-color: #1e1e1e;
         }
     </style>
 </head>
 <body>
-<div id="container"></div>
-<script src="vs/loader.js"></script>
-<script>
-    require.config({
-        paths: {
-            'vs': 'vs',
-            'vs/css': {
-                loader: 'css',
-                path: 'vs/css'
-            }
-        },
-        ignoreDuplicateModules: ['vs/editor/editor.main']
-    });
-
-    require(['vs/editor/editor.main'], function() {
-        window.AndroidInterface = {
-            onCodeChanged: function(code) {
-                // Called from WebView
-                if (window.androidCallback) {
-                    window.androidCallback(code);
-                }
-            },
-            initEditor: function(code, language) {
-                var editor = monaco.editor.create(document.getElementById('container'), {
-                    value: code,
-                    language: language,
-                    theme: 'vs-dark',
-                    automaticLayout: true,
-                    minimap: { enabled: true },
-                    fontSize: 14,
-                    scrollBeyondLastLine: false
-                });
-
-                editor.onDidChangeModelContent(function() {
-                    window.AndroidInterface.onCodeChanged(editor.getValue());
-                });
+    <div id="container"></div>
+    <script>
+        self.MonacoEnvironment = {
+            getWorkerUrl: function(moduleId, label) {
+                return 'data:text/javascript;charset=utf-8,';
             }
         };
-    });
-</script>
+    </script>
+
+    <script src="vs/loader.js"></script>
+    <script>
+        console.log("Script starting");
+
+        var editorInstance = null;
+
+        require.config({
+            paths: { vs: 'vs' }
+        });
+
+        require(['vs/editor/editor.main'], function() {
+            console.log("Monaco loaded");
+
+            function initMonacoEditor(code, language) {
+                console.log("Initializing editor with", {code: code, language: language});
+
+                if (editorInstance) {
+                    editorInstance.dispose();
+                }
+
+                try {
+                    editorInstance = monaco.editor.create(
+                        document.getElementById('container'),
+                        {
+                            value: code || "// Your code here",
+                            language: language || "javascript",
+                            theme: 'vs-dark',
+                            automaticLayout: true,
+                            minimap: { enabled: true },
+                            fontSize: 14
+                        }
+                    );
+
+                    editorInstance.onDidChangeModelContent(function() {
+                        if (window.AndroidInterface) {
+                            window.AndroidInterface.onCodeChanged(editorInstance.getValue());
+                        }
+                    });
+
+                    console.log("Editor initialized successfully");
+                } catch (e) {
+                    console.error("Error creating editor:", e);
+                }
+            }
+
+            window.initEditor = function(code, language) {
+                console.log("initEditor called from Android");
+                initMonacoEditor(code, language);
+            };
+
+            initMonacoEditor("// Loading...", "javascript");
+        });
+    </script>
 </body>
 </html>

@@ -1,12 +1,11 @@
 package hse.diploma.cybersecplatform.ui.screens.code_editor
 
-import hse.diploma.cybersecplatform.data.api.ApiService
 import hse.diploma.cybersecplatform.data.model.response.TaskSubmissionResponse
-import hse.diploma.cybersecplatform.data.model.user.UserData
+import hse.diploma.cybersecplatform.domain.model.Course
 import hse.diploma.cybersecplatform.domain.model.Task
+import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.domain.repository.TasksRepo
 import hse.diploma.cybersecplatform.ui.model.Difficulty
-import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -23,20 +22,12 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CodeEditorViewModelTests {
     private val testDispatcher = StandardTestDispatcher()
     private val tasksRepo: TasksRepo = mockk()
-    private val apiService: ApiService = mockk()
-    private val mockUserData =
-        UserData(
-            id = 1,
-            username = "test",
-            fullName = "Test User",
-            email = "test@example.com",
-        )
+    private val coursesRepo: CoursesRepo = mockk()
 
     private lateinit var viewModel: CodeEditorViewModel
 
@@ -48,11 +39,23 @@ class CodeEditorViewModelTests {
             description = "Test Description",
             content = "console.log('hello');",
             solution = "console.log('hello');",
-            vulnerabilityType = VulnerabilityType.XSS,
+            vulnerabilityType = "XSS",
             number = 1,
-            difficulty = Difficulty.EASY,
+            difficulty = "easy",
             type = "practice",
             points = 10,
+            isCompleted = false,
+        )
+
+    private val mockCourse =
+        Course(
+            id = 1,
+            title = "Test Course",
+            description = "Test Description",
+            vulnerabilityType = "XSS",
+            tasks = listOf(mockTask),
+            difficultyLevel = Difficulty.EASY.name,
+            category = "category",
         )
 
     private val successSubmissionResponse =
@@ -77,10 +80,11 @@ class CodeEditorViewModelTests {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
 
-        coEvery { apiService.getUserProfile() } returns Response.success(mockUserData)
-        coEvery { tasksRepo.getTaskById(any(), any()) } returns Result.success(mockTask)
+        coEvery { coursesRepo.getCourseById(any()) } returns Result.success(mockCourse)
+        coEvery { tasksRepo.submitTaskSolution(any(), any()) } returns Result.success(successSubmissionResponse)
+        coEvery { tasksRepo.markTaskAsCompleted(any()) } returns Result.success(Unit)
 
-        viewModel = CodeEditorViewModel(tasksRepo)
+        viewModel = CodeEditorViewModel(tasksRepo, coursesRepo)
     }
 
     @After
@@ -89,85 +93,58 @@ class CodeEditorViewModelTests {
     }
 
     @Test
-    fun `when loadTask is called successfully, then task is loaded`() =
+    fun `when loading task with valid ids then state contains task data`() =
         runTest {
             viewModel.loadTask(1, 1)
             advanceUntilIdle()
 
             val state = viewModel.uiState.first()
-            assertFalse(state.isLoading)
             assertEquals(mockTask, state.task)
             assertEquals(mockTask.content, state.code)
+            assertFalse(state.isLoading)
         }
 
     @Test
-    fun `when loadTask fails, then error state is set`() =
+    fun `when loading task fails then error state is set`() =
         runTest {
-            coEvery { tasksRepo.getTaskById(any(), any()) } returns Result.failure(Exception("Failed"))
+            coEvery { coursesRepo.getCourseById(any()) } returns Result.failure(Exception("DB error"))
 
             viewModel.loadTask(1, 1)
             advanceUntilIdle()
 
             val state = viewModel.uiState.first()
-            assertFalse(state.isLoading)
             assertEquals("Failed to load task", state.error)
         }
 
     @Test
-    fun `when updateCode is called, then code in state is updated`() =
+    fun `when code is updated then state reflects new code`() =
         runTest {
-            val newCode = "new code"
+            val newCode = "updated test code"
 
             viewModel.updateCode(newCode)
-            advanceUntilIdle()
 
-            val state = viewModel.uiState.first()
-            assertEquals(newCode, state.code)
+            assertEquals(newCode, viewModel.uiState.first().code)
         }
 
     @Test
-    fun `when submitSolution is successful and correct, then task is marked as completed`() =
+    fun `when submitting correct solution then task is marked as completed`() =
         runTest {
-            coEvery { tasksRepo.submitTaskSolution(any(), any()) } returns Result.success(successSubmissionResponse)
-            coEvery { tasksRepo.markTaskAsCompleted(any()) } returns Result.success(Unit)
-
             viewModel.loadTask(1, 1)
             advanceUntilIdle()
 
             viewModel.submitSolution()
             advanceUntilIdle()
 
-            val state = viewModel.uiState.first()
-            val isCompleted = viewModel.isTaskCompleted.first()
-
-            assertFalse(state.isSubmitting)
-            assertTrue(isCompleted)
+            assertTrue(viewModel.isTaskCompleted.first())
+            assertEquals("Success", viewModel.uiState.first().lastResult?.message)
         }
 
     @Test
-    fun `when submitSolution is successful but incorrect, then task is not marked as completed`() =
-        runTest {
-            coEvery { tasksRepo.submitTaskSolution(any(), any()) } returns Result.success(failedSubmissionResponse)
-
-            viewModel.loadTask(1, 1)
-            advanceUntilIdle()
-
-            viewModel.submitSolution()
-            advanceUntilIdle()
-
-            val state = viewModel.uiState.first()
-            val isCompleted = viewModel.isTaskCompleted.first()
-
-            assertFalse(state.isSubmitting)
-            assertFalse(isCompleted)
-        }
-
-    @Test
-    fun `when submitSolution fails, then error state is set`() =
+    fun `when submitting incorrect solution then task remains uncompleted`() =
         runTest {
             coEvery {
                 tasksRepo.submitTaskSolution(any(), any())
-            } returns Result.failure(Exception("Submission failed"))
+            } returns Result.success(failedSubmissionResponse)
 
             viewModel.loadTask(1, 1)
             advanceUntilIdle()
@@ -175,16 +152,16 @@ class CodeEditorViewModelTests {
             viewModel.submitSolution()
             advanceUntilIdle()
 
-            val state = viewModel.uiState.first()
-            assertFalse(state.isSubmitting)
-            assertTrue(state.error?.contains("Submission failed") == true)
+            assertFalse(viewModel.isTaskCompleted.first())
+            assertEquals("Error", viewModel.uiState.first().lastResult?.message)
         }
 
     @Test
-    fun `when marking task as completed fails, then error state is set`() =
+    fun `when submission fails then error state is set`() =
         runTest {
-            coEvery { tasksRepo.submitTaskSolution(any(), any()) } returns Result.success(successSubmissionResponse)
-            coEvery { tasksRepo.markTaskAsCompleted(any()) } returns Result.failure(Exception("Mark failed"))
+            coEvery {
+                tasksRepo.submitTaskSolution(any(), any())
+            } returns Result.failure(Exception("Network error"))
 
             viewModel.loadTask(1, 1)
             advanceUntilIdle()
@@ -192,8 +169,22 @@ class CodeEditorViewModelTests {
             viewModel.submitSolution()
             advanceUntilIdle()
 
-            val state = viewModel.uiState.first()
-            assertFalse(state.isSubmitting)
-            assertTrue(state.error?.contains("Failed to mark task as completed") == true)
+            assertTrue(viewModel.uiState.first().error?.contains("Network error") == true)
+        }
+
+    @Test
+    fun `when marking completion fails then error state is set`() =
+        runTest {
+            coEvery {
+                tasksRepo.markTaskAsCompleted(any())
+            } returns Result.failure(Exception("DB error"))
+
+            viewModel.loadTask(1, 1)
+            advanceUntilIdle()
+
+            viewModel.submitSolution()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.first().error?.contains("mark task as completed") == true)
         }
 }

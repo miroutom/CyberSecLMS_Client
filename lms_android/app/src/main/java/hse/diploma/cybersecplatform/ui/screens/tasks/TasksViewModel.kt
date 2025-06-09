@@ -8,6 +8,7 @@ import hse.diploma.cybersecplatform.domain.repository.CoursesRepo
 import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.utils.logD
 import hse.diploma.cybersecplatform.utils.logE
+import hse.diploma.cybersecplatform.utils.toDifficulty
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -30,9 +31,26 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch {
             logD(TAG, "Loading tasks for course: $courseId")
             coursesRepo.getCourseById(courseId).onSuccess { course ->
-                originalTasks = course.tasks
+                originalTasks =
+                    course.tasks.map { task ->
+                        Task(
+                            id = task.id,
+                            courseId = task.courseId,
+                            title = task.title,
+                            description = task.description,
+                            content = task.content,
+                            solution = task.solution,
+                            vulnerabilityType = course.vulnerabilityType,
+                            number = task.number,
+                            difficulty = task.difficulty,
+                            points = task.points,
+                            isCompleted = task.isCompleted,
+                            type = "type",
+                            language = "javascript",
+                        )
+                    }
                 _tasks.value = originalTasks
-                logD(TAG, "Loaded ${course.tasks.size} tasks for course ${course.title}")
+                logD(TAG, "Loaded ${originalTasks.joinToString(" ")} tasks for course ${course.id}")
             }.onFailure { e ->
                 logE(TAG, "Failed to load tasks for course $courseId", e)
                 _tasks.value = emptyList()
@@ -52,7 +70,7 @@ class TasksViewModel @Inject constructor(
                 originalTasks
             } else {
                 originalTasks.filter { task ->
-                    selectedDifficulties.contains(task.difficulty)
+                    selectedDifficulties.contains(task.difficulty.toDifficulty())
                 }
             }
     }

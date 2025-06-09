@@ -28,6 +28,8 @@ import hse.diploma.cybersecplatform.ui.model.Difficulty
 import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
 import hse.diploma.cybersecplatform.ui.theme.CyberSecPlatformTheme
 import hse.diploma.cybersecplatform.ui.theme.Montserrat
+import hse.diploma.cybersecplatform.utils.toDifficulty
+import hse.diploma.cybersecplatform.utils.toVulnerabilityType
 
 @Composable
 fun TaskCard(
@@ -35,8 +37,8 @@ fun TaskCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val vulnerabilityConfig = task.vulnerabilityType.config
-    val difficultyValue = stringResource(task.difficulty.value)
+    val vulnerabilityConfig = task.vulnerabilityType.toVulnerabilityType().config
+    val difficultyValue = stringResource(task.difficulty.toDifficulty().value)
 
     ElevatedCard(
         onClick = onClick,
@@ -100,9 +102,9 @@ fun TaskCardPreview() {
                         description = "Сохранение XSS в HTML-контексте без кодирования",
                         content = "Детальное описание задания...",
                         solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.XSS,
+                        vulnerabilityType = VulnerabilityType.XSS.name,
                         number = 1,
-                        difficulty = Difficulty.EASY,
+                        difficulty = Difficulty.EASY.name,
                         type = "XSS",
                         points = 10,
                         isCompleted = false,
@@ -119,9 +121,9 @@ fun TaskCardPreview() {
                         description = "CSRF, где проверка токена зависит от наличия токена",
                         content = "Детальное описание задания...",
                         solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.CSRF,
+                        vulnerabilityType = VulnerabilityType.CSRF.name,
                         number = 10,
-                        difficulty = Difficulty.HARD,
+                        difficulty = Difficulty.HARD.name,
                         type = "CSRF",
                         points = 30,
                         isCompleted = true,
@@ -137,9 +139,9 @@ fun TaskCardPreview() {
                         description = "Использование UNION для извлечения данных",
                         content = "Детальное описание задания...",
                         solution = "Решение задания...",
-                        vulnerabilityType = VulnerabilityType.SQL,
+                        vulnerabilityType = VulnerabilityType.SQL.name,
                         number = 5,
-                        difficulty = Difficulty.MEDIUM,
+                        difficulty = Difficulty.MEDIUM.name,
                         type = "SQL_INJECTION",
                         points = 20,
                         isCompleted = false,

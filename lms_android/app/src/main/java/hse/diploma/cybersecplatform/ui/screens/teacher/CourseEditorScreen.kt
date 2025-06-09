@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,7 @@ import hse.diploma.cybersecplatform.ui.components.buttons.FilledButton
 import hse.diploma.cybersecplatform.ui.components.cards.TaskCard
 import hse.diploma.cybersecplatform.ui.components.textFields.EditorTextField
 import hse.diploma.cybersecplatform.ui.theme.Typography
+import hse.diploma.cybersecplatform.utils.toVulnerabilityType
 
 @Composable
 fun CourseEditorScreen(
@@ -56,7 +58,9 @@ fun CourseEditorScreen(
 ) {
     var title by remember { mutableStateOf(course?.title ?: "") }
     var description by remember { mutableStateOf(course?.description ?: "") }
-    var vulnerabilityType by remember { mutableStateOf(course?.vulnerabilityType?.name ?: "") }
+    var vulnerabilityType by remember {
+        mutableStateOf(course?.vulnerabilityType?.toVulnerabilityType()?.name ?: "")
+    }
 
     val isSaveEnabled =
         title.isNotBlank() && description.isNotBlank() &&
@@ -142,6 +146,8 @@ fun CourseEditorScreen(
             enabled = isSaveEnabled,
         )
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.BottomEnd,
@@ -169,21 +175,43 @@ fun VulnerabilityTypeDropdown(
         OutlinedTextField(
             value = selectedType,
             onValueChange = {},
-            label = { Text(stringResource(R.string.vulnerability_type)) },
+            label = {
+                Text(
+                    stringResource(R.string.vulnerability_type),
+                    style = Typography.bodyMedium,
+                    color = colorResource(R.color.main_text_color),
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             readOnly = true,
             trailingIcon = {
                 Icon(painterResource(R.drawable.ic_expand_more), null, Modifier.clickable { expanded = true })
             },
+            colors =
+                TextFieldDefaults.colors(
+                    focusedIndicatorColor = colorResource(R.color.button_enabled),
+                    focusedContainerColor = colorResource(R.color.background),
+                    focusedLabelColor = colorResource(R.color.button_enabled),
+                    focusedTextColor = colorResource(R.color.main_text_color),
+                    unfocusedLabelColor = colorResource(R.color.supporting_text),
+                    unfocusedContainerColor = colorResource(R.color.background),
+                ),
         )
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            containerColor = colorResource(R.color.xss_card_color),
         ) {
             vulnerabilityTypes.forEach { type ->
                 DropdownMenuItem(
-                    text = { Text(type) },
+                    text = {
+                        Text(
+                            text = type,
+                            style = Typography.bodyMedium,
+                            color = colorResource(R.color.main_text_color),
+                        )
+                    },
                     onClick = {
                         onTypeSelected(type)
                         expanded = false

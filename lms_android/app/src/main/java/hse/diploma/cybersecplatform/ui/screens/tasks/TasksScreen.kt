@@ -81,7 +81,7 @@ private fun TasksContent(
         items(items) { item ->
             TaskCard(
                 task = item,
-                onClick = { navController.navigate(Screen.CodeEditor.createRoute(item.id)) },
+                onClick = { navController.navigate(Screen.CodeEditor.createRoute(item.courseId, item.id)) },
             )
         }
 

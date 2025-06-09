@@ -3,6 +3,11 @@ package hse.diploma.cybersecplatform.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hse.diploma.cybersecplatform.R
+import hse.diploma.cybersecplatform.ui.model.Difficulty
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType.CSRF
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType.SQL
+import hse.diploma.cybersecplatform.ui.model.VulnerabilityType.XSS
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -76,5 +81,23 @@ fun formatIsoDateToReadable(isoDate: String?): String {
     } catch (e: Exception) {
         logE("Utils", "Error parsing ISO date: $isoDate", e)
         "N/A"
+    }
+}
+
+fun String?.toVulnerabilityType(): VulnerabilityType {
+    return when (this) {
+        "XSS" -> XSS
+        "CSRF" -> CSRF
+        "SQL" -> SQL
+        else -> XSS
+    }
+}
+
+fun String?.toDifficulty(): Difficulty {
+    return when (this) {
+        "easy" -> Difficulty.EASY
+        "medium" -> Difficulty.MEDIUM
+        "hard" -> Difficulty.HARD
+        else -> Difficulty.EASY
     }
 }
