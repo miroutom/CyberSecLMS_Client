@@ -164,4 +164,5 @@
 
     <string name="description_tab">Описание</string>
     <string name="editor_tab">Редактор кода</string>
+    <string name="code_editor_title">Задание</string>
 </resources>
